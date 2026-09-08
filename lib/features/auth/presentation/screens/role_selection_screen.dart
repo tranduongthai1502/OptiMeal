@@ -11,7 +11,8 @@ class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
 
   @override
-  ConsumerState<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+  ConsumerState<RoleSelectionScreen> createState() =>
+      _RoleSelectionScreenState();
 }
 
 class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
@@ -66,7 +67,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Điều này giúp chúng tôi cá nhân hóa trải nghiệm chia sẻ thực phẩm phù hợp với bạn.',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondaryLight),
+                style: TextStyle(
+                    fontSize: 14, color: AppColors.textSecondaryLight),
               ),
               const SizedBox(height: 28),
 
@@ -74,7 +76,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               _buildRoleCard(
                 role: UserRole.individual,
                 title: 'Cá nhân / Hộ gia đình',
-                description: 'Chia sẻ thức ăn còn dư hoặc tìm kiếm món ăn miễn phí/giá rẻ quanh bạn.',
+                description:
+                    'Chia sẻ thức ăn còn dư hoặc tìm kiếm món ăn miễn phí/giá rẻ quanh bạn.',
                 icon: Icons.person_rounded,
               ),
 
@@ -84,7 +87,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               _buildRoleCard(
                 role: UserRole.store,
                 title: 'Cửa hàng / Nhà hàng',
-                description: 'Tiệm bánh, quán ăn, siêu thị muốn giải cứu thực phẩm cuối ngày và giảm lãng phí.',
+                description:
+                    'Tiệm bánh, quán ăn, siêu thị muốn giải cứu thực phẩm cuối ngày và giảm lãng phí.',
                 icon: Icons.storefront_rounded,
               ),
 
@@ -92,7 +96,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: _selectedRole == UserRole.store ? 'Tên cửa hàng / thương hiệu' : 'Họ và tên của bạn',
+                  labelText: _selectedRole == UserRole.store
+                      ? 'Tên cửa hàng / thương hiệu'
+                      : 'Họ và tên của bạn',
                   prefixIcon: const Icon(Icons.badge_outlined),
                 ),
               ),
@@ -127,7 +133,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer.withOpacity(0.4) : Colors.white,
+          color: isSelected
+              ? AppColors.primaryContainer.withOpacity(0.4)
+              : Colors.white,
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.borderLight,
             width: isSelected ? 2 : 1,
@@ -140,7 +148,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.backgroundLight,
+                color:
+                    isSelected ? AppColors.primary : AppColors.backgroundLight,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -159,7 +168,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? AppColors.primaryDark : AppColors.textPrimaryLight,
+                      color: isSelected
+                          ? AppColors.primaryDark
+                          : AppColors.textPrimaryLight,
                     ),
                   ),
                   const SizedBox(height: 4),

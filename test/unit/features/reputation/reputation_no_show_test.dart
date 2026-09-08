@@ -18,7 +18,8 @@ void main() {
   });
 
   group('CheckNoShowLimitUseCase Tests', () {
-    test('should allow reservation when no-show count is below threshold (< 3)', () async {
+    test('should allow reservation when no-show count is below threshold (< 3)',
+        () async {
       const goodReputation = UserReputation(
         userId: 'user-normal',
         averageRating: 4.8,
@@ -40,7 +41,9 @@ void main() {
       );
     });
 
-    test('should restrict user and return ReputationRestrictedFailure when no-show count >= 3', () async {
+    test(
+        'should restrict user and return ReputationRestrictedFailure when no-show count >= 3',
+        () async {
       const violatorReputation = UserReputation(
         userId: 'user-violator',
         averageRating: 2.5,

@@ -12,11 +12,14 @@ class DateTimeUtils {
 
   static String formatTime(DateTime dateTime) => _timeFormat.format(dateTime);
 
-  static String formatDateTime(DateTime dateTime) => _dateTimeFormat.format(dateTime);
+  static String formatDateTime(DateTime dateTime) =>
+      _dateTimeFormat.format(dateTime);
 
   /// Formats a pickup window e.g. "16:00 - 18:30, 25/10/2026"
   static String formatPickupWindow(DateTime start, DateTime end) {
-    if (start.day == end.day && start.month == end.month && start.year == end.year) {
+    if (start.day == end.day &&
+        start.month == end.month &&
+        start.year == end.year) {
       return '${formatTime(start)} - ${formatTime(end)}, ${formatDate(start)}';
     }
     return '${formatDateTime(start)} - ${formatDateTime(end)}';

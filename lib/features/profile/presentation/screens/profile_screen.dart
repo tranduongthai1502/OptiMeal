@@ -28,12 +28,14 @@ class ProfileScreen extends ConsumerWidget {
                   CircleAvatar(
                     radius: 44,
                     backgroundColor: AppColors.primaryContainer,
-                    child: const Icon(Icons.person, size: 52, color: AppColors.primary),
+                    child: const Icon(Icons.person,
+                        size: 52, color: AppColors.primary),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     user?.displayName ?? 'Nguyễn Văn A',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -83,25 +85,30 @@ class ProfileScreen extends ConsumerWidget {
             const Divider(),
 
             ListTile(
-              leading: const Icon(Icons.history_rounded, color: AppColors.primary),
+              leading:
+                  const Icon(Icons.history_rounded, color: AppColors.primary),
               title: const Text('Lịch sử trao đổi thực phẩm'),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.storefront_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.storefront_rounded,
+                  color: AppColors.primary),
               title: const Text('Hồ sơ cửa hàng liên kết'),
               trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => context.push(RoutePaths.storeProfilePath('store-touslesjours')),
+              onTap: () => context
+                  .push(RoutePaths.storeProfilePath('store-touslesjours')),
             ),
             ListTile(
-              leading: const Icon(Icons.security_rounded, color: AppColors.primary),
+              leading:
+                  const Icon(Icons.security_rounded, color: AppColors.primary),
               title: const Text('Quy tắc uy tín & phòng tránh No-show'),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.language_rounded, color: AppColors.primary),
+              leading:
+                  const Icon(Icons.language_rounded, color: AppColors.primary),
               title: const Text('Ngôn ngữ: Tiếng Việt (Mặc định)'),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {},
@@ -120,7 +127,8 @@ class ProfileScreen extends ConsumerWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.error,
                 side: const BorderSide(color: AppColors.error),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
           ],
@@ -154,7 +162,8 @@ class ProfileScreen extends ConsumerWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 10, color: AppColors.textSecondaryLight),
+            style: const TextStyle(
+                fontSize: 10, color: AppColors.textSecondaryLight),
           ),
         ],
       ),

@@ -9,7 +9,8 @@ class SendOtpUseCase {
 
   Future<Either<Failure, String>> call(String phoneNumber) {
     if (phoneNumber.trim().isEmpty) {
-      return Future.value(const Left(AuthFailure('Số điện thoại không được để trống.')));
+      return Future.value(
+          const Left(AuthFailure('Số điện thoại không được để trống.')));
     }
     return repository.sendOtp(phoneNumber.trim());
   }

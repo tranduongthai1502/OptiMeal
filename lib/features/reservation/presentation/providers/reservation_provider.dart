@@ -7,7 +7,8 @@ import '../../domain/repositories/reservation_repository.dart';
 import '../../domain/usecases/check_reservation_expiry_usecase.dart';
 import '../../domain/usecases/confirm_pickup_usecase.dart';
 
-final reservationRemoteDataSourceProvider = Provider<ReservationRemoteDataSource>((ref) {
+final reservationRemoteDataSourceProvider =
+    Provider<ReservationRemoteDataSource>((ref) {
   return ReservationFirebaseDataSourceImpl();
 });
 
@@ -17,24 +18,29 @@ final reservationRepositoryProvider = Provider<ReservationRepository>((ref) {
   );
 });
 
-final createReservationUseCaseProvider = Provider<CreateReservationUseCase>((ref) {
+final createReservationUseCaseProvider =
+    Provider<CreateReservationUseCase>((ref) {
   return CreateReservationUseCase(ref.watch(reservationRepositoryProvider));
 });
 
-final checkReservationExpiryUseCaseProvider = Provider<CheckReservationExpiryUseCase>((ref) {
-  return CheckReservationExpiryUseCase(ref.watch(reservationRepositoryProvider));
+final checkReservationExpiryUseCaseProvider =
+    Provider<CheckReservationExpiryUseCase>((ref) {
+  return CheckReservationExpiryUseCase(
+      ref.watch(reservationRepositoryProvider));
 });
 
 final confirmPickupUseCaseProvider = Provider<ConfirmPickupUseCase>((ref) {
   return ConfirmPickupUseCase(ref.watch(reservationRepositoryProvider));
 });
 
-final cancelReservationUseCaseProvider = Provider<CancelReservationUseCase>((ref) {
+final cancelReservationUseCaseProvider =
+    Provider<CancelReservationUseCase>((ref) {
   return CancelReservationUseCase(ref.watch(reservationRepositoryProvider));
 });
 
 // Single reservation provider
-final reservationByIdProvider = FutureProvider.family.autoDispose<Reservation, String>((ref, id) async {
+final reservationByIdProvider =
+    FutureProvider.family.autoDispose<Reservation, String>((ref, id) async {
   final repo = ref.watch(reservationRepositoryProvider);
   final result = await repo.getReservationById(id);
   return result.fold(
@@ -57,7 +63,9 @@ class ReservationState {
     this.errorMessage,
   });
 
-  bool get isExpired => remainingTime == Duration.zero && activeReservation?.status == ReservationStatus.held;
+  bool get isExpired =>
+      remainingTime == Duration.zero &&
+      activeReservation?.status == ReservationStatus.held;
 
   ReservationState copyWith({
     bool? isLoading,
@@ -132,7 +140,8 @@ class ReservationNotifier extends StateNotifier<ReservationState> {
         await _checkExpiryUseCase(reservation, currentTime: now);
         state = state.copyWith(
           remainingTime: Duration.zero,
-          activeReservation: reservation.copyWith(status: ReservationStatus.expired),
+          activeReservation:
+              reservation.copyWith(status: ReservationStatus.expired),
         );
       } else {
         state = state.copyWith(remainingTime: remaining);
@@ -154,7 +163,8 @@ class ReservationNotifier extends StateNotifier<ReservationState> {
       },
       (confirmedRes) {
         _countdownTimer?.cancel();
-        state = state.copyWith(isLoading: false, activeReservation: confirmedRes);
+        state =
+            state.copyWith(isLoading: false, activeReservation: confirmedRes);
         return true;
       },
     );

@@ -74,7 +74,8 @@ void main() {
       );
     });
 
-    test('should return failure when paid listing has no price or price <= 0', () async {
+    test('should return failure when paid listing has no price or price <= 0',
+        () async {
       final listing = createSampleListing(
         condition: FoodCondition.paid,
         price: 0,

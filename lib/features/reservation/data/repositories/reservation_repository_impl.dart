@@ -64,7 +64,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
   }
 
   @override
-  Future<Either<Failure, Reservation>> markAsExpired(String reservationId) async {
+  Future<Either<Failure, Reservation>> markAsExpired(
+      String reservationId) async {
     try {
       final model = await remoteDataSource.markAsExpired(reservationId);
       return Right(model);

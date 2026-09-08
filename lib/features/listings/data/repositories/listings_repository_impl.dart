@@ -52,7 +52,8 @@ class ListingsRepositoryImpl implements ListingsRepository {
   }
 
   @override
-  Future<Either<Failure, FoodListing>> createListing(FoodListing listing) async {
+  Future<Either<Failure, FoodListing>> createListing(
+      FoodListing listing) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }

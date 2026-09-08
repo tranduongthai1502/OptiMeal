@@ -11,7 +11,8 @@ class CreateListingScreen extends ConsumerStatefulWidget {
   const CreateListingScreen({super.key});
 
   @override
-  ConsumerState<CreateListingScreen> createState() => _CreateListingScreenState();
+  ConsumerState<CreateListingScreen> createState() =>
+      _CreateListingScreenState();
 }
 
 class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
@@ -20,7 +21,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   final _descController = TextEditingController();
   final _quantityController = TextEditingController(text: '1');
   final _priceController = TextEditingController();
-  final _addressController = TextEditingController(text: '180 Hai Bà Trưng, Quận 1, TP.HCM');
+  final _addressController =
+      TextEditingController(text: '180 Hai Bà Trưng, Quận 1, TP.HCM');
 
   FoodCondition _condition = FoodCondition.free;
   bool _isLoading = false;
@@ -60,7 +62,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       ],
       quantity: int.tryParse(_quantityController.text.trim()) ?? 1,
       condition: _condition,
-      price: _condition == FoodCondition.paid ? double.tryParse(_priceController.text.trim()) : null,
+      price: _condition == FoodCondition.paid
+          ? double.tryParse(_priceController.text.trim())
+          : null,
       expiresAt: now.add(const Duration(hours: 4)),
       pickupWindowStart: now,
       pickupWindowEnd: now.add(const Duration(hours: 2)),
@@ -84,12 +88,15 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     result.fold(
       (failure) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
+          SnackBar(
+              content: Text(failure.message), backgroundColor: AppColors.error),
         );
       },
       (created) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đăng tin thực phẩm thành công!'), backgroundColor: AppColors.primary),
+          const SnackBar(
+              content: Text('Đăng tin thực phẩm thành công!'),
+              backgroundColor: AppColors.primary),
         );
         ref.invalidate(nearbyListingsProvider);
         context.pop();
@@ -117,17 +124,23 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.primaryContainer.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.4), style: BorderStyle.solid),
+                    border: Border.all(
+                        color: AppColors.primary.withOpacity(0.4),
+                        style: BorderStyle.solid),
                   ),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.add_a_photo_outlined, size: 36, color: AppColors.primary),
+                        const Icon(Icons.add_a_photo_outlined,
+                            size: 36, color: AppColors.primary),
                         const SizedBox(height: 8),
                         Text(
                           'Chụp ảnh thực phẩm (Tối đa 3 ảnh)',
-                          style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w600, fontSize: 13),
+                          style: TextStyle(
+                              color: AppColors.primaryDark,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -142,7 +155,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                     labelText: 'Tên món ăn / thực phẩm *',
                     hintText: 'Ví dụ: 3 phần cơm sườn, 4 bánh mì...',
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Vui lòng nhập tên thực phẩm' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Vui lòng nhập tên thực phẩm'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -167,17 +182,24 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Số lượng phần/hộp *',
                         ),
-                        validator: (v) => (int.tryParse(v ?? '') ?? 0) <= 0 ? 'Số lượng > 0' : null,
+                        validator: (v) => (int.tryParse(v ?? '') ?? 0) <= 0
+                            ? 'Số lượng > 0'
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<FoodCondition>(
                         value: _condition,
-                        decoration: const InputDecoration(labelText: 'Hình thức *'),
+                        decoration:
+                            const InputDecoration(labelText: 'Hình thức *'),
                         items: const [
-                          DropdownMenuItem(value: FoodCondition.free, child: Text('Miễn phí (0đ)')),
-                          DropdownMenuItem(value: FoodCondition.paid, child: Text('Có phí cứu hộ')),
+                          DropdownMenuItem(
+                              value: FoodCondition.free,
+                              child: Text('Miễn phí (0đ)')),
+                          DropdownMenuItem(
+                              value: FoodCondition.paid,
+                              child: Text('Có phí cứu hộ')),
                         ],
                         onChanged: (val) {
                           if (val != null) setState(() => _condition = val);
@@ -198,7 +220,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       suffixText: 'đ',
                     ),
                     validator: (v) {
-                      if (_condition == FoodCondition.paid && (double.tryParse(v ?? '') ?? 0) <= 0) {
+                      if (_condition == FoodCondition.paid &&
+                          (double.tryParse(v ?? '') ?? 0) <= 0) {
                         return 'Vui lòng nhập giá hợp lệ';
                       }
                       return null;
@@ -213,7 +236,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                     labelText: 'Địa chỉ nhận hàng (Self-pickup) *',
                     prefixIcon: Icon(Icons.location_on_outlined),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Vui lòng nhập địa chỉ' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Vui lòng nhập địa chỉ'
+                      : null,
                 ),
 
                 const SizedBox(height: 20),

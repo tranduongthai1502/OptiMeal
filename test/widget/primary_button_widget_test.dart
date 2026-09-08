@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:optimeal/core/widgets/primary_button.dart';
 
 void main() {
-  testWidgets('PrimaryButton displays label correctly', (WidgetTester tester) async {
+  testWidgets('PrimaryButton displays label correctly',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const Directionality(
         textDirection: TextDirection.ltr,

@@ -53,9 +53,13 @@ class FoodListingModel extends FoodListing {
       id: id,
       title: map['title'] as String? ?? '',
       description: map['description'] as String? ?? '',
-      photos: (map['photos'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      photos: (map['photos'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       quantity: (map['quantity'] as num?)?.toInt() ?? 1,
-      condition: map['condition'] == 'paid' ? FoodCondition.paid : FoodCondition.free,
+      condition:
+          map['condition'] == 'paid' ? FoodCondition.paid : FoodCondition.free,
       price: (map['price'] as num?)?.toDouble(),
       expiresAt: map['expiresAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['expiresAt'] as int)
@@ -69,10 +73,14 @@ class FoodListingModel extends FoodListing {
       latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
       addressText: map['addressText'] as String? ?? '',
-      allergenTags: (map['allergenTags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      allergenTags: (map['allergenTags'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       ownerId: map['ownerId'] as String? ?? '',
       ownerName: map['ownerName'] as String? ?? 'Người dùng',
-      ownerType: map['ownerType'] == 'store' ? UserRole.store : UserRole.individual,
+      ownerType:
+          map['ownerType'] == 'store' ? UserRole.store : UserRole.individual,
       status: ListingStatus.values.firstWhere(
         (s) => s.name == map['status'],
         orElse: () => ListingStatus.available,

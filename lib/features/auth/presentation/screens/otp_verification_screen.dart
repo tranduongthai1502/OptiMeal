@@ -10,7 +10,8 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
   const OtpVerificationScreen({super.key});
 
   @override
-  ConsumerState<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+  ConsumerState<OtpVerificationScreen> createState() =>
+      _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
@@ -121,7 +122,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 },
                 child: const Text(
                   'Chưa nhận được mã? Gửi lại',
-                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: AppColors.primary, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

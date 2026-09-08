@@ -37,7 +37,8 @@ class ReputationBadge extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               '($totalReviews)',
-              style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryLight),
+              style: const TextStyle(
+                  fontSize: 11, color: AppColors.textSecondaryLight),
             ),
           ],
         ],

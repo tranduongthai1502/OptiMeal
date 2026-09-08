@@ -43,7 +43,8 @@ class _ReviewDialogState extends State<ReviewDialog> {
             const Text(
               'Giao dịch tự lấy thực phẩm diễn ra thế nào?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+              style:
+                  TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
             ),
             const SizedBox(height: 16),
             Row(
@@ -52,7 +53,9 @@ class _ReviewDialogState extends State<ReviewDialog> {
                 final starIndex = index + 1;
                 return IconButton(
                   icon: Icon(
-                    starIndex <= _rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    starIndex <= _rating
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
                     color: Colors.amber,
                     size: 32,
                   ),

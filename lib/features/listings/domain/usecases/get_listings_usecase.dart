@@ -30,7 +30,8 @@ class GetListingDetailUseCase {
 
   Future<Either<Failure, FoodListing>> call(String id) {
     if (id.isEmpty) {
-      return Future.value(const Left(ServerFailure('Mã tin đăng không hợp lệ.')));
+      return Future.value(
+          const Left(ServerFailure('Mã tin đăng không hợp lệ.')));
     }
     return repository.getListingById(id);
   }

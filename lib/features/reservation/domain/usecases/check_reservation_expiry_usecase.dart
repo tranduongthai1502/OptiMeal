@@ -10,7 +10,8 @@ class CheckReservationExpiryUseCase {
 
   /// Validates if a reservation has passed the 20-minute limit.
   /// If expired, updates status to expired and releases the listing.
-  Future<Either<Failure, Reservation>> call(Reservation reservation, {DateTime? currentTime}) async {
+  Future<Either<Failure, Reservation>> call(Reservation reservation,
+      {DateTime? currentTime}) async {
     final now = currentTime ?? DateTime.now();
 
     if (reservation.isExpiredAt(now)) {
@@ -35,7 +36,8 @@ class CreateReservationUseCase {
     required String ownerId,
   }) async {
     if (claimerId == ownerId) {
-      return const Left(ReservationFailure('Bạn không thể tự giữ chỗ thực phẩm của chính mình.'));
+      return const Left(ReservationFailure(
+          'Bạn không thể tự giữ chỗ thực phẩm của chính mình.'));
     }
     return repository.createHoldReservation(
       listingId: listingId,

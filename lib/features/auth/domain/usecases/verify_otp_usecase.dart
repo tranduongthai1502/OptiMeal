@@ -13,7 +13,8 @@ class VerifyOtpUseCase {
     required String smsCode,
   }) {
     if (smsCode.trim().length != 6) {
-      return Future.value(const Left(InvalidOtpFailure('Mã OTP phải có đúng 6 chữ số.')));
+      return Future.value(
+          const Left(InvalidOtpFailure('Mã OTP phải có đúng 6 chữ số.')));
     }
     return repository.verifyOtp(
       verificationId: verificationId,

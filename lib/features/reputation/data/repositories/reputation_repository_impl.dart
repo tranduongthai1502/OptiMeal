@@ -30,7 +30,8 @@ class ReputationRepositoryImpl implements ReputationRepository {
   }
 
   @override
-  Future<Either<Failure, UserReputation>> getUserReputation(String userId) async {
+  Future<Either<Failure, UserReputation>> getUserReputation(
+      String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
     final reputation = _mockUserReputations[userId] ??
         UserReputation(

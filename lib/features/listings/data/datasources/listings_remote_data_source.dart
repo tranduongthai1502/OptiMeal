@@ -14,7 +14,8 @@ abstract class ListingsRemoteDataSource {
 
   Future<FoodListingModel> createListing(FoodListingModel listing);
 
-  Future<FoodListingModel> updateListingStatus(String id, ListingStatus newStatus);
+  Future<FoodListingModel> updateListingStatus(
+      String id, ListingStatus newStatus);
 
   Future<void> cancelListing(String id, String ownerId);
 }
@@ -25,7 +26,8 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodListingModel(
       id: 'listing-001',
       title: 'Bánh mì ngũ cốc & Croissant cuối ngày',
-      description: 'Còn dư 5 ổ bánh mì ngũ cốc và 3 bánh sừng trâu nướng mới sáng nay từ tiệm bánh Tous Les Jours. Đóng gói sạch sẽ trong túi giấy thực phẩm.',
+      description:
+          'Còn dư 5 ổ bánh mì ngũ cốc và 3 bánh sừng trâu nướng mới sáng nay từ tiệm bánh Tous Les Jours. Đóng gói sạch sẽ trong túi giấy thực phẩm.',
       photos: [
         'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
       ],
@@ -47,7 +49,8 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodListingModel(
       id: 'listing-002',
       title: 'Cơm trưa văn phòng (Suất cơm gà xối mỡ)',
-      description: 'Cơm phần văn phòng chưa qua sử dụng, chuẩn bị dư do khách hủy tiệc trưa. Kèm canh rong biển và rau luộc.',
+      description:
+          'Cơm phần văn phòng chưa qua sử dụng, chuẩn bị dư do khách hủy tiệc trưa. Kèm canh rong biển và rau luộc.',
       photos: [
         'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
       ],
@@ -70,7 +73,8 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodListingModel(
       id: 'listing-003',
       title: 'Táo Envy & Cam sành tươi dư từ giỏ quà Tết',
-      description: 'Gia đình được tặng giỏ trái cây nhiều không dùng hết. Trái cây còn rất tươi ngon, cuống xanh.',
+      description:
+          'Gia đình được tặng giỏ trái cây nhiều không dùng hết. Trái cây còn rất tươi ngon, cuống xanh.',
       photos: [
         'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=600&auto=format&fit=crop&q=80',
       ],
@@ -99,7 +103,9 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodCondition? condition,
   }) async {
     await Future.delayed(const Duration(milliseconds: 400));
-    var results = _mockListings.where((item) => item.status == ListingStatus.available).toList();
+    var results = _mockListings
+        .where((item) => item.status == ListingStatus.available)
+        .toList();
     if (condition != null) {
       results = results.where((item) => item.condition == condition).toList();
     }
@@ -124,7 +130,8 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
   }
 
   @override
-  Future<FoodListingModel> updateListingStatus(String id, ListingStatus newStatus) async {
+  Future<FoodListingModel> updateListingStatus(
+      String id, ListingStatus newStatus) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final index = _mockListings.indexWhere((e) => e.id == id);
     if (index != -1) {

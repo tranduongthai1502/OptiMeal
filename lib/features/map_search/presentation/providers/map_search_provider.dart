@@ -4,7 +4,8 @@ import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../domain/entities/search_filter.dart';
 import '../../domain/usecases/search_nearby_listings_usecase.dart';
 
-final searchNearbyListingsUseCaseProvider = Provider<SearchNearbyListingsUseCase>((ref) {
+final searchNearbyListingsUseCaseProvider =
+    Provider<SearchNearbyListingsUseCase>((ref) {
   return SearchNearbyListingsUseCase(ref.watch(listingsRepositoryProvider));
 });
 
@@ -17,7 +18,8 @@ final searchFilterProvider = StateProvider<SearchFilter>((ref) {
 final isMapViewProvider = StateProvider<bool>((ref) => false);
 
 // Filtered listings provider
-final filteredNearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>((ref) async {
+final filteredNearbyListingsProvider =
+    FutureProvider.autoDispose<List<FoodListing>>((ref) async {
   final useCase = ref.watch(searchNearbyListingsUseCaseProvider);
   final filter = ref.watch(searchFilterProvider);
 

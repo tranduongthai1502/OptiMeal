@@ -37,9 +37,13 @@ class ListingCard extends StatelessWidget {
                       ? Image.network(
                           listing.photos.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 48, color: Colors.grey),
+                          errorBuilder: (_, __, ___) => const Icon(
+                              Icons.fastfood,
+                              size: 48,
+                              color: Colors.grey),
                         )
-                      : const Icon(Icons.fastfood, size: 48, color: Colors.grey),
+                      : const Icon(Icons.fastfood,
+                          size: 48, color: Colors.grey),
                 ),
                 Positioned(
                   top: 12,
@@ -47,7 +51,8 @@ class ListingCard extends StatelessWidget {
                   child: listing.condition == FoodCondition.free
                       ? StatusBadge.free()
                       : Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: AppColors.secondary,
                             borderRadius: BorderRadius.circular(6),
@@ -66,7 +71,8 @@ class ListingCard extends StatelessWidget {
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.65),
                       borderRadius: BorderRadius.circular(6),
@@ -74,11 +80,15 @@ class ListingCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time_filled_rounded, color: Colors.amber, size: 14),
+                        const Icon(Icons.access_time_filled_rounded,
+                            color: Colors.amber, size: 14),
                         const SizedBox(width: 4),
                         Text(
                           'Còn ${listing.remainingTime.inHours}h',
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -106,7 +116,9 @@ class ListingCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        listing.ownerType.isStore ? Icons.storefront_rounded : Icons.person_rounded,
+                        listing.ownerType.isStore
+                            ? Icons.storefront_rounded
+                            : Icons.person_rounded,
                         size: 15,
                         color: AppColors.textSecondaryLight,
                       ),
@@ -135,7 +147,8 @@ class ListingCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.place_outlined, size: 15, color: AppColors.textSecondaryLight),
+                      const Icon(Icons.place_outlined,
+                          size: 15, color: AppColors.textSecondaryLight),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -153,7 +166,8 @@ class ListingCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded, size: 15, color: AppColors.textSecondaryLight),
+                      const Icon(Icons.schedule_rounded,
+                          size: 15, color: AppColors.textSecondaryLight),
                       const SizedBox(width: 4),
                       Text(
                         'Giờ lấy: ${DateTimeUtils.formatTime(listing.pickupWindowStart)} - ${DateTimeUtils.formatTime(listing.pickupWindowEnd)}',

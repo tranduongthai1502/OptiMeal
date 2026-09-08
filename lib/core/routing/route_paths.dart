@@ -17,7 +17,8 @@ class RoutePaths {
   // Helper generators
   static String listingDetailPath(String id) => '/listing/$id';
   static String reservationDetailPath(String id) => '/reservation/$id';
-  static String qrScannerPath(String reservationId) => '/reservation/$reservationId/scan';
+  static String qrScannerPath(String reservationId) =>
+      '/reservation/$reservationId/scan';
   static String chatPath(String reservationId) => '/chat/$reservationId';
   static String storeProfilePath(String id) => '/store/$id';
 }

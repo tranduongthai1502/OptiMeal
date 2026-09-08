@@ -26,7 +26,8 @@ class ListingDetailScreen extends ConsumerWidget {
         title: const Text('Chi tiết thực phẩm'),
       ),
       body: listingAsync.when(
-        loading: () => const AppLoadingIndicator(message: 'Đang tải thông tin...'),
+        loading: () =>
+            const AppLoadingIndicator(message: 'Đang tải thông tin...'),
         error: (err, _) => AppErrorView(
           message: err.toString(),
           onRetry: () => ref.refresh(listingDetailProvider(listingId)),
@@ -53,9 +54,13 @@ class ListingDetailScreen extends ConsumerWidget {
                       ? Image.network(
                           listing.photos.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 64, color: Colors.grey),
+                          errorBuilder: (_, __, ___) => const Icon(
+                              Icons.fastfood,
+                              size: 64,
+                              color: Colors.grey),
                         )
-                      : const Icon(Icons.fastfood, size: 64, color: Colors.grey),
+                      : const Icon(Icons.fastfood,
+                          size: 64, color: Colors.grey),
                 ),
 
                 Padding(
@@ -69,7 +74,8 @@ class ListingDetailScreen extends ConsumerWidget {
                             StatusBadge.free()
                           else
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: AppColors.secondary,
                                 borderRadius: BorderRadius.circular(6),
@@ -105,7 +111,8 @@ class ListingDetailScreen extends ConsumerWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.timer_outlined, color: AppColors.primary, size: 20),
+                            const Icon(Icons.timer_outlined,
+                                color: AppColors.primary, size: 20),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -124,7 +131,8 @@ class ListingDetailScreen extends ConsumerWidget {
 
                       const Text(
                         'Mô tả thực phẩm',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 6),
                       Text(
@@ -150,11 +158,14 @@ class ListingDetailScreen extends ConsumerWidget {
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.directions_walk_rounded, color: AppColors.primary),
+                                Icon(Icons.directions_walk_rounded,
+                                    color: AppColors.primary),
                                 SizedBox(width: 8),
                                 Text(
                                   'Thông tin tự đến lấy (Self-pickup)',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
                                 ),
                               ],
                             ),
@@ -166,7 +177,10 @@ class ListingDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Text(
                               'Khung giờ nhận: ${DateTimeUtils.formatPickupWindow(listing.pickupWindowStart, listing.pickupWindowEnd)}',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary),
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.secondary),
                             ),
                           ],
                         ),
@@ -176,14 +190,16 @@ class ListingDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 20),
                         const Text(
                           'Thành phần có thể gây dị ứng',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
                           children: listing.allergenTags
                               .map((tag) => Chip(
-                                    label: Text(tag, style: const TextStyle(fontSize: 12)),
+                                    label: Text(tag,
+                                        style: const TextStyle(fontSize: 12)),
                                     backgroundColor: AppColors.backgroundLight,
                                   ))
                               .toList(),
@@ -231,16 +247,20 @@ class ListingDetailScreen extends ConsumerWidget {
                     label: 'Giữ chỗ ngay (20 phút)',
                     icon: Icons.bookmark_add_rounded,
                     onPressed: () async {
-                      final resNotifier = ref.read(reservationNotifierProvider.notifier);
+                      final resNotifier =
+                          ref.read(reservationNotifierProvider.notifier);
                       final success = await resNotifier.holdReservation(
                         listingId: listing.id,
                         ownerId: listing.ownerId,
                         claimerId: 'current-user-id',
                       );
                       if (context.mounted && success) {
-                        final reservation = ref.read(reservationNotifierProvider).activeReservation;
+                        final reservation = ref
+                            .read(reservationNotifierProvider)
+                            .activeReservation;
                         if (reservation != null) {
-                          context.push(RoutePaths.reservationDetailPath(reservation.id));
+                          context.push(
+                              RoutePaths.reservationDetailPath(reservation.id));
                         }
                       }
                     },

@@ -64,7 +64,8 @@ class Reservation {
 
   /// Checks if the reservation has passed its expiration time
   bool isExpiredAt(DateTime currentTime) {
-    if (status == ReservationStatus.completed || status == ReservationStatus.cancelled) {
+    if (status == ReservationStatus.completed ||
+        status == ReservationStatus.cancelled) {
       return false;
     }
     return currentTime.isAfter(expiresAt);

@@ -5,7 +5,8 @@ import '../../domain/entities/chat_message.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final Map<String, List<ChatMessage>> _messagesStore = {};
-  final StreamController<List<ChatMessage>> _controller = StreamController<List<ChatMessage>>.broadcast();
+  final StreamController<List<ChatMessage>> _controller =
+      StreamController<List<ChatMessage>>.broadcast();
 
   @override
   Stream<List<ChatMessage>> getMessagesStream(String reservationId) {
@@ -16,7 +17,8 @@ class ChatRepositoryImpl implements ChatRepository {
           reservationId: reservationId,
           senderId: 'donor-01',
           senderName: 'Tous Les Jours Hai Bà Trưng',
-          text: 'Chào bạn! Bánh mì của bạn đã được đóng gói sẵn trong túi giấy. Bạn có thể ghé quầy trước 18:30 nhé.',
+          text:
+              'Chào bạn! Bánh mì của bạn đã được đóng gói sẵn trong túi giấy. Bạn có thể ghé quầy trước 18:30 nhé.',
           sentAt: DateTime.now().subtract(const Duration(minutes: 10)),
         ),
       ];

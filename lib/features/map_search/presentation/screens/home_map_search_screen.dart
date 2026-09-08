@@ -16,7 +16,8 @@ class HomeMapSearchScreen extends ConsumerStatefulWidget {
   const HomeMapSearchScreen({super.key});
 
   @override
-  ConsumerState<HomeMapSearchScreen> createState() => _HomeMapSearchScreenState();
+  ConsumerState<HomeMapSearchScreen> createState() =>
+      _HomeMapSearchScreenState();
 }
 
 class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
@@ -30,7 +31,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
         position: LatLng(item.latitude, item.longitude),
         infoWindow: InfoWindow(
           title: item.title,
-          snippet: item.condition.isFree ? 'MIỄN PHÍ - Còn ${item.quantity} phần' : '${item.price?.toInt() ?? 0} đ',
+          snippet: item.condition.isFree
+              ? 'MIỄN PHÍ - Còn ${item.quantity} phần'
+              : '${item.price?.toInt() ?? 0} đ',
           onTap: () {
             context.push(RoutePaths.listingDetailPath(item.id));
           },
@@ -60,13 +63,16 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
             const SizedBox(width: 8),
             const Text(
               AppConstants.appName,
-              style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.primary),
+              style: TextStyle(
+                  fontWeight: FontWeight.w800, color: AppColors.primary),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(isMapView ? Icons.format_list_bulleted_rounded : Icons.map_outlined),
+            icon: Icon(isMapView
+                ? Icons.format_list_bulleted_rounded
+                : Icons.map_outlined),
             tooltip: isMapView ? 'Xem danh sách' : 'Xem bản đồ',
             onPressed: () {
               ref.read(isMapViewProvider.notifier).state = !isMapView;
@@ -87,7 +93,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
           // Main View (Map or List)
           Expanded(
             child: listingsAsync.when(
-              loading: () => const AppLoadingIndicator(message: 'Đang tìm thực phẩm quanh bạn...'),
+              loading: () => const AppLoadingIndicator(
+                  message: 'Đang tìm thực phẩm quanh bạn...'),
               error: (err, _) => AppErrorView(
                 message: err.toString(),
                 onRetry: () => ref.refresh(filteredNearbyListingsProvider),
@@ -115,7 +122,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                           zoom: 14.5,
                         ),
                         markers: _buildMarkers(listings),
-                        onMapCreated: (controller) => _mapController = controller,
+                        onMapCreated: (controller) =>
+                            _mapController = controller,
                         myLocationEnabled: true,
                         myLocationButtonEnabled: true,
                       ),
@@ -132,7 +140,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                           itemBuilder: (context, index) {
                             final item = listings[index];
                             return InkWell(
-                              onTap: () => context.push(RoutePaths.listingDetailPath(item.id)),
+                              onTap: () => context
+                                  .push(RoutePaths.listingDetailPath(item.id)),
                               child: Container(
                                 width: 280,
                                 margin: const EdgeInsets.only(right: 12),
@@ -157,28 +166,38 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                                         width: 70,
                                         height: 70,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => const Icon(Icons.fastfood, size: 40),
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.fastfood,
+                                                size: 40),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             item.title,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            item.condition.isFree ? 'MIỄN PHÍ' : '${item.price?.toInt()} đ',
+                                            item.condition.isFree
+                                                ? 'MIỄN PHÍ'
+                                                : '${item.price?.toInt()} đ',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12,
-                                              color: item.condition.isFree ? AppColors.primary : AppColors.secondary,
+                                              color: item.condition.isFree
+                                                  ? AppColors.primary
+                                                  : AppColors.secondary,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -186,7 +205,10 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                                             item.addressText,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryLight),
+                                            style: const TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors
+                                                    .textSecondaryLight),
                                           ),
                                         ],
                                       ),
@@ -210,7 +232,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                     final item = listings[index];
                     return ListingCard(
                       listing: item,
-                      onTap: () => context.push(RoutePaths.listingDetailPath(item.id)),
+                      onTap: () =>
+                          context.push(RoutePaths.listingDetailPath(item.id)),
                     );
                   },
                 );
@@ -223,7 +246,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
         onPressed: () => context.push(RoutePaths.createListing),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Đăng tin dư', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Đăng tin dư',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -238,7 +262,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
           children: [
             // Radius Chip
             ActionChip(
-              avatar: const Icon(Icons.radar_rounded, size: 16, color: AppColors.primary),
+              avatar: const Icon(Icons.radar_rounded,
+                  size: 16, color: AppColors.primary),
               label: Text('Bán kính ${filter.radiusKm.toInt()} km'),
               onPressed: () => _showRadiusDialog(filter.radiusKm),
             ),
@@ -250,7 +275,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
               selected: filter.condition == null,
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(searchFilterProvider.notifier).state = filter.copyWith(condition: null);
+                  ref.read(searchFilterProvider.notifier).state =
+                      filter.copyWith(condition: null);
                 }
               },
             ),
@@ -307,14 +333,16 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                   Wrap(
                     spacing: 12,
                     children: [1.0, 3.0, 5.0, 10.0, 15.0].map((r) {
-                      final isSelected = ref.watch(searchFilterProvider).radiusKm == r;
+                      final isSelected =
+                          ref.watch(searchFilterProvider).radiusKm == r;
                       return ChoiceChip(
                         label: Text('${r.toInt()} km'),
                         selected: isSelected,
                         onSelected: (selected) {
                           if (selected) {
-                            ref.read(searchFilterProvider.notifier).state =
-                                ref.read(searchFilterProvider).copyWith(radiusKm: r);
+                            ref.read(searchFilterProvider.notifier).state = ref
+                                .read(searchFilterProvider)
+                                .copyWith(radiusKm: r);
                             Navigator.pop(ctx);
                           }
                         },

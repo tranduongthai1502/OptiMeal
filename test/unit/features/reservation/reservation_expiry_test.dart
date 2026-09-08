@@ -43,7 +43,9 @@ void main() {
       );
     });
 
-    test('should be expired when 20 minutes have elapsed and mark on repository', () async {
+    test(
+        'should be expired when 20 minutes have elapsed and mark on repository',
+        () async {
       final reservation = Reservation(
         id: 'res-test-2',
         listingId: 'listing-001',
@@ -59,7 +61,8 @@ void main() {
       final checkTime = baseTime.add(const Duration(minutes: 21));
       expect(reservation.isExpiredAt(checkTime), isTrue);
 
-      final expiredReservation = reservation.copyWith(status: ReservationStatus.expired);
+      final expiredReservation =
+          reservation.copyWith(status: ReservationStatus.expired);
       when(() => mockRepository.markAsExpired(reservation.id))
           .thenAnswer((_) async => Right(expiredReservation));
 

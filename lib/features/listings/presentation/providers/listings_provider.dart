@@ -9,7 +9,8 @@ import '../../domain/usecases/create_listing_usecase.dart';
 import '../../domain/usecases/get_listings_usecase.dart';
 
 // Providers
-final listingsRemoteDataSourceProvider = Provider<ListingsRemoteDataSource>((ref) {
+final listingsRemoteDataSourceProvider =
+    Provider<ListingsRemoteDataSource>((ref) {
   return ListingsFirebaseDataSourceImpl();
 });
 
@@ -24,7 +25,8 @@ final getListingsUseCaseProvider = Provider<GetListingsUseCase>((ref) {
   return GetListingsUseCase(ref.watch(listingsRepositoryProvider));
 });
 
-final getListingDetailUseCaseProvider = Provider<GetListingDetailUseCase>((ref) {
+final getListingDetailUseCaseProvider =
+    Provider<GetListingDetailUseCase>((ref) {
   return GetListingDetailUseCase(ref.watch(listingsRepositoryProvider));
 });
 
@@ -37,7 +39,8 @@ final cancelListingUseCaseProvider = Provider<CancelListingUseCase>((ref) {
 });
 
 // Nearby listings FutureProvider with auto-refresh
-final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>((ref) async {
+final nearbyListingsProvider =
+    FutureProvider.autoDispose<List<FoodListing>>((ref) async {
   final useCase = ref.watch(getListingsUseCaseProvider);
   // Default coordinate (HCMC Ben Thanh market) for demo
   final result = await useCase(
@@ -52,7 +55,8 @@ final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>((re
 });
 
 // Single listing detail provider
-final listingDetailProvider = FutureProvider.family.autoDispose<FoodListing, String>((ref, id) async {
+final listingDetailProvider =
+    FutureProvider.family.autoDispose<FoodListing, String>((ref, id) async {
   final useCase = ref.watch(getListingDetailUseCaseProvider);
   final result = await useCase(id);
   return result.fold(
