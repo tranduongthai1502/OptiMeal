@@ -25,11 +25,11 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Column(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 44,
                     backgroundColor: AppColors.primaryContainer,
-                    child: const Icon(Icons.person,
-                        size: 52, color: AppColors.primary),
+                    child:
+                        Icon(Icons.person, size: 52, color: AppColors.primary),
                   ),
                   const SizedBox(height: 12),
                   Text(

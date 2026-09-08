@@ -7,8 +7,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/reservation.dart';
 import '../providers/reservation_provider.dart';
 

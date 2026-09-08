@@ -134,7 +134,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primaryContainer.withOpacity(0.4)
+              ? AppColors.primaryContainer.withValues(alpha: 0.4)
               : Colors.white,
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.borderLight,
@@ -185,13 +185,15 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                 ],
               ),
             ),
-            Radio<UserRole>(
-              value: role,
+            RadioGroup<UserRole>(
               groupValue: _selectedRole,
-              activeColor: AppColors.primary,
               onChanged: (val) {
                 if (val != null) setState(() => _selectedRole = val);
               },
+              child: Radio<UserRole>(
+                value: role,
+                activeColor: AppColors.primary,
+              ),
             ),
           ],
         ),

@@ -33,7 +33,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     final rawValue = barcodes.first.rawValue;
     if (rawValue == null || rawValue.isEmpty) return;
 
-    _processCode(rawValue);
+    await _processCode(rawValue);
   }
 
   Future<void> _processCode(String code) async {
@@ -75,8 +75,12 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
               valueListenable: _scannerController,
               builder: (context, state, child) {
                 return Icon(
-                  state == TorchState.on ? Icons.flash_on : Icons.flash_off,
-                  color: state == TorchState.on ? Colors.amber : Colors.grey,
+                  state.torchState == TorchState.on
+                      ? Icons.flash_on
+                      : Icons.flash_off,
+                  color: state.torchState == TorchState.on
+                      ? Colors.amber
+                      : Colors.grey,
                 );
               },
             ),
@@ -114,7 +118,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
+                    color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/primary_button.dart';
 import '../../domain/entities/review.dart';
 
 class ReviewDialog extends StatefulWidget {
   final String reservationId;
   final String targetUserId;
   final String targetUserName;
-  final Function(Review review) onSubmit;
+  final void Function(Review review) onSubmit;
 
   const ReviewDialog({
     super.key,

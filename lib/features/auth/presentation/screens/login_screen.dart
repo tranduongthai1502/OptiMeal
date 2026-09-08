@@ -33,7 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      context.push(RoutePaths.otpVerification);
+      await context.push(RoutePaths.otpVerification);
     } else {
       final error = ref.read(authStateProvider).errorMessage;
       if (error != null) {

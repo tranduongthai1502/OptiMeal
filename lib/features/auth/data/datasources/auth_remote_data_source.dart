@@ -30,7 +30,7 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<String> sendOtp(String phoneNumber) async {
     // Stub implementation simulating OTP send for initial scaffolding
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future<void>.delayed(const Duration(milliseconds: 600));
     return 'fake-verification-id-for-$phoneNumber';
   }
 
@@ -39,7 +39,7 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
     required String verificationId,
     required String smsCode,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future<void>.delayed(const Duration(milliseconds: 600));
     // Sample mock return for scaffold
     return UserModel(
       id: 'mock-user-101',
@@ -62,7 +62,7 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
     required UserRole role,
     String? displayName,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
     return UserModel(
       id: userId,
       phoneNumber: '+84987654321',
@@ -74,6 +74,6 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOut() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
   }
 }

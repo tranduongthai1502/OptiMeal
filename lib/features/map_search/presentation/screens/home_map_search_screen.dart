@@ -21,7 +21,6 @@ class HomeMapSearchScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
-  GoogleMapController? _mapController;
   final LatLng _initialPosition = const LatLng(10.7769, 106.7009);
 
   Set<Marker> _buildMarkers(List<FoodListing> listings) {
@@ -122,8 +121,6 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                           zoom: 14.5,
                         ),
                         markers: _buildMarkers(listings),
-                        onMapCreated: (controller) =>
-                            _mapController = controller,
                         myLocationEnabled: true,
                         myLocationButtonEnabled: true,
                       ),
@@ -151,7 +148,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.12),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.12),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -311,7 +309,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen> {
   }
 
   void _showRadiusDialog(double currentRadius) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

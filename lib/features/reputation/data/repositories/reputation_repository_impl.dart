@@ -25,14 +25,14 @@ class ReputationRepositoryImpl implements ReputationRepository {
 
   @override
   Future<Either<Failure, Review>> submitReview(Review review) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     return Right(review);
   }
 
   @override
   Future<Either<Failure, UserReputation>> getUserReputation(
       String userId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
     final reputation = _mockUserReputations[userId] ??
         UserReputation(
           userId: userId,
@@ -51,7 +51,7 @@ class ReputationRepositoryImpl implements ReputationRepository {
     required String reportedUserId,
     required String reason,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     return const Right(null);
   }
 }

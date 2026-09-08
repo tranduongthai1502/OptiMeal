@@ -13,46 +13,46 @@ abstract class Failure {
 /// Server or API remote failures.
 class ServerFailure extends Failure {
   const ServerFailure(
-      [String message = 'Đã xảy ra lỗi từ máy chủ. Vui lòng thử lại sau.',
+      [super.message = 'Đã xảy ra lỗi từ máy chủ. Vui lòng thử lại sau.',
       String? code])
-      : super(message, code: code);
+      : super(code: code);
 }
 
 /// Network or internet connection failure.
 class NetworkFailure extends Failure {
   const NetworkFailure(
-      [String message =
+      [super.message =
           'Không có kết nối mạng. Vui lòng kiểm tra Wi-Fi hoặc 4G.',
       String? code])
-      : super(message, code: code);
+      : super(code: code);
 }
 
 /// Authentication and authorization failures.
 class AuthFailure extends Failure {
   const AuthFailure(
-      [String message = 'Xác thực không thành công. Vui lòng đăng nhập lại.',
+      [super.message = 'Xác thực không thành công. Vui lòng đăng nhập lại.',
       String? code])
-      : super(message, code: code);
+      : super(code: code);
 }
 
 /// Invalid OTP failure.
 class InvalidOtpFailure extends Failure {
   const InvalidOtpFailure(
-      [String message = 'Mã OTP không hợp lệ hoặc đã hết hạn.', String? code])
-      : super(message, code: code);
+      [super.message = 'Mã OTP không hợp lệ hoặc đã hết hạn.', String? code])
+      : super(code: code);
 }
 
 /// Local cache or storage failure.
 class CacheFailure extends Failure {
-  const CacheFailure([String message = 'Lỗi lưu trữ cục bộ.', String? code])
-      : super(message, code: code);
+  const CacheFailure([super.message = 'Lỗi lưu trữ cục bộ.', String? code])
+      : super(code: code);
 }
 
 /// Reservation specific failures (e.g. expired, already claimed).
 class ReservationFailure extends Failure {
   const ReservationFailure(
-      [String message = 'Không thể giữ chỗ cho thực phẩm này.', String? code])
-      : super(message, code: code);
+      [super.message = 'Không thể giữ chỗ cho thực phẩm này.', String? code])
+      : super(code: code);
 }
 
 class ReservationExpiredFailure extends ReservationFailure {
@@ -64,15 +64,15 @@ class ReservationExpiredFailure extends ReservationFailure {
 /// Reputation restriction failure (e.g. too many no-shows).
 class ReputationRestrictedFailure extends Failure {
   const ReputationRestrictedFailure(
-      [String message =
+      [super.message =
           'Tài khoản của bạn đã bị giới hạn giữ chỗ do quá số lần vắng mặt (no-show).'])
-      : super(message, code: 'NO_SHOW_RESTRICTED');
+      : super(code: 'NO_SHOW_RESTRICTED');
 }
 
 /// Permission failure (e.g. GPS, Camera).
 class PermissionFailure extends Failure {
   const PermissionFailure(
-      [String message = 'Ứng dụng cần quyền truy cập để thực hiện tác vụ này.',
+      [super.message = 'Ứng dụng cần quyền truy cập để thực hiện tác vụ này.',
       String? code])
-      : super(message, code: code);
+      : super(code: code);
 }

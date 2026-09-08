@@ -18,7 +18,7 @@ class CheckReservationExpiryUseCase {
       if (reservation.status != ReservationStatus.expired) {
         return repository.markAsExpired(reservation.id);
       }
-      return Left(ReservationExpiredFailure());
+      return const Left(ReservationExpiredFailure());
     }
 
     return Right(reservation);

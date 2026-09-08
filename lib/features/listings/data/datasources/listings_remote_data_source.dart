@@ -102,7 +102,7 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     required double radiusKm,
     FoodCondition? condition,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
     var results = _mockListings
         .where((item) => item.status == ListingStatus.available)
         .toList();
@@ -114,7 +114,7 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
 
   @override
   Future<FoodListingModel> getListingById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     final item = _mockListings.firstWhere(
       (element) => element.id == id,
       orElse: () => _mockListings.first,
@@ -124,7 +124,7 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
 
   @override
   Future<FoodListingModel> createListing(FoodListingModel listing) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     _mockListings.insert(0, listing);
     return listing;
   }
@@ -132,7 +132,7 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
   @override
   Future<FoodListingModel> updateListingStatus(
       String id, ListingStatus newStatus) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     final index = _mockListings.indexWhere((e) => e.id == id);
     if (index != -1) {
       final updated = FoodListingModel(

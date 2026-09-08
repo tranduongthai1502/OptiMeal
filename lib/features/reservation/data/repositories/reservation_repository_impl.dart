@@ -33,7 +33,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       final model = await remoteDataSource.getReservationById(id);
       return Right(model);
     } catch (e) {
-      return Left(ReservationFailure('Không tìm thấy thông tin giữ chỗ.'));
+      return const Left(
+          ReservationFailure('Không tìm thấy thông tin giữ chỗ.'));
     }
   }
 
@@ -49,7 +50,7 @@ class ReservationRepositoryImpl implements ReservationRepository {
       );
       return Right(model);
     } catch (e) {
-      return Left(ReservationFailure('Xác nhận giao nhận thất bại.'));
+      return const Left(ReservationFailure('Xác nhận giao nhận thất bại.'));
     }
   }
 

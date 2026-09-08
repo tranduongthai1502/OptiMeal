@@ -29,7 +29,7 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
     required String claimerId,
     required String ownerId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
     final id = 'res-${DateTime.now().millisecondsSinceEpoch}';
     final now = DateTime.now();
     final model = ReservationModel(
@@ -48,7 +48,7 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<ReservationModel> getReservationById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     if (_mockStorage.containsKey(id)) {
       return _mockStorage[id]!;
     }
@@ -71,7 +71,7 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
     required String reservationId,
     required String qrCodeData,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     final current = await getReservationById(reservationId);
     final confirmed = ReservationModel(
       id: current.id,
@@ -90,7 +90,7 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<void> cancelReservation(String reservationId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     if (_mockStorage.containsKey(reservationId)) {
       final current = _mockStorage[reservationId]!;
       _mockStorage[reservationId] = ReservationModel(
@@ -108,7 +108,7 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
 
   @override
   Future<ReservationModel> markAsExpired(String reservationId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     final current = await getReservationById(reservationId);
     final expired = ReservationModel(
       id: current.id,

@@ -122,19 +122,19 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 Container(
                   height: 140,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryContainer.withOpacity(0.3),
+                    color: AppColors.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: AppColors.primary.withOpacity(0.4),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                         style: BorderStyle.solid),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.add_a_photo_outlined,
+                        Icon(Icons.add_a_photo_outlined,
                             size: 36, color: AppColors.primary),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           'Chụp ảnh thực phẩm (Tối đa 3 ảnh)',
                           style: TextStyle(
@@ -190,7 +190,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<FoodCondition>(
-                        value: _condition,
+                        initialValue: _condition,
                         decoration:
                             const InputDecoration(labelText: 'Hình thức *'),
                         items: const [

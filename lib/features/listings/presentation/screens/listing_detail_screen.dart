@@ -106,7 +106,8 @@ class ListingDetailScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryContainer.withOpacity(0.3),
+                          color:
+                              AppColors.primaryContainer.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -259,7 +260,7 @@ class ListingDetailScreen extends ConsumerWidget {
                             .read(reservationNotifierProvider)
                             .activeReservation;
                         if (reservation != null) {
-                          context.push(
+                          await context.push(
                               RoutePaths.reservationDetailPath(reservation.id));
                         }
                       }
