@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/reservation.dart';
 import '../../domain/repositories/reservation_repository.dart';
@@ -34,7 +35,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
       return Right(model);
     } catch (e) {
       return const Left(
-          ReservationFailure('Không tìm thấy thông tin giữ chỗ.'));
+        ReservationFailure('Không tìm thấy thông tin giữ chỗ.'),
+      );
     }
   }
 
@@ -66,7 +68,8 @@ class ReservationRepositoryImpl implements ReservationRepository {
 
   @override
   Future<Either<Failure, Reservation>> markAsExpired(
-      String reservationId) async {
+    String reservationId,
+  ) async {
     try {
       final model = await remoteDataSource.markAsExpired(reservationId);
       return Right(model);

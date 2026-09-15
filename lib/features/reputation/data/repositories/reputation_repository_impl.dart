@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/repositories/reputation_repository.dart';
@@ -31,7 +32,8 @@ class ReputationRepositoryImpl implements ReputationRepository {
 
   @override
   Future<Either<Failure, UserReputation>> getUserReputation(
-      String userId) async {
+    String userId,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
     final reputation = _mockUserReputations[userId] ??
         UserReputation(

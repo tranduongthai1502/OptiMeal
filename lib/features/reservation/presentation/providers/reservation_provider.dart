@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/datasources/reservation_remote_data_source.dart';
 import '../../data/repositories/reservation_repository_impl.dart';
 import '../../domain/entities/reservation.dart';
@@ -18,23 +20,26 @@ final reservationRepositoryProvider = Provider<ReservationRepository>((ref) {
   );
 });
 
-final createReservationUseCaseProvider =
-    Provider<CreateReservationUseCase>((ref) {
+final createReservationUseCaseProvider = Provider<CreateReservationUseCase>((
+  ref,
+) {
   return CreateReservationUseCase(ref.watch(reservationRepositoryProvider));
 });
 
 final checkReservationExpiryUseCaseProvider =
     Provider<CheckReservationExpiryUseCase>((ref) {
   return CheckReservationExpiryUseCase(
-      ref.watch(reservationRepositoryProvider));
+    ref.watch(reservationRepositoryProvider),
+  );
 });
 
 final confirmPickupUseCaseProvider = Provider<ConfirmPickupUseCase>((ref) {
   return ConfirmPickupUseCase(ref.watch(reservationRepositoryProvider));
 });
 
-final cancelReservationUseCaseProvider =
-    Provider<CancelReservationUseCase>((ref) {
+final cancelReservationUseCaseProvider = Provider<CancelReservationUseCase>((
+  ref,
+) {
   return CancelReservationUseCase(ref.watch(reservationRepositoryProvider));
 });
 
@@ -140,8 +145,9 @@ class ReservationNotifier extends StateNotifier<ReservationState> {
         await _checkExpiryUseCase(reservation, currentTime: now);
         state = state.copyWith(
           remainingTime: Duration.zero,
-          activeReservation:
-              reservation.copyWith(status: ReservationStatus.expired),
+          activeReservation: reservation.copyWith(
+            status: ReservationStatus.expired,
+          ),
         );
       } else {
         state = state.copyWith(remainingTime: remaining);
@@ -163,8 +169,10 @@ class ReservationNotifier extends StateNotifier<ReservationState> {
       },
       (confirmedRes) {
         _countdownTimer?.cancel();
-        state =
-            state.copyWith(isLoading: false, activeReservation: confirmedRes);
+        state = state.copyWith(
+          isLoading: false,
+          activeReservation: confirmedRes,
+        );
         return true;
       },
     );

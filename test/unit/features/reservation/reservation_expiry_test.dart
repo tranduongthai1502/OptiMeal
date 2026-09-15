@@ -44,37 +44,39 @@ void main() {
     });
 
     test(
-        'should be expired when 20 minutes have elapsed and mark on repository',
-        () async {
-      final reservation = Reservation(
-        id: 'res-test-2',
-        listingId: 'listing-001',
-        claimerId: 'user-claimer',
-        ownerId: 'store-owner',
-        status: ReservationStatus.held,
-        heldAt: baseTime,
-        expiresAt: baseTime.add(const Duration(minutes: 20)),
-        qrCodeData: 'TEST-QR',
-      );
+      'should be expired when 20 minutes have elapsed and mark on repository',
+      () async {
+        final reservation = Reservation(
+          id: 'res-test-2',
+          listingId: 'listing-001',
+          claimerId: 'user-claimer',
+          ownerId: 'store-owner',
+          status: ReservationStatus.held,
+          heldAt: baseTime,
+          expiresAt: baseTime.add(const Duration(minutes: 20)),
+          qrCodeData: 'TEST-QR',
+        );
 
-      // Check after 21 minutes (expired)
-      final checkTime = baseTime.add(const Duration(minutes: 21));
-      expect(reservation.isExpiredAt(checkTime), isTrue);
+        // Check after 21 minutes (expired)
+        final checkTime = baseTime.add(const Duration(minutes: 21));
+        expect(reservation.isExpiredAt(checkTime), isTrue);
 
-      final expiredReservation =
-          reservation.copyWith(status: ReservationStatus.expired);
-      when(() => mockRepository.markAsExpired(reservation.id))
-          .thenAnswer((_) async => Right(expiredReservation));
+        final expiredReservation = reservation.copyWith(
+          status: ReservationStatus.expired,
+        );
+        when(() => mockRepository.markAsExpired(reservation.id))
+            .thenAnswer((_) async => Right(expiredReservation));
 
-      final result = await useCase(reservation, currentTime: checkTime);
+        final result = await useCase(reservation, currentTime: checkTime);
 
-      verify(() => mockRepository.markAsExpired(reservation.id)).called(1);
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right with expired reservation'),
-        (res) => expect(res.status, ReservationStatus.expired),
-      );
-    });
+        verify(() => mockRepository.markAsExpired(reservation.id)).called(1);
+        expect(result.isRight(), isTrue);
+        result.fold(
+          (_) => fail('Should be right with expired reservation'),
+          (res) => expect(res.status, ReservationStatus.expired),
+        );
+      },
+    );
 
     test('should return Failure if already marked as expired', () async {
       final alreadyExpired = Reservation(

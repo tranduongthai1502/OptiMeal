@@ -8,6 +8,8 @@ class FoodListingModel extends FoodListing {
     required super.description,
     required super.photos,
     required super.quantity,
+    super.unit = 'phần',
+    super.category = FoodCategory.cookedMeals,
     required super.condition,
     super.price,
     required super.expiresAt,
@@ -21,6 +23,7 @@ class FoodListingModel extends FoodListing {
     required super.ownerName,
     required super.ownerType,
     required super.status,
+    super.isCharityPoint = false,
     required super.createdAt,
   });
 
@@ -31,6 +34,8 @@ class FoodListingModel extends FoodListing {
       description: entity.description,
       photos: entity.photos,
       quantity: entity.quantity,
+      unit: entity.unit,
+      category: entity.category,
       condition: entity.condition,
       price: entity.price,
       expiresAt: entity.expiresAt,
@@ -44,6 +49,7 @@ class FoodListingModel extends FoodListing {
       ownerName: entity.ownerName,
       ownerType: entity.ownerType,
       status: entity.status,
+      isCharityPoint: entity.isCharityPoint,
       createdAt: entity.createdAt,
     );
   }
@@ -58,6 +64,11 @@ class FoodListingModel extends FoodListing {
               .toList() ??
           [],
       quantity: (map['quantity'] as num?)?.toInt() ?? 1,
+      unit: map['unit'] as String? ?? 'phần',
+      category: FoodCategory.values.firstWhere(
+        (c) => c.name == map['category'],
+        orElse: () => FoodCategory.cookedMeals,
+      ),
       condition:
           map['condition'] == 'paid' ? FoodCondition.paid : FoodCondition.free,
       price: (map['price'] as num?)?.toDouble(),
@@ -79,12 +90,15 @@ class FoodListingModel extends FoodListing {
           [],
       ownerId: map['ownerId'] as String? ?? '',
       ownerName: map['ownerName'] as String? ?? 'Người dùng',
-      ownerType:
-          map['ownerType'] == 'store' ? UserRole.store : UserRole.individual,
+      ownerType: UserRole.values.firstWhere(
+        (r) => r.name == map['ownerType'],
+        orElse: () => UserRole.individual,
+      ),
       status: ListingStatus.values.firstWhere(
         (s) => s.name == map['status'],
         orElse: () => ListingStatus.available,
       ),
+      isCharityPoint: map['isCharityPoint'] as bool? ?? false,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : DateTime.now(),
@@ -97,6 +111,8 @@ class FoodListingModel extends FoodListing {
       'description': description,
       'photos': photos,
       'quantity': quantity,
+      'unit': unit,
+      'category': category.name,
       'condition': condition.name,
       'price': price,
       'expiresAt': expiresAt.millisecondsSinceEpoch,
@@ -110,6 +126,7 @@ class FoodListingModel extends FoodListing {
       'ownerName': ownerName,
       'ownerType': ownerType.name,
       'status': status.name,
+      'isCharityPoint': isCharityPoint,
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
   }

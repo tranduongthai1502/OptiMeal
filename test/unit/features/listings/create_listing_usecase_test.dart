@@ -74,20 +74,22 @@ void main() {
       );
     });
 
-    test('should return failure when paid listing has no price or price <= 0',
-        () async {
-      final listing = createSampleListing(
-        condition: FoodCondition.paid,
-        price: 0,
-      );
-      final result = await useCase(listing);
+    test(
+      'should return failure when paid listing has no price or price <= 0',
+      () async {
+        final listing = createSampleListing(
+          condition: FoodCondition.paid,
+          price: 0,
+        );
+        final result = await useCase(listing);
 
-      expect(result.isLeft(), isTrue);
-      result.fold(
-        (failure) => expect(failure.code, 'INVALID_PRICE'),
-        (_) => fail('Should have failed'),
-      );
-    });
+        expect(result.isLeft(), isTrue);
+        result.fold(
+          (failure) => expect(failure.code, 'INVALID_PRICE'),
+          (_) => fail('Should have failed'),
+        );
+      },
+    );
 
     test('should return created listing when inputs are valid', () async {
       final validListing = createSampleListing();
