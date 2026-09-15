@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/role_selection_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
+import '../../features/home/presentation/screens/home_dashboard_screen.dart';
 import '../../features/listings/presentation/screens/create_listing_screen.dart';
 import '../../features/listings/presentation/screens/listing_detail_screen.dart';
 import '../../features/map_search/presentation/screens/home_map_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/recipe_copilot/presentation/screens/recipe_copilot_screen.dart';
+import '../../features/recipe_copilot/presentation/screens/recipe_detail_screen.dart';
 import '../../features/reservation/presentation/screens/qr_scanner_screen.dart';
 import '../../features/reservation/presentation/screens/reservation_detail_screen.dart';
 import '../../features/store_profile/presentation/screens/store_profile_screen.dart';
@@ -18,7 +22,7 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 /// Application GoRouter configuration supporting deep linking and standard navigation.
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: RoutePaths.home, // Can start at home or login
+  initialLocation: RoutePaths.home,
   routes: [
     GoRoute(
       path: RoutePaths.login,
@@ -34,7 +38,22 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: RoutePaths.home,
+      builder: (context, state) => const HomeDashboardScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.mapSearch,
       builder: (context, state) => const HomeMapSearchScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.recipeCopilot,
+      builder: (context, state) => const RecipeCopilotScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.recipeDetail,
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return RecipeDetailScreen(recipeId: id);
+      },
     ),
     GoRoute(
       path: RoutePaths.createListing,
@@ -80,9 +99,6 @@ final GoRouter appRouter = GoRouter(
       },
     ),
   ],
-  errorBuilder: (context, state) => Scaffold(
-    body: Center(
-      child: Text('Không tìm thấy trang: ${state.uri}'),
-    ),
-  ),
+  errorBuilder: (context, state) =>
+      Scaffold(body: Center(child: Text('Không tìm thấy trang: ${state.uri}'))),
 );

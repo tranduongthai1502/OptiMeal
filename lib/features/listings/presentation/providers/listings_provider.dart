@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/network/network_info.dart';
 import '../../data/datasources/listings_remote_data_source.dart';
@@ -9,8 +10,9 @@ import '../../domain/usecases/create_listing_usecase.dart';
 import '../../domain/usecases/get_listings_usecase.dart';
 
 // Providers
-final listingsRemoteDataSourceProvider =
-    Provider<ListingsRemoteDataSource>((ref) {
+final listingsRemoteDataSourceProvider = Provider<ListingsRemoteDataSource>((
+  ref,
+) {
   return ListingsFirebaseDataSourceImpl();
 });
 
@@ -25,8 +27,9 @@ final getListingsUseCaseProvider = Provider<GetListingsUseCase>((ref) {
   return GetListingsUseCase(ref.watch(listingsRepositoryProvider));
 });
 
-final getListingDetailUseCaseProvider =
-    Provider<GetListingDetailUseCase>((ref) {
+final getListingDetailUseCaseProvider = Provider<GetListingDetailUseCase>((
+  ref,
+) {
   return GetListingDetailUseCase(ref.watch(listingsRepositoryProvider));
 });
 
@@ -39,8 +42,9 @@ final cancelListingUseCaseProvider = Provider<CancelListingUseCase>((ref) {
 });
 
 // Nearby listings FutureProvider with auto-refresh
-final nearbyListingsProvider =
-    FutureProvider.autoDispose<List<FoodListing>>((ref) async {
+final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>((
+  ref,
+) async {
   final useCase = ref.watch(getListingsUseCaseProvider);
   // Default coordinate (HCMC Ben Thanh market) for demo
   final result = await useCase(

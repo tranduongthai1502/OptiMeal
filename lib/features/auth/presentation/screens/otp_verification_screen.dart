@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -58,9 +59,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     final authState = ref.watch(authStateProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Xác thực OTP'),
-      ),
+      appBar: AppBar(title: const Text('Xác thực OTP')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
@@ -77,10 +76,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               const Text(
                 'Nhập mã xác nhận',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -123,7 +119,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 child: const Text(
                   'Chưa nhận được mã? Gửi lại',
                   style: TextStyle(
-                      color: AppColors.primary, fontWeight: FontWeight.w600),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],

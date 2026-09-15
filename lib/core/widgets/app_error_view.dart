@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 /// Reusable error view with retry button.
@@ -6,11 +7,7 @@ class AppErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const AppErrorView({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorView({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {

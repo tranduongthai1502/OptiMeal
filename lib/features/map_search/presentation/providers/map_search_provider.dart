@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../listings/domain/entities/food_listing.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../domain/entities/search_filter.dart';

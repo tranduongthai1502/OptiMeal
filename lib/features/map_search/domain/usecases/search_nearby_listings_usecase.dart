@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../../listings/domain/entities/food_listing.dart';
 import '../../../listings/domain/repositories/listings_repository.dart';
@@ -19,6 +20,7 @@ class SearchNearbyListingsUseCase {
       longitude: longitude,
       radiusKm: filter.radiusKm,
       condition: filter.condition,
+      category: filter.category,
     );
 
     return result.map((listings) {

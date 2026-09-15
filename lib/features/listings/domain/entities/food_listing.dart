@@ -9,6 +9,32 @@ enum FoodCondition {
   bool get isPaid => this == FoodCondition.paid;
 }
 
+/// Category classification for surplus ingredients and charity meals.
+enum FoodCategory {
+  vegetables, // Rau củ & Nông sản
+  dryGoods, // Đồ khô & Ngũ cốc
+  freshMeatFish, // Thực phẩm tươi sống
+  cookedMeals, // Đồ ăn nấu sẵn
+  charityMealPoint; // Điểm phát cơm từ thiện miễn phí
+
+  String get displayName {
+    switch (this) {
+      case FoodCategory.vegetables:
+        return 'Rau củ & Nông sản';
+      case FoodCategory.dryGoods:
+        return 'Đồ khô & Ngũ cốc';
+      case FoodCategory.freshMeatFish:
+        return 'Tươi sống';
+      case FoodCategory.cookedMeals:
+        return 'Đồ ăn nấu sẵn';
+      case FoodCategory.charityMealPoint:
+        return 'Điểm phát cơm từ thiện';
+    }
+  }
+
+  bool get isCharityMealPoint => this == FoodCategory.charityMealPoint;
+}
+
 /// Status lifecycle of a surplus food listing.
 enum ListingStatus {
   available,
@@ -30,7 +56,9 @@ class FoodListing {
   final String title;
   final String description;
   final List<String> photos;
-  final int quantity; // e.g. 2 portions / 3 boxes
+  final int quantity; // e.g. 2 portions / 3 boxes / 30 kg
+  final String unit; // 'kg', 'phần', 'hộp', 'suất'
+  final FoodCategory category;
   final FoodCondition condition;
   final double? price; // Nullable if condition is free
   final DateTime expiresAt;
@@ -44,6 +72,7 @@ class FoodListing {
   final String ownerName;
   final UserRole ownerType;
   final ListingStatus status;
+  final bool isCharityPoint;
   final DateTime createdAt;
 
   const FoodListing({
@@ -52,6 +81,8 @@ class FoodListing {
     required this.description,
     required this.photos,
     required this.quantity,
+    this.unit = 'phần',
+    this.category = FoodCategory.cookedMeals,
     required this.condition,
     this.price,
     required this.expiresAt,
@@ -65,6 +96,7 @@ class FoodListing {
     required this.ownerName,
     required this.ownerType,
     required this.status,
+    this.isCharityPoint = false,
     required this.createdAt,
   });
 
@@ -72,4 +104,7 @@ class FoodListing {
       status == ListingStatus.available && DateTime.now().isBefore(expiresAt);
 
   Duration get remainingTime => expiresAt.difference(DateTime.now());
+
+  bool get isExpiringSoon =>
+      remainingTime.inHours <= 24 && remainingTime.inHours >= 0;
 }

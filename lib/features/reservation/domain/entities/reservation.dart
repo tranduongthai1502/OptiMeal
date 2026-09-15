@@ -17,7 +17,7 @@ enum ReservationStatus {
   bool get isCancelled => this == ReservationStatus.cancelled;
 }
 
-/// Domain entity representing a temporary claim/reservation for self-pickup.
+/// Domain entity representing a temporary claim/reservation for self-pickup with Double-handshake QR.
 class Reservation {
   final String id;
   final String listingId;
@@ -27,6 +27,9 @@ class Reservation {
   final DateTime heldAt;
   final DateTime expiresAt;
   final String qrCodeData;
+  final String donorQrCodeData;
+  final bool receiverConfirmed;
+  final bool donorConfirmed;
   final DateTime? completedAt;
 
   const Reservation({
@@ -38,10 +41,13 @@ class Reservation {
     required this.heldAt,
     required this.expiresAt,
     required this.qrCodeData,
+    this.donorQrCodeData = '',
+    this.receiverConfirmed = true,
+    this.donorConfirmed = false,
     this.completedAt,
   });
 
-  /// Factory creating a fresh 20-minute hold reservation
+  /// Factory creating a fresh claim reservation for self-pickup
   factory Reservation.createHold({
     required String id,
     required String listingId,
@@ -58,9 +64,14 @@ class Reservation {
       status: ReservationStatus.held,
       heldAt: now,
       expiresAt: now.add(Duration(minutes: durationMinutes)),
-      qrCodeData: 'OPTIMEAL-CLAIM-$id-$listingId',
+      qrCodeData: 'OPTIMEAL-HANDSHAKE-RECEIVER-$id-$claimerId',
+      donorQrCodeData: 'OPTIMEAL-HANDSHAKE-DONOR-$id-$ownerId',
+      receiverConfirmed: true,
+      donorConfirmed: false,
     );
   }
+
+  bool get isDoubleHandshakeCompleted => receiverConfirmed && donorConfirmed;
 
   /// Checks if the reservation has passed its expiration time
   bool isExpiredAt(DateTime currentTime) {
@@ -78,18 +89,31 @@ class Reservation {
 
   Reservation copyWith({
     ReservationStatus? status,
+    bool? receiverConfirmed,
+    bool? donorConfirmed,
     DateTime? completedAt,
   }) {
+    final updatedReceiverConfirmed =
+        receiverConfirmed ?? this.receiverConfirmed;
+    final updatedDonorConfirmed = donorConfirmed ?? this.donorConfirmed;
+    final isFullyCompleted = updatedReceiverConfirmed && updatedDonorConfirmed;
+
     return Reservation(
       id: id,
       listingId: listingId,
       claimerId: claimerId,
       ownerId: ownerId,
-      status: status ?? this.status,
+      status: isFullyCompleted
+          ? ReservationStatus.completed
+          : (status ?? this.status),
       heldAt: heldAt,
       expiresAt: expiresAt,
       qrCodeData: qrCodeData,
-      completedAt: completedAt ?? this.completedAt,
+      donorQrCodeData: donorQrCodeData,
+      receiverConfirmed: updatedReceiverConfirmed,
+      donorConfirmed: updatedDonorConfirmed,
+      completedAt:
+          isFullyCompleted ? (completedAt ?? DateTime.now()) : this.completedAt,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/network/network_info.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -95,8 +96,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       },
       (verificationId) {
-        state =
-            state.copyWith(isLoading: false, verificationId: verificationId);
+        state = state.copyWith(
+          isLoading: false,
+          verificationId: verificationId,
+        );
         return true;
       },
     );
@@ -104,8 +107,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<bool> verifyOtp(String smsCode) async {
     if (state.verificationId == null) {
-      state =
-          state.copyWith(errorMessage: 'Thiếu mã xác thực (verification ID).');
+      state = state.copyWith(
+        errorMessage: 'Thiếu mã xác thực (verification ID).',
+      );
       return false;
     }
     state = state.copyWith(isLoading: true, errorMessage: null);

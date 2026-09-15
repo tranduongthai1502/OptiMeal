@@ -1,12 +1,15 @@
 /// Role of the user in the system:
 /// - individual: Regular person / household donating or receiving food.
 /// - store: Restaurant, bakery, grocery, supermarket.
+/// - charityKitchen: Community kitchen, charity organization distributing free meals.
 enum UserRole {
   individual,
-  store;
+  store,
+  charityKitchen;
 
   bool get isStore => this == UserRole.store;
   bool get isIndividual => this == UserRole.individual;
+  bool get isCharityKitchen => this == UserRole.charityKitchen;
 }
 
 /// Domain entity representing a user in OptiMeal.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'app.dart';
 
 Future<void> main() async {
@@ -23,9 +24,5 @@ Future<void> main() async {
   // In production with Firebase configured:
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(
-    const ProviderScope(
-      child: OptiMealApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: OptiMealApp()));
 }

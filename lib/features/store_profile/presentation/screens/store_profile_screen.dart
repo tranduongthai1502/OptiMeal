@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../reputation/presentation/widgets/reputation_badge.dart';
 
@@ -10,9 +11,7 @@ class StoreProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hồ sơ cửa hàng đối tác'),
-      ),
+      appBar: AppBar(title: const Text('Hồ sơ cửa hàng đối tác')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -21,8 +20,11 @@ class StoreProfileScreen extends StatelessWidget {
               height: 140,
               color: AppColors.secondary,
               child: const Center(
-                child: Icon(Icons.storefront_rounded,
-                    size: 64, color: Colors.white70),
+                child: Icon(
+                  Icons.storefront_rounded,
+                  size: 64,
+                  color: Colors.white70,
+                ),
               ),
             ),
             Padding(
@@ -38,7 +40,9 @@ class StoreProfileScreen extends StatelessWidget {
                   const Text(
                     'Tiệm bánh ngọt & bánh mì tươi Pháp',
                     style: TextStyle(
-                        fontSize: 14, color: AppColors.textSecondaryLight),
+                      fontSize: 14,
+                      color: AppColors.textSecondaryLight,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   const Row(
@@ -48,31 +52,39 @@ class StoreProfileScreen extends StatelessWidget {
                       Text(
                         '124 phần ăn đã giải cứu',
                         style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13),
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
                   const Divider(height: 32),
-                  const Text('Thông tin hoạt động',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text(
+                    'Thông tin hoạt động',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   const SizedBox(height: 12),
                   const ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.access_time_rounded,
-                        color: AppColors.primary),
+                    leading: Icon(
+                      Icons.access_time_rounded,
+                      color: AppColors.primary,
+                    ),
                     title: Text('Giờ mở cửa: 06:30 - 22:00'),
                     subtitle: Text(
-                        'Khung giờ đăng thực phẩm dư: 19:30 - 21:00 hàng ngày'),
+                      'Khung giờ đăng thực phẩm dư: 19:30 - 21:00 hàng ngày',
+                    ),
                   ),
                   const ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.location_on_outlined,
-                        color: AppColors.primary),
-                    title:
-                        Text('180 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP.HCM'),
+                    leading: Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.primary,
+                    ),
+                    title: Text(
+                      '180 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP.HCM',
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -83,14 +95,18 @@ class StoreProfileScreen extends StatelessWidget {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.event_repeat_rounded,
-                            color: AppColors.primary),
+                        Icon(
+                          Icons.event_repeat_rounded,
+                          color: AppColors.primary,
+                        ),
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'Cửa hàng có lịch đăng tin tự động lặp lại định kỳ vào lúc 20:00 mỗi tối.',
                             style: TextStyle(
-                                fontSize: 13, color: AppColors.primaryDark),
+                              fontSize: 13,
+                              color: AppColors.primaryDark,
+                            ),
                           ),
                         ),
                       ],

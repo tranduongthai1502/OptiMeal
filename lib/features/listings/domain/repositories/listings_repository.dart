@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../entities/food_listing.dart';
 
@@ -10,6 +11,7 @@ abstract class ListingsRepository {
     required double longitude,
     required double radiusKm,
     FoodCondition? condition,
+    FoodCategory? category,
   });
 
   /// Fetches single listing detail by ID.

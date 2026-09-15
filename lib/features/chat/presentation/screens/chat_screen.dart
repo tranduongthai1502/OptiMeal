@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../data/repositories/chat_repository_impl.dart';
@@ -48,8 +49,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final messagesAsync =
-        ref.watch(chatMessagesStreamProvider(widget.reservationId));
+    final messagesAsync = ref.watch(
+      chatMessagesStreamProvider(widget.reservationId),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -57,8 +59,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Trao đổi lấy thực phẩm', style: TextStyle(fontSize: 16)),
-            Text('Tự đến lấy (Self-pickup)',
-                style: TextStyle(fontSize: 11, color: AppColors.primaryLight)),
+            Text(
+              'Tự đến lấy (Self-pickup)',
+              style: TextStyle(fontSize: 11, color: AppColors.primaryLight),
+            ),
           ],
         ),
       ),
@@ -81,9 +85,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75),
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
+                        ),
                         decoration: BoxDecoration(
                           color: isMe ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.circular(14),
@@ -147,8 +154,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.send_rounded,
-                        color: AppColors.primary),
+                    icon: const Icon(
+                      Icons.send_rounded,
+                      color: AppColors.primary,
+                    ),
                     onPressed: _handleSend,
                   ),
                 ],

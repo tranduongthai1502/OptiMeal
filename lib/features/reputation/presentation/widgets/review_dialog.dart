@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/review.dart';
 
@@ -42,8 +43,10 @@ class _ReviewDialogState extends State<ReviewDialog> {
             const Text(
               'Giao dịch tự lấy thực phẩm diễn ra thế nào?',
               textAlign: TextAlign.center,
-              style:
-                  TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondaryLight,
+              ),
             ),
             const SizedBox(height: 16),
             Row(
