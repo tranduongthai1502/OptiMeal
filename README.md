@@ -6,16 +6,21 @@ Mô hình vận hành cốt lõi là **Tự đến lấy (Self-pickup)** — kh�
 
 ---
 
-## 🌟 Tính Năng Chính (MVP)
+## 🌟 Tính Năng Cốt Lõi
 
-1. **Xác thực qua SĐT & Phân quyền**: Đăng nhập bằng SMS OTP (Firebase Auth), chọn vai trò **Cá nhân** hoặc **Cửa hàng / Nhà hàng**.
-2. **Quản lý tin đăng (Listings)**: Đăng tin thực phẩm dư kèm ảnh, số lượng, hình thức (Miễn phí 0đ hoặc Giá cứu hộ có phí), khung giờ nhận và cảnh báo dị ứng thực phẩm (Allergen tags).
-3. **Bản đồ & Tìm kiếm (Map & Search)**: Tích hợp Google Maps + Geolocation tính khoảng cách thực tế, lọc theo bán kính (mặc định 3km), lọc món miễn phí/có phí, chuyển đổi linh hoạt Map View & List View.
-4. **Giữ chỗ & Đếm ngược (Reservation & Countdown)**: Người nhận đặt giữ chỗ trong thời gian giới hạn **20 phút**, có đồng hồ đếm ngược trực tiếp. Hết 20 phút tự động hủy và trả thực phẩm về trạng thái có sẵn.
-5. **Xác nhận giao nhận bằng mã QR**: Sinh mã QR động cho lượt giữ chỗ. Người cho dùng camera quét mã QR (`mobile_scanner`) hoặc bấm xác nhận để hoàn tất giao dịch.
-6. **Hệ thống Điểm Uy Tín & Chống Bùng Hẹn (Reputation & Anti No-show)**: Đánh giá 2 chiều (1-5 sao + bình luận). Tự động theo dõi số lần vắng mặt (`noShowCount >= 3`) để giới hạn quyền giữ chỗ của người vi phạm.
-7. **Tin nhắn trao đổi (Chat 1-1)**: Nhắn tin trực tiếp giữa người cho và người nhận gắn theo tin đăng/lượt giữ chỗ.
-8. **Hồ sơ cửa hàng đối tác (Store Profile)**: Hiển thị giờ mở cửa, loại hình, khung giờ đăng thực phẩm cuối ngày định kỳ.
+1. **Xác thực qua SĐT & Phân quyền**: Đăng nhập bằng SMS OTP (Firebase Auth), chọn vai trò **Cá nhân / Hộ gia đình**, **Cửa hàng / Nhà hàng / Siêu thị**, hoặc **Bếp ăn từ thiện / Điểm thiện nguyện**.
+2. **Trang chủ tổng quan & Khám phá cộng đồng (Home Dashboard & Community Feed)**:
+   - **Mô tả**: Màn hình trung tâm sau khi đăng nhập, hiển thị vị trí hiện tại (GPS), bảng chỉ số tác động cộng đồng (*Kg thực phẩm đã giải cứu hôm nay, số suất cơm thiện nguyện đang phục vụ quanh khu vực*).
+   - **Thao tác nhanh (Quick Action Hub)**: Các phím tắt 1-chạm giúp điều hướng ngay đến: *"Ghim mẻ tặng lên bản đồ"*, *"Xem bản đồ thực phẩm quanh đây"*, *"Trợ lý AI Bếp ăn"*, và *"Quét mã QR bàn giao"*.
+   - **Feed cập nhật trực tiếp**: Bảng tin tổng hợp các mẻ nguyên liệu dư mới được ghim gần bạn (kèm huy hiệu cảnh báo cần giải cứu gấp trong 24h) và danh sách các điểm phát cơm từ thiện đang mở cửa trong ngày.
+3. **Bản đồ thời gian thực chia sẻ vị trí nguyên liệu, thực phẩm dư & Nơi phát đồ ăn miễn phí (Real-time Food Surplus & Donation Geolocation Map)**:
+   - **Đăng bài & Ghim vị trí trực tiếp trên Map (Donor Post & Pinning)**: Người dùng (người cho / cửa hàng / bếp thiện nguyện) đăng bài bằng cách chọn/ghim trực tiếp vị trí mẻ nguyên liệu hoặc điểm phát đồ ăn trên bản đồ; điền chi tiết thông tin: phân loại danh mục (*Rau củ, Đồ khô, Thực phẩm tươi sống, Điểm phát cơm/đồ ăn nấu sẵn*), số lượng/trọng lượng, ảnh thực tế, hạn sử dụng (*Expiry date / Best before*), và khung giờ nhận hàng.
+   - **Không gian địa lý & Tìm kiếm tương tác**: Bản đồ tích hợp GPS hiển thị trực quan các mẻ nguyên liệu sẵn sàng bàn giao cùng vị trí các điểm phát cơm từ thiện cố định/lưu động; hệ thống gom cụm đa lớp (*Cluster Map markers*), bộ lọc theo danh mục và bán kính (*1km - 10km*).
+   - **Cơ chế nhận hàng trực tiếp (Self Pickup) & Chỉ đường**: Bên nhận tra cứu khoảng cách, kiểm tra số lượng tồn, chọn *"Giữ chỗ lấy hàng (Self Pickup)"*, kích hoạt chế độ chỉ đường từng bước (*Turn-by-turn routing*), và tự di chuyển đến nhận bàn giao qua mã QR xác thực hai chiều (*Double-handshake QR*).
+4. **Trợ lý AI gợi ý thực đơn cho bếp ăn từ thiện (Smart Recipe Copilot)**:
+   - **Mô tả**: Bếp ăn thiện nguyện thường nhận về các nhóm nguyên liệu phân tán, ngẫu nhiên. Trợ lý AI (LLM + RAG) tổng hợp danh sách nguyên liệu bếp đang có trong kho lạnh và đề xuất ngay 3–5 công thức món ăn dinh dưỡng số lượng lớn (suất ăn 50–200 người).
+   - **Tiêu chí ưu tiên**: Tự động ưu tiên đưa các nguyên liệu có thời gian hết hạn ngắn nhất vào thực đơn bữa ăn tiếp theo để chống lãng phí; hướng dẫn kỹ thuật sơ chế và an toàn vệ sinh thực phẩm.
+   - **UX/UI**: Giao diện dạng thẻ món ăn tương tác (*Recipe Cards*), danh sách checklist nguyên liệu kèm định lượng gia vị chi tiết, nút *"Tạo thực đơn mới"* chỉ bằng 1 chạm.
 
 ---
 
@@ -26,27 +31,26 @@ Mã nguồn được tổ chức theo chuẩn **Feature-First Clean Architecture
 ```
 lib/
   core/
-    constants/          # Hằng số toàn ứng dụng (thời gian giữ chỗ, bán kính...)
-    theme/              # Bảng màu Eco Green & Deep Navy, ThemeData sáng/tối
+    constants/          # Hằng số toàn ứng dụng (bán kính quét, danh mục thực phẩm...)
+    theme/              # Bảng màu Eco Green & Pure White, ThemeData sáng/tối
     routing/            # Cấu hình GoRouter, danh sách route & deep links
-    utils/              # Tiện ích tính khoảng cách (Haversine), format ngày giờ
+    utils/              # Tiện ích tính khoảng cách (Haversine), format ngày giờ, geolocation
     errors/             # Phân cấp Failures & Exceptions
     network/            # Kiểm tra kết nối mạng (NetworkInfo abstraction)
-    widgets/            # Reusable UI (PrimaryButton, StatusBadge, Loader, ErrorView)
+    widgets/            # Reusable UI (PrimaryButton, StatusBadge, Loader, RecipeCard)
   features/
-    auth/               # Đăng nhập SĐT, OTP, Onboarding chọn vai trò
-    listings/           # Đăng tin & xem chi tiết thực phẩm dư
-    map_search/         # Bản đồ Google Maps, tìm kiếm theo bán kính
-    reservation/        # Giữ chỗ 20 phút, đồng hồ đếm ngược, quét mã QR
-    reputation/         # Đánh giá 2 chiều, điểm uy tín, phạt No-show
-    chat/               # Chat 1-1 realtime giữa 2 bên
-    store_profile/      # Hồ sơ cửa hàng, lịch đăng lặp lại
-    notifications/      # Dịch vụ thông báo cục bộ & đẩy FCM
-    profile/            # Hồ sơ cá nhân, chỉ số giao dịch, cài đặt
+    auth/               # Đăng nhập SĐT, OTP, Onboarding phân quyền (Cá nhân, Cửa hàng, Bếp từ thiện)
+    listings/           # Đăng tin & quản lý kho nguyên liệu thực phẩm dư
+    map_search/         # Bản đồ thời gian thực (Cluster markers, lọc bán kính 1-10km, Turn-by-turn routing)
+    recipe_copilot/     # Trợ lý AI gợi ý thực đơn (LLM Prompting, RAG công thức suất ăn 50-200 người)
+    reservation/        # Giữ chỗ lấy hàng (Self Pickup) & Xác thực hai chiều (Double-handshake QR)
+    store_profile/      # Hồ sơ bếp ăn thiện nguyện / cửa hàng đối tác & lịch phát cơm
+    notifications/      # Dịch vụ thông báo nhận nguyên liệu mới & cảnh báo cận date
+    profile/            # Hồ sơ cá nhân / tổ chức từ thiện, chỉ số tác động xã hội & cài đặt
   app.dart              # Cấu hình MaterialApp.router, Localization, Themes
   main.dart             # Entry point ứng dụng
 test/
-  unit/                 # Unit tests cho Domain UseCases
+  unit/                 # Unit tests cho Domain UseCases & AI Prompts
   widget/               # Widget tests
   integration/          # Integration tests E2E
 ```
@@ -59,16 +63,14 @@ test/
 | :--- | :--- | :--- |
 | **Framework** | Flutter 3.x / Dart 3.x | Đa nền tảng Android & iOS |
 | **State Management** | `flutter_riverpod` + `riverpod_annotation` | Quản lý state theo dạng reactive, testable |
-| **Error Handling** | `fpdart` | Xử lý lỗi hàm `Either<Failure, T>` tường minh |
+| **AI Copilot** | Google Gemini API / OpenAI LLM + RAG | Tạo công thức nấu ăn suất ăn lớn 50-200 người từ nguyên liệu có sẵn |
 | **Navigation** | `go_router` | Điều hướng khai báo, hỗ trợ deep link |
-| **Maps & Vị trí** | `google_maps_flutter`, `geolocator`, `geocoding` | Bản đồ và tính toán khoảng cách |
-| **Mã QR & Camera** | `qr_flutter`, `mobile_scanner` | Sinh và quét mã QR xác nhận nhận hàng |
-| **Backend Abstraction**| Firebase (Auth, Firestore, Storage, Messaging) | Có sẵn Repository Interface để thay thế backend |
-| **Đa ngôn ngữ** | `flutter_localizations`, `intl` | Mặc định Tiếng Việt (sẵn khung EN) |
+| **Maps & Routing** | `google_maps_flutter`, `geolocator`, `flutter_polyline_points` | Bản đồ thời gian thực, gom cụm (Cluster), chỉ đường Turn-by-turn |
+| **Mã QR Xác Thực** | `qr_flutter`, `mobile_scanner` | Sinh và quét mã QR xác nhận hai chiều (Double-handshake QR) |
+| **Backend & Realtime**| Firebase (Auth, Firestore, Storage, Messaging) | Xác thực OTP, đồng bộ vị trí nguyên liệu & kho lạnh thời gian thực |
+| **Đa ngôn ngữ** | `flutter_localizations`, `intl` | Tiếng Việt & Tiếng Anh |
 | **Testing** | `flutter_test`, `mocktail` | Viết unit tests cho domain layer |
 | **Linting** | `flutter_lints` | Phân tích tĩnh code nghiêm ngặt |
-
----
 
 ## 🚀 Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
 
@@ -109,15 +111,16 @@ test/
 
 - `/login`: Đăng nhập bằng số điện thoại
 - `/otp-verification`: Nhập mã xác thực OTP
-- `/onboarding-role`: Chọn vai trò (Cá nhân hoặc Cửa hàng)
-- `/home`: Trang chính xem bản đồ và danh sách thực phẩm
-- `/create-listing`: Tạo tin đăng chia sẻ thực phẩm
-- `/listing/:id`: Xem chi tiết món ăn & bấm giữ chỗ
-- `/reservation/:id`: Màn hình đếm ngược 20 phút & hiển thị mã QR
-- `/reservation/:id/scan`: Người cho thực phẩm quét mã QR xác nhận
-- `/chat/:reservationId`: Nhắn tin trao đổi giữa 2 bên
-- `/store/:id`: Xem hồ sơ doanh nghiệp / cửa hàng
-- `/profile`: Xem điểm uy tín, lịch sử và cài đặt
+- `/onboarding-role`: Chọn vai trò (Cá nhân, Cửa hàng / Siêu thị, Bếp ăn từ thiện)
+- `/home`: Trang chính bản đồ thời gian thực (Cluster Map, bộ lọc bán kính & danh mục)
+- `/create-listing`: Tạo tin đăng mẻ nguyên liệu / thực phẩm dư
+- `/listing/:id`: Xem chi tiết nguyên liệu, điểm phát đồ ăn & bấm giữ chỗ lấy hàng
+- `/reservation/:id`: Màn hình giữ chỗ & mã QR xác thực nhận hàng hai chiều
+- `/reservation/:id/scan`: Quét mã QR xác nhận bàn giao nguyên liệu
+- `/recipe-copilot`: Trợ lý AI gợi ý thực đơn cho bếp ăn từ thiện (Smart Recipe Copilot)
+- `/recipe/:id`: Chi tiết công thức nấu số lượng lớn (50-200 người) & checklist nguyên liệu
+- `/store/:id`: Hồ sơ điểm phát đồ ăn / bếp thiện nguyện / cửa hàng đối tác
+- `/profile`: Thông tin tài khoản, chỉ số kg thực phẩm đã giải cứu & cài đặt
 
 ---
 

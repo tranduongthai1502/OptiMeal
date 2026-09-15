@@ -168,7 +168,7 @@ class ReservationDetailScreen extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
-              // QR Code Section for pickup verification
+              // QR Code Section for pickup verification (Double-handshake QR)
               if (!isExpired) ...[
                 Container(
                   padding: const EdgeInsets.all(24),
@@ -179,20 +179,28 @@ class ReservationDetailScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
-                      const Text(
-                        'MÃ XÁC NHẬN GIAO NHẬN',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
-                        ),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.handshake_rounded,
+                              color: AppColors.primary, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'XÁC THỰC HAI CHIỀU (DOUBLE-HANDSHAKE)',
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Xuất trình mã này cho người cho thực phẩm quét khi bạn đến lấy.',
+                        'Xuất trình mã này cho bên cho quét, hoặc bấm nút bên dưới để quét mã QR của bên cho để hoàn tất bàn giao.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 13, color: AppColors.textSecondaryLight),
+                            fontSize: 12.5, color: AppColors.textSecondaryLight),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -201,25 +209,33 @@ class ReservationDetailScreen extends ConsumerWidget {
                         child: QrImageView(
                           data: reservation.qrCodeData,
                           version: QrVersions.auto,
-                          size: 180.0,
+                          size: 180,
                           eyeStyle: const QrEyeStyle(
                             eyeShape: QrEyeShape.square,
-                            color: AppColors.secondary,
+                            color: AppColors.primaryDark,
                           ),
                           dataModuleStyle: const QrDataModuleStyle(
                             dataModuleShape: QrDataModuleShape.square,
-                            color: AppColors.secondary,
+                            color: AppColors.primaryDark,
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Mã: ${reservation.id.toUpperCase()}',
+                        'Mã giữ chỗ: ${reservation.id.toUpperCase()}',
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textSecondaryLight,
                         ),
+                      ),
+                      const SizedBox(height: 14),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
+                        label: const Text('Quét mã của bên đối tác (Handshake)'),
+                        onPressed: () {
+                          context.push(RoutePaths.qrScannerPath(reservation.id));
+                        },
                       ),
                     ],
                   ),

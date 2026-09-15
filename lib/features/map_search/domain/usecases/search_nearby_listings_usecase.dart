@@ -19,6 +19,7 @@ class SearchNearbyListingsUseCase {
       longitude: longitude,
       radiusKm: filter.radiusKm,
       condition: filter.condition,
+      category: filter.category,
     );
 
     return result.map((listings) {

@@ -13,12 +13,14 @@ class GetListingsUseCase {
     required double longitude,
     required double radiusKm,
     FoodCondition? condition,
+    FoodCategory? category,
   }) {
     return repository.getNearbyListings(
       latitude: latitude,
       longitude: longitude,
       radiusKm: radiusKm,
       condition: condition,
+      category: category,
     );
   }
 }

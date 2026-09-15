@@ -86,10 +86,21 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               // Store Card Option
               _buildRoleCard(
                 role: UserRole.store,
-                title: 'Cửa hàng / Nhà hàng',
+                title: 'Cửa hàng / Nhà hàng / Siêu thị',
                 description:
                     'Tiệm bánh, quán ăn, siêu thị muốn giải cứu thực phẩm cuối ngày và giảm lãng phí.',
                 icon: Icons.storefront_rounded,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Charity Kitchen Card Option
+              _buildRoleCard(
+                role: UserRole.charityKitchen,
+                title: 'Bếp ăn từ thiện / Điểm thiện nguyện',
+                description:
+                    'Nhận mẻ nguyên liệu số lượng lớn để nấu suất ăn từ thiện và chia sẻ điểm phát cơm miễn phí.',
+                icon: Icons.volunteer_activism_rounded,
               ),
 
               const SizedBox(height: 24),
@@ -98,7 +109,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                 decoration: InputDecoration(
                   labelText: _selectedRole == UserRole.store
                       ? 'Tên cửa hàng / thương hiệu'
-                      : 'Họ và tên của bạn',
+                      : _selectedRole == UserRole.charityKitchen
+                          ? 'Tên bếp ăn từ thiện / Tổ chức'
+                          : 'Họ và tên của bạn',
                   prefixIcon: const Icon(Icons.badge_outlined),
                 ),
               ),

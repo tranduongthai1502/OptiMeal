@@ -10,6 +10,7 @@ abstract class ListingsRepository {
     required double longitude,
     required double radiusKm,
     FoodCondition? condition,
+    FoodCategory? category,
   });
 
   /// Fetches single listing detail by ID.
