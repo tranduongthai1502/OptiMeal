@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/recipe_entity.dart';
 import '../../domain/repositories/recipe_copilot_repository.dart';
@@ -9,21 +10,27 @@ class RecipeCopilotRepositoryImpl implements RecipeCopilotRepository {
       id: 'cs-01',
       name: 'Đậu phụ tươi',
       quantityKg: 20.0,
-      expiryDate: DateTime.now().add(const Duration(hours: 14)), // Hết hạn trong 14 tiếng!
+      expiryDate: DateTime.now().add(
+        const Duration(hours: 14),
+      ), // Hết hạn trong 14 tiếng!
       category: 'Tươi sống',
     ),
     ColdStorageIngredient(
       id: 'cs-02',
       name: 'Cải thìa Đà Lạt',
       quantityKg: 25.0,
-      expiryDate: DateTime.now().add(const Duration(hours: 18)), // Hết hạn trong 18 tiếng!
+      expiryDate: DateTime.now().add(
+        const Duration(hours: 18),
+      ), // Hết hạn trong 18 tiếng!
       category: 'Rau củ',
     ),
     ColdStorageIngredient(
       id: 'cs-03',
       name: 'Cà chua chín mọng',
       quantityKg: 15.0,
-      expiryDate: DateTime.now().add(const Duration(hours: 22)), // Hết hạn trong 22 tiếng!
+      expiryDate: DateTime.now().add(
+        const Duration(hours: 22),
+      ), // Hết hạn trong 22 tiếng!
       category: 'Rau củ',
     ),
     ColdStorageIngredient(
@@ -220,9 +227,9 @@ class RecipeCopilotRepositoryImpl implements RecipeCopilotRepository {
   @override
   Future<Either<Failure, BatchRecipe>> getRecipeById(String id) async {
     final list = await generateBatchRecipes(targetPortions: 100);
-    return list.map((recipes) => recipes.firstWhere(
-          (r) => r.id == id,
-          orElse: () => recipes.first,
-        ));
+    return list.map(
+      (recipes) =>
+          recipes.firstWhere((r) => r.id == id, orElse: () => recipes.first),
+    );
   }
 }

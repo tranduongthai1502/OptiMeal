@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 
 class ReputationBadge extends StatelessWidget {
@@ -38,7 +39,9 @@ class ReputationBadge extends StatelessWidget {
             Text(
               '($totalReviews)',
               style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondaryLight),
+                fontSize: 11,
+                color: AppColors.textSecondaryLight,
+              ),
             ),
           ],
         ],

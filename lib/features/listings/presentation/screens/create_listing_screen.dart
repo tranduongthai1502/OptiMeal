@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/domain/entities/user_entity.dart';
@@ -21,8 +22,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   final _descController = TextEditingController();
   final _quantityController = TextEditingController(text: '10');
   final _priceController = TextEditingController();
-  final _addressController =
-      TextEditingController(text: '180 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP.HCM');
+  final _addressController = TextEditingController(
+    text: '180 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP.HCM',
+  );
 
   FoodCategory _category = FoodCategory.vegetables;
   String _unit = 'kg';
@@ -100,14 +102,17 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       (failure) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(failure.message), backgroundColor: AppColors.error),
+            content: Text(failure.message),
+            backgroundColor: AppColors.error,
+          ),
         );
       },
       (created) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Đăng tin và ghim vị trí lên bản đồ thành công!'),
-              backgroundColor: AppColors.primary),
+            content: Text('Đăng tin và ghim vị trí lên bản đồ thành công!'),
+            backgroundColor: AppColors.primary,
+          ),
         );
         ref.invalidate(nearbyListingsProvider);
         context.pop();
@@ -118,9 +123,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ghim mẻ thực phẩm / Điểm phát'),
-      ),
+      appBar: AppBar(title: const Text('Ghim mẻ thực phẩm / Điểm phát')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -149,14 +152,19 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.location_on_rounded,
-                              color: AppColors.primary, size: 24),
+                          const Icon(
+                            Icons.location_on_rounded,
+                            color: AppColors.primary,
+                            size: 24,
+                          ),
                           const SizedBox(width: 8),
                           const Expanded(
                             child: Text(
                               'Vị trí ghim trên Bản đồ',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                           TextButton.icon(
@@ -167,7 +175,10 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                               });
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Đã cập nhật tọa độ GPS hiện tại')),
+                                  content: Text(
+                                    'Đã cập nhật tọa độ GPS hiện tại',
+                                  ),
+                                ),
                               );
                             },
                             icon: const Icon(Icons.my_location, size: 16),
@@ -191,7 +202,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       Text(
                         'Tọa độ ghim: ${_selectedLat.toStringAsFixed(4)}, ${_selectedLng.toStringAsFixed(4)} (Người nhận sẽ được chỉ đường đến đây)',
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondaryLight),
+                          fontSize: 12,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ),
@@ -301,20 +314,25 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                       flex: 3,
                       child: DropdownButtonFormField<FoodCondition>(
                         initialValue: _condition,
-                        decoration:
-                            const InputDecoration(labelText: 'Hình thức'),
+                        decoration: const InputDecoration(
+                          labelText: 'Hình thức',
+                        ),
                         items: const [
                           DropdownMenuItem(
-                              value: FoodCondition.free,
-                              child: Text('Tặng 0đ')),
+                            value: FoodCondition.free,
+                            child: Text('Tặng 0đ'),
+                          ),
                           DropdownMenuItem(
-                              value: FoodCondition.paid,
-                              child: Text('Giá cứu hộ')),
+                            value: FoodCondition.paid,
+                            child: Text('Giá cứu hộ'),
+                          ),
                         ],
                         onChanged: _category == FoodCategory.charityMealPoint
                             ? null
                             : (val) {
-                                if (val != null) setState(() => _condition = val);
+                                if (val != null) {
+                                  setState(() => _condition = val);
+                                }
                               },
                       ),
                     ),

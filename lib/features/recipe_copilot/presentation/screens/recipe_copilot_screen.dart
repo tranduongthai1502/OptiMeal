@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/route_paths.dart';
 
 class RecipeCopilotScreen extends ConsumerStatefulWidget {
@@ -33,7 +34,7 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
       'qty': '8kg',
       'icon': Icons.eco_rounded,
       'isExpiring': false,
-      'color': Color(0xFFFEA619),
+      'color': const Color(0xFFFEA619),
     },
     {
       'name': 'Cabbage',
@@ -125,14 +126,17 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
 
   void _addNewIngredient() {
     final textController = TextEditingController();
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Thêm Nguyên Liệu Cứu Trợ',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Thêm Nguyên Liệu Cứu Trợ',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           content: TextField(
             controller: textController,
             autofocus: true,
@@ -181,7 +185,6 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
     const surfaceLow = Color(0xFFF2F3FF);
     const surfaceContainer = Color(0xFFEAEDFF);
     const surfaceHigh = Color(0xFFE2E7FF);
-    const surfaceHighest = Color(0xFFDAE2FD);
     const primary = Color(0xFF006B2C);
     const primaryContainer = Color(0xFF00873A);
     const primaryFixed = Color(0xFF7FFC97);
@@ -214,14 +217,16 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: primaryContainer.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(Icons.auto_awesome, size: 14, color: primary),
                           SizedBox(width: 4),
                           Text(
@@ -238,16 +243,21 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: surfaceHigh,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.soup_kitchen_rounded,
-                              size: 14, color: primary),
+                        children: [
+                          Icon(
+                            Icons.soup_kitchen_rounded,
+                            size: 14,
+                            color: primary,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             'Hub #04 • Da Nang',
@@ -316,8 +326,11 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                   color: surfaceContainer,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.kitchen_rounded,
-                                    color: primary, size: 18),
+                                child: const Icon(
+                                  Icons.kitchen_rounded,
+                                  color: primary,
+                                  size: 18,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Column(
@@ -357,7 +370,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
@@ -388,18 +403,24 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                 builder: (context, child) {
                                   return Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 6),
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: tertiaryContainer.withValues(
-                                          alpha: 0.1 +
-                                              (_pulseController.value * 0.1)),
+                                        alpha: 0.1 +
+                                            (_pulseController.value * 0.1),
+                                      ),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(item['icon'] as IconData,
-                                            size: 15, color: tertiary),
+                                        Icon(
+                                          item['icon'] as IconData,
+                                          size: 15,
+                                          color: tertiary,
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           '${item['name']} ',
@@ -420,11 +441,14 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                         const SizedBox(width: 4),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 6, vertical: 2),
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: tertiary,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
                                           child: Text(
                                             item['expiry'] as String,
@@ -445,7 +469,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             final isCarrot = item['name'] == 'Carrots';
                             return Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: isCarrot
                                     ? secondaryFixed.withValues(alpha: 0.6)
@@ -491,16 +517,21 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: surfaceHigh,
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.add,
-                                      size: 15, color: onSurfaceVariant),
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    size: 15,
+                                    color: onSurfaceVariant,
+                                  ),
                                   SizedBox(width: 4),
                                   Text(
                                     'Add item',
@@ -526,8 +557,8 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Icon(Icons.group_rounded, color: primary, size: 18),
                         SizedBox(width: 6),
                         Text(
@@ -615,8 +646,8 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                 ),
 
                 const SizedBox(height: 6),
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Icon(Icons.verified, size: 13, color: primary),
                     SizedBox(width: 4),
                     Expanded(
@@ -644,9 +675,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                       elevation: 2,
                     ),
                     child: _isGenerating
-                        ? Row(
+                        ? const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               SizedBox(
                                 width: 18,
                                 height: 18,
@@ -666,11 +697,14 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             ],
                           )
                         : _isGeneratedSuccess
-                            ? Row(
+                            ? const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.check_circle,
-                                      color: primaryFixed, size: 20),
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: primaryFixed,
+                                    size: 20,
+                                  ),
                                   SizedBox(width: 8),
                                   Text(
                                     'Menu Regenerated!',
@@ -681,9 +715,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                   ),
                                 ],
                               )
-                            : Row(
+                            : const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Icon(Icons.auto_awesome, size: 20),
                                   SizedBox(width: 8),
                                   Text(
@@ -701,13 +735,16 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                 const SizedBox(height: 20),
 
                 // Recipe Recommendations Title
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.restaurant_menu_rounded,
-                            color: primary, size: 20),
+                      children: [
+                        Icon(
+                          Icons.restaurant_menu_rounded,
+                          color: primary,
+                          size: 20,
+                        ),
                         SizedBox(width: 6),
                         Text(
                           'Curated Bulk Menus',
@@ -719,7 +756,7 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                         ),
                       ],
                     ),
-                    const Text(
+                    Text(
                       '2 matches ready',
                       style: TextStyle(fontSize: 12, color: onSurfaceVariant),
                     ),
@@ -749,14 +786,19 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                       Container(
                         color: primary,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: const [
-                                Icon(Icons.workspace_premium_rounded,
-                                    color: secondaryFixed, size: 16),
+                            const Row(
+                              children: [
+                                Icon(
+                                  Icons.workspace_premium_rounded,
+                                  color: secondaryFixed,
+                                  size: 16,
+                                ),
                                 SizedBox(width: 6),
                                 Text(
                                   'Best Zero-Waste Match',
@@ -770,7 +812,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
@@ -817,11 +861,16 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                       right: 4,
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 4, vertical: 1),
+                                          horizontal: 4,
+                                          vertical: 1,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.65),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.65,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: const Text(
                                           'Rescued',
@@ -864,16 +913,23 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                         children: [
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 2),
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: primary.withValues(alpha: 0.1),
+                                              color: primary.withValues(
+                                                alpha: 0.1,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
-                                            child: Row(
-                                              children: const [
-                                                Icon(Icons.schedule,
-                                                    size: 11, color: primary),
+                                            child: const Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.schedule,
+                                                  size: 11,
+                                                  color: primary,
+                                                ),
                                                 SizedBox(width: 2),
                                                 Text(
                                                   '45m prep',
@@ -889,16 +945,21 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                           const SizedBox(width: 6),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 2),
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: surfaceContainer,
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
-                                            child: Row(
-                                              children: const [
-                                                Icon(Icons.savings_rounded,
-                                                    size: 11, color: primary),
+                                            child: const Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.savings_rounded,
+                                                  size: 11,
+                                                  color: primary,
+                                                ),
                                                 SizedBox(width: 2),
                                                 Text(
                                                   '0 VND cost',
@@ -934,10 +995,13 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                 children: [
                                   Column(
                                     children: [
-                                      const Text('Target Yield',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: onSurfaceVariant)),
+                                      const Text(
+                                        'Target Yield',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: onSurfaceVariant,
+                                        ),
+                                      ),
                                       Text(
                                         '$_selectedBatchSize Portions',
                                         style: const TextStyle(
@@ -954,12 +1018,15 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                     color: const Color(0xFFBDCABA)
                                         .withValues(alpha: 0.4),
                                   ),
-                                  Column(
-                                    children: const [
-                                      Text('Protein / Ptn',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: onSurfaceVariant)),
+                                  const Column(
+                                    children: [
+                                      Text(
+                                        'Protein / Ptn',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: onSurfaceVariant,
+                                        ),
+                                      ),
                                       Text(
                                         '18.5g',
                                         style: TextStyle(
@@ -976,12 +1043,15 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                     color: const Color(0xFFBDCABA)
                                         .withValues(alpha: 0.4),
                                   ),
-                                  Column(
-                                    children: const [
-                                      Text('Energy',
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: onSurfaceVariant)),
+                                  const Column(
+                                    children: [
+                                      Text(
+                                        'Energy',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: onSurfaceVariant,
+                                        ),
+                                      ),
                                       Text(
                                         '450 kcal',
                                         style: TextStyle(
@@ -1013,21 +1083,25 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                               runSpacing: 4,
                               children: [
                                 _buildIngredientBadge(
-                                    'Tofu ${_selectedBatchSize == 50 ? '8' : _selectedBatchSize == 200 ? '15' : '15'}kg',
-                                    surfaceContainer,
-                                    onSurface),
+                                  'Tofu ${_selectedBatchSize == 50 ? '8' : _selectedBatchSize == 200 ? '15' : '15'}kg',
+                                  surfaceContainer,
+                                  onSurface,
+                                ),
                                 _buildIngredientBadge(
-                                    'Cabbage ${_selectedBatchSize == 50 ? '9' : _selectedBatchSize == 200 ? '20' : '18'}kg (urgent)',
-                                    tertiaryContainer.withValues(alpha: 0.15),
-                                    tertiary),
+                                  'Cabbage ${_selectedBatchSize == 50 ? '9' : _selectedBatchSize == 200 ? '20' : '18'}kg (urgent)',
+                                  tertiaryContainer.withValues(alpha: 0.15),
+                                  tertiary,
+                                ),
                                 _buildIngredientBadge(
-                                    'Carrots ${_selectedBatchSize == 50 ? '4' : _selectedBatchSize == 200 ? '8' : '7'}kg',
-                                    secondaryFixed.withValues(alpha: 0.6),
-                                    onSecondaryFixed),
+                                  'Carrots ${_selectedBatchSize == 50 ? '4' : _selectedBatchSize == 200 ? '8' : '7'}kg',
+                                  secondaryFixed.withValues(alpha: 0.6),
+                                  onSecondaryFixed,
+                                ),
                                 _buildIngredientBadge(
-                                    'Shiitake ${_selectedBatchSize == 50 ? '2' : _selectedBatchSize == 200 ? '5' : '4'}kg',
-                                    surfaceContainer,
-                                    onSurface),
+                                  'Shiitake ${_selectedBatchSize == 50 ? '2' : _selectedBatchSize == 200 ? '5' : '4'}kg',
+                                  surfaceContainer,
+                                  onSurface,
+                                ),
                               ],
                             ),
 
@@ -1046,15 +1120,20 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                 borderRadius: BorderRadius.circular(8),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        children: const [
-                                          Icon(Icons.checklist_rounded,
-                                              size: 18, color: primary),
+                                      const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.checklist_rounded,
+                                            size: 18,
+                                            color: primary,
+                                          ),
                                           SizedBox(width: 6),
                                           Text(
                                             'Prep Schedule & Food Safety (HACCP)',
@@ -1124,15 +1203,18 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Expanded(
+                                    const Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: const [
+                                        children: [
                                           Row(
                                             children: [
-                                              Icon(Icons.thermostat_rounded,
-                                                  size: 15, color: secondary),
+                                              Icon(
+                                                Icons.thermostat_rounded,
+                                                size: 15,
+                                                color: secondary,
+                                              ),
                                               SizedBox(width: 4),
                                               Text(
                                                 'Critical Temperature Verification',
@@ -1206,7 +1288,9 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 1),
+                                    horizontal: 6,
+                                    vertical: 1,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: surfaceHigh,
                                     borderRadius: BorderRadius.circular(4),
@@ -1251,10 +1335,13 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: const [
-                                    Icon(Icons.timer_outlined,
-                                        size: 13, color: onSurfaceVariant),
+                                const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.timer_outlined,
+                                      size: 13,
+                                      color: onSurfaceVariant,
+                                    ),
                                     SizedBox(width: 2),
                                     Text(
                                       '55m Prep',
@@ -1270,13 +1357,14 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                            'Đã chuyển sang công thức: Cà Ri Chay!'),
+                                          'Đã chuyển sang công thức: Cà Ri Chay!',
+                                        ),
                                         duration: Duration(seconds: 1),
                                       ),
                                     );
                                   },
-                                  child: Row(
-                                    children: const [
+                                  child: const Row(
+                                    children: [
                                       Text(
                                         'Select Option',
                                         style: TextStyle(
@@ -1285,8 +1373,11 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                           color: primary,
                                         ),
                                       ),
-                                      Icon(Icons.chevron_right,
-                                          size: 16, color: primary),
+                                      Icon(
+                                        Icons.chevron_right,
+                                        size: 16,
+                                        color: primary,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1317,14 +1408,17 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                           color: primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.compost_rounded,
-                            color: Colors.white, size: 22),
+                        child: const Icon(
+                          Icons.compost_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Environmental Delta',
                               style: TextStyle(
@@ -1390,8 +1484,10 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(_isSaved ? Icons.download_done : Icons.task_alt,
-                          size: 20),
+                      Icon(
+                        _isSaved ? Icons.download_done : Icons.task_alt,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         _isSaved
@@ -1530,12 +1626,12 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
         child: Column(
           children: [
             // Status bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     '9:41',
                     style: TextStyle(
                       fontSize: 12,
@@ -1544,9 +1640,12 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                     ),
                   ),
                   Row(
-                    children: const [
-                      Icon(Icons.signal_cellular_alt,
-                          size: 16, color: onSurface),
+                    children: [
+                      Icon(
+                        Icons.signal_cellular_alt,
+                        size: 16,
+                        color: onSurface,
+                      ),
                       SizedBox(width: 4),
                       Icon(Icons.wifi, size: 16, color: onSurface),
                       SizedBox(width: 4),
@@ -1570,8 +1669,7 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                         errorBuilder: (context, error, stackTrace) {
                           return const Row(
                             children: [
-                              Icon(Icons.eco_rounded,
-                                  color: primary, size: 26),
+                              Icon(Icons.eco_rounded, color: primary, size: 26),
                               SizedBox(width: 4),
                               Text(
                                 'OptiMeal',
@@ -1589,17 +1687,22 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                       InkWell(
                         onTap: () {},
                         borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 4),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
                           child: Row(
                             children: [
-                              const Icon(Icons.location_on,
-                                  color: primary, size: 18),
-                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.location_on,
+                                color: primary,
+                                size: 18,
+                              ),
+                              SizedBox(width: 4),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text(
                                     'Pickup Location',
                                     style: TextStyle(
@@ -1618,8 +1721,11 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                                   ),
                                 ],
                               ),
-                              const Icon(Icons.keyboard_arrow_down,
-                                  size: 16, color: onSurfaceVariant),
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: onSurfaceVariant,
+                              ),
                             ],
                           ),
                         ),
@@ -1631,8 +1737,10 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                       Stack(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.notifications_none,
-                                color: onSurface),
+                            icon: const Icon(
+                              Icons.notifications_none,
+                              color: onSurface,
+                            ),
                             onPressed: () {},
                           ),
                           Positioned(
@@ -1666,8 +1774,11 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                         child: const CircleAvatar(
                           radius: 16,
                           backgroundColor: Color(0xFFDAE2FD),
-                          child: Icon(Icons.person,
-                              size: 18, color: Color(0xFF006B2C)),
+                          child: Icon(
+                            Icons.person,
+                            size: 18,
+                            color: Color(0xFF006B2C),
+                          ),
                         ),
                       ),
                     ],
@@ -1685,7 +1796,6 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
     const bgSurface = Color(0xFFFAF8FF);
     const primary = Color(0xFF006B2C);
     const primaryContainer = Color(0xFF00873A);
-    const onSurfaceVariant = Color(0xFF3E4A3D);
 
     return Container(
       decoration: BoxDecoration(
@@ -1739,8 +1849,11 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.add,
-                            color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),
@@ -1791,11 +1904,7 @@ class _RecipeCopilotScreenState extends ConsumerState<RecipeCopilotScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isActive ? primary : onSurfaceVariant,
-            ),
+            Icon(icon, size: 22, color: isActive ? primary : onSurfaceVariant),
             const SizedBox(height: 2),
             Text(
               label,

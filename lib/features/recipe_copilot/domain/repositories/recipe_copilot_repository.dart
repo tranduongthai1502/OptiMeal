@@ -1,10 +1,12 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../entities/recipe_entity.dart';
 
 abstract class RecipeCopilotRepository {
   /// Fetches ingredients currently logged in charity kitchen cold storage.
-  Future<Either<Failure, List<ColdStorageIngredient>>> getColdStorageIngredients();
+  Future<Either<Failure, List<ColdStorageIngredient>>>
+      getColdStorageIngredients();
 
   /// AI Copilot generation: generates batch recipes tailored for 50-200 portions,
   /// with hard priority on short-expiry ingredients.

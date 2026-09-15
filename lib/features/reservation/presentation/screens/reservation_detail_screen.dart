@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_time_utils.dart';
@@ -96,47 +97,62 @@ class ReservationDetailScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     if (isCompleted) ...[
-                      const Icon(Icons.check_circle_rounded,
-                          color: AppColors.primary, size: 48),
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.primary,
+                        size: 48,
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'GIAO NHẬN THÀNH CÔNG',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: AppColors.primaryDark),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: AppColors.primaryDark,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Cảm ơn bạn đã đồng hành cứu trợ thực phẩm cùng cộng đồng!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 13, color: AppColors.textSecondaryLight),
+                          fontSize: 13,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                     ] else if (isExpired) ...[
-                      const Icon(Icons.timer_off_outlined,
-                          color: AppColors.error, size: 48),
+                      const Icon(
+                        Icons.timer_off_outlined,
+                        color: AppColors.error,
+                        size: 48,
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'ĐÃ HẾT HẠN GIỮ CHỖ',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: AppColors.error),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: AppColors.error,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Thời gian giữ chỗ 20 phút đã kết thúc. Thực phẩm đã được trả lại danh sách cộng đồng.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 13, color: AppColors.textSecondaryLight),
+                          fontSize: 13,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                     ] else ...[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.timer_outlined,
-                              color: AppColors.warning, size: 24),
+                          const Icon(
+                            Icons.timer_outlined,
+                            color: AppColors.warning,
+                            size: 24,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             DateTimeUtils.formatCountdown(remainingTime),
@@ -153,13 +169,17 @@ class ReservationDetailScreen extends ConsumerWidget {
                       const Text(
                         'Thời gian giữ chỗ còn lại (Tự đến lấy)',
                         style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Vui lòng di chuyển đến địa điểm nhận trước khi đồng hồ về 00:00.',
                         style: TextStyle(
-                            fontSize: 12, color: AppColors.textSecondaryLight),
+                          fontSize: 12,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ],
@@ -182,8 +202,11 @@ class ReservationDetailScreen extends ConsumerWidget {
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.handshake_rounded,
-                              color: AppColors.primary, size: 20),
+                          Icon(
+                            Icons.handshake_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'XÁC THỰC HAI CHIỀU (DOUBLE-HANDSHAKE)',
@@ -200,7 +223,9 @@ class ReservationDetailScreen extends ConsumerWidget {
                         'Xuất trình mã này cho bên cho quét, hoặc bấm nút bên dưới để quét mã QR của bên cho để hoàn tất bàn giao.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 12.5, color: AppColors.textSecondaryLight),
+                          fontSize: 12.5,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -231,10 +256,17 @@ class ReservationDetailScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 14),
                       OutlinedButton.icon(
-                        icon: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
-                        label: const Text('Quét mã của bên đối tác (Handshake)'),
+                        icon: const Icon(
+                          Icons.qr_code_scanner,
+                          color: AppColors.primary,
+                        ),
+                        label: const Text(
+                          'Quét mã của bên đối tác (Handshake)',
+                        ),
                         onPressed: () {
-                          context.push(RoutePaths.qrScannerPath(reservation.id));
+                          context.push(
+                            RoutePaths.qrScannerPath(reservation.id),
+                          );
                         },
                       ),
                     ],
@@ -277,7 +309,9 @@ class ReservationDetailScreen extends ConsumerWidget {
                   child: const Text(
                     'Hủy giữ chỗ (Nhường cho người khác)',
                     style: TextStyle(
-                        color: AppColors.error, fontWeight: FontWeight.w600),
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

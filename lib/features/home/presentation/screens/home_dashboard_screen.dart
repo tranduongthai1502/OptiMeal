@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/route_paths.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
@@ -24,7 +25,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   ];
 
   void _handleReserve(String cardId) {
-    if (_reservedCards.contains(cardId) || _holdingCards.contains(cardId)) return;
+    if (_reservedCards.contains(cardId) || _holdingCards.contains(cardId)) {
+      return;
+    }
 
     setState(() {
       _holdingCards.add(cardId);
@@ -38,7 +41,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đã giữ chỗ thành công! Mã QR nhận hàng đã lưu vào mục Hồ sơ.'),
+            content: Text(
+              'Đã giữ chỗ thành công! Mã QR nhận hàng đã lưu vào mục Hồ sơ.',
+            ),
             backgroundColor: Color(0xFF006B2C),
             duration: Duration(seconds: 2),
           ),
@@ -61,7 +66,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
     const secondaryFixed = Color(0xFFFFDDB8);
     const onSecondaryFixed = Color(0xFF2A1700);
     const secondaryContainer = Color(0xFFFEA619);
-    const onSecondaryContainer = Color(0xFF684000);
     const onSurface = Color(0xFF131B2E);
     const onSurfaceVariant = Color(0xFF3E4A3D);
     const errorColor = Color(0xFFBA1A1A);
@@ -117,7 +121,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: primaryFixed.withValues(alpha: 0.4),
                                   borderRadius: BorderRadius.circular(20),
@@ -125,7 +131,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                 child: const Row(
                                   children: [
                                     CircleAvatar(
-                                        radius: 3.5, backgroundColor: primary),
+                                      radius: 3.5,
+                                      backgroundColor: primary,
+                                    ),
                                     SizedBox(width: 5),
                                     Text(
                                       'Live Da Nang',
@@ -154,19 +162,24 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.psychology_alt_rounded,
-                                              size: 16, color: primary),
+                                          Icon(
+                                            Icons.psychology_alt_rounded,
+                                            size: 16,
+                                            color: primary,
+                                          ),
                                           SizedBox(width: 4),
                                           Text(
                                             'Rescued Today',
                                             style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w500,
-                                                color: onSurfaceVariant),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: onSurfaceVariant,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -189,9 +202,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                           Text(
                                             'kg',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: onSurfaceVariant),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: onSurfaceVariant,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -210,19 +224,24 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.volunteer_activism_rounded,
-                                              size: 16, color: Color(0xFF855300)),
+                                          Icon(
+                                            Icons.volunteer_activism_rounded,
+                                            size: 16,
+                                            color: Color(0xFF855300),
+                                          ),
                                           SizedBox(width: 4),
                                           Text(
                                             'Active Kitchens',
                                             style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w500,
-                                                color: onSurfaceVariant),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: onSurfaceVariant,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -245,9 +264,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                           Text(
                                             'hubs',
                                             style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: onSurfaceVariant),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: onSurfaceVariant,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -262,15 +282,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                           // CO2 Reduction Callout
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: primaryContainer,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Row(
                               children: [
-                                Icon(Icons.eco_outlined,
-                                    color: primaryFixed, size: 18),
+                                Icon(
+                                  Icons.eco_outlined,
+                                  color: primaryFixed,
+                                  size: 18,
+                                ),
                                 SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
@@ -282,8 +307,11 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                     ),
                                   ),
                                 ),
-                                Icon(Icons.trending_up,
-                                    color: Colors.white70, size: 18),
+                                Icon(
+                                  Icons.trending_up,
+                                  color: Colors.white70,
+                                  size: 18,
+                                ),
                               ],
                             ),
                           ),
@@ -327,7 +355,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                           iconColor: onSurface,
                           icon: Icons.qr_code_scanner_rounded,
                           label: 'Scan QR',
-                          onTap: () => context.push(RoutePaths.qrScannerPath('active')),
+                          onTap: () =>
+                              context.push(RoutePaths.qrScannerPath('active')),
                         ),
                       ],
                     ),
@@ -354,7 +383,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected ? onSurface : surfaceLowest,
                                 borderRadius: BorderRadius.circular(20),
@@ -372,7 +403,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: isSelected ? bgSurface : onSurfaceVariant,
+                                    color: isSelected
+                                        ? bgSurface
+                                        : onSurfaceVariant,
                                   ),
                                 ),
                               ),
@@ -392,7 +425,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                       children: [
                         const Row(
                           children: [
-                            CircleAvatar(radius: 4, backgroundColor: secondaryContainer),
+                            CircleAvatar(
+                              radius: 4,
+                              backgroundColor: secondaryContainer,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Rescue Nearby (< 24h Left)',
@@ -416,7 +452,11 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                   color: primary,
                                 ),
                               ),
-                              Icon(Icons.chevron_right, size: 16, color: primary),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: primary,
+                              ),
                             ],
                           ),
                         ),
@@ -499,8 +539,11 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                               color: primaryFixed,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.store_rounded,
-                                color: onPrimaryFixed, size: 22),
+                            child: const Icon(
+                              Icons.store_rounded,
+                              color: onPrimaryFixed,
+                              size: 22,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           const Expanded(
@@ -519,19 +562,24 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                 Text(
                                   'List surplus in 45 seconds & feed locals',
                                   style: TextStyle(
-                                      fontSize: 12, color: onSurfaceVariant),
+                                    fontSize: 12,
+                                    color: onSurfaceVariant,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () => context.push(RoutePaths.createListing),
+                            onPressed: () =>
+                                context.push(RoutePaths.createListing),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: surfaceLowest,
                               foregroundColor: primary,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 8),
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -539,7 +587,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             child: const Text(
                               'Post Now',
                               style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.bold),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -557,7 +607,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
               right: 0,
               child: Container(
                 color: bgSurface.withValues(alpha: 0.95),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     // Brand Logo
@@ -569,11 +622,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                         children: [
                           Icon(Icons.eco, color: primary, size: 28),
                           SizedBox(width: 4),
-                          Text('OptiMeal',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 18,
-                                  color: primary)),
+                          Text(
+                            'OptiMeal',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                              color: primary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -585,7 +641,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                         onTap: () => context.push(RoutePaths.mapSearch),
                         borderRadius: BorderRadius.circular(8),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 4,
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -599,23 +658,28 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                     Text(
                                       'Pickup Location',
                                       style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                          color: onSurfaceVariant),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: onSurfaceVariant,
+                                      ),
                                     ),
                                     Text(
                                       'Da Nang, Vietnam',
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: onSurface),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: onSurface,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(Icons.keyboard_arrow_down,
-                                  size: 18, color: onSurfaceVariant),
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 18,
+                                color: onSurfaceVariant,
+                              ),
                             ],
                           ),
                         ),
@@ -628,8 +692,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                         Stack(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.notifications_outlined,
-                                  color: onSurfaceVariant),
+                              icon: const Icon(
+                                Icons.notifications_outlined,
+                                color: onSurfaceVariant,
+                              ),
                               onPressed: () {},
                             ),
                             Positioned(
@@ -644,9 +710,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                                 child: const Text(
                                   '2',
                                   style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold),
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -718,7 +785,11 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ),
 
@@ -781,7 +852,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                   top: -3,
                   right: -3,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFEA619),
                       borderRadius: BorderRadius.circular(10),
@@ -875,7 +949,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                     top: 6,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: urgentColor,
                         borderRadius: BorderRadius.circular(6),
@@ -883,7 +960,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const CircleAvatar(radius: 2.5, backgroundColor: Colors.white),
+                          const CircleAvatar(
+                            radius: 2.5,
+                            backgroundColor: Colors.white,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             urgentTag,
@@ -948,7 +1028,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                     // Surplus details badge
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: surfaceLow,
                         borderRadius: BorderRadius.circular(6),
@@ -992,10 +1074,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
               ),
               Text(
                 tagRight,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: onSurfaceVariant,
-                ),
+                style: const TextStyle(fontSize: 11, color: onSurfaceVariant),
               ),
             ],
           ),
@@ -1025,9 +1104,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
             child: ElevatedButton(
               onPressed: () => _handleReserve(cardId),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isReserved
-                    ? const Color(0xFF00873A)
-                    : primary,
+                backgroundColor: isReserved ? const Color(0xFF00873A) : primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1047,8 +1124,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Text('Holding slot...',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Holding slot...',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     )
                   : isReserved
@@ -1057,8 +1136,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                           children: [
                             Icon(Icons.check_circle, size: 18),
                             SizedBox(width: 6),
-                            Text('Reserved! QR in Profile',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Reserved! QR in Profile',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         )
                       : const Row(
@@ -1067,7 +1148,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             Text(
                               'Reserve (Self-Pickup)',
                               style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             SizedBox(width: 6),
                             Icon(Icons.arrow_forward, size: 18),
@@ -1096,11 +1179,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isActive ? primary : onSurfaceVariant,
-            ),
+            Icon(icon, size: 22, color: isActive ? primary : onSurfaceVariant),
             const SizedBox(height: 2),
             Text(
               label,

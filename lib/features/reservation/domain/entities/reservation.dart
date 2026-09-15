@@ -93,7 +93,8 @@ class Reservation {
     bool? donorConfirmed,
     DateTime? completedAt,
   }) {
-    final updatedReceiverConfirmed = receiverConfirmed ?? this.receiverConfirmed;
+    final updatedReceiverConfirmed =
+        receiverConfirmed ?? this.receiverConfirmed;
     final updatedDonorConfirmed = donorConfirmed ?? this.donorConfirmed;
     final isFullyCompleted = updatedReceiverConfirmed && updatedDonorConfirmed;
 
@@ -102,14 +103,17 @@ class Reservation {
       listingId: listingId,
       claimerId: claimerId,
       ownerId: ownerId,
-      status: isFullyCompleted ? ReservationStatus.completed : (status ?? this.status),
+      status: isFullyCompleted
+          ? ReservationStatus.completed
+          : (status ?? this.status),
       heldAt: heldAt,
       expiresAt: expiresAt,
       qrCodeData: qrCodeData,
       donorQrCodeData: donorQrCodeData,
       receiverConfirmed: updatedReceiverConfirmed,
       donorConfirmed: updatedDonorConfirmed,
-      completedAt: isFullyCompleted ? (completedAt ?? DateTime.now()) : this.completedAt,
+      completedAt:
+          isFullyCompleted ? (completedAt ?? DateTime.now()) : this.completedAt,
     );
   }
 }

@@ -18,28 +18,30 @@ void main() {
   });
 
   group('CheckNoShowLimitUseCase Tests', () {
-    test('should allow reservation when no-show count is below threshold (< 3)',
-        () async {
-      const goodReputation = UserReputation(
-        userId: 'user-normal',
-        averageRating: 4.8,
-        totalReviews: 10,
-        completedTransactions: 12,
-        noShowCount: 1, // Below 3
-        isRestricted: false,
-      );
+    test(
+      'should allow reservation when no-show count is below threshold (< 3)',
+      () async {
+        const goodReputation = UserReputation(
+          userId: 'user-normal',
+          averageRating: 4.8,
+          totalReviews: 10,
+          completedTransactions: 12,
+          noShowCount: 1, // Below 3
+          isRestricted: false,
+        );
 
-      when(() => mockRepository.getUserReputation('user-normal'))
-          .thenAnswer((_) async => const Right(goodReputation));
+        when(() => mockRepository.getUserReputation('user-normal'))
+            .thenAnswer((_) async => const Right(goodReputation));
 
-      final result = await useCase('user-normal');
+        final result = await useCase('user-normal');
 
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be allowed'),
-        (isAllowed) => expect(isAllowed, isTrue),
-      );
-    });
+        expect(result.isRight(), isTrue);
+        result.fold(
+          (_) => fail('Should be allowed'),
+          (isAllowed) => expect(isAllowed, isTrue),
+        );
+      },
+    );
 
     test(
         'should restrict user and return ReputationRestrictedFailure when no-show count >= 3',

@@ -1,4 +1,5 @@
 /// Domain entities for the Smart Recipe Copilot feature.
+library;
 
 class ColdStorageIngredient {
   final String id;
@@ -18,7 +19,8 @@ class ColdStorageIngredient {
   Duration get remainingTime => expiryDate.difference(DateTime.now());
 
   /// True if item will expire within 24 hours
-  bool get isShortExpiry => remainingTime.inHours <= 24 && remainingTime.inHours >= 0;
+  bool get isShortExpiry =>
+      remainingTime.inHours <= 24 && remainingTime.inHours >= 0;
 }
 
 class BatchIngredient {

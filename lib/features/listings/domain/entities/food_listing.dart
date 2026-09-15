@@ -105,5 +105,6 @@ class FoodListing {
 
   Duration get remainingTime => expiresAt.difference(DateTime.now());
 
-  bool get isExpiringSoon => remainingTime.inHours <= 24 && remainingTime.inHours >= 0;
+  bool get isExpiringSoon =>
+      remainingTime.inHours <= 24 && remainingTime.inHours >= 0;
 }

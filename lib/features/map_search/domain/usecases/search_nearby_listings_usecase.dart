@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/failures.dart';
 import '../../../listings/domain/entities/food_listing.dart';
 import '../../../listings/domain/repositories/listings_repository.dart';

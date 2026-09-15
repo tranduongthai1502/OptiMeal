@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/repositories/recipe_copilot_repository_impl.dart';
 import '../../domain/entities/recipe_entity.dart';
 import '../../domain/repositories/recipe_copilot_repository.dart';
 
-final recipeCopilotRepositoryProvider =
-    Provider<RecipeCopilotRepository>((ref) {
+final recipeCopilotRepositoryProvider = Provider<RecipeCopilotRepository>((
+  ref,
+) {
   return RecipeCopilotRepositoryImpl();
 });
 
@@ -23,8 +25,9 @@ final coldStorageIngredientsProvider =
 });
 
 /// Smart AI generated recipes provider
-final generatedRecipesProvider =
-    FutureProvider.autoDispose<List<BatchRecipe>>((ref) async {
+final generatedRecipesProvider = FutureProvider.autoDispose<List<BatchRecipe>>((
+  ref,
+) async {
   final repo = ref.watch(recipeCopilotRepositoryProvider);
   final portions = ref.watch(targetPortionsProvider);
   final result = await repo.generateBatchRecipes(targetPortions: portions);

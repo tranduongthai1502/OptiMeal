@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/route_paths.dart';
 
 class HomeMapSearchScreen extends ConsumerStatefulWidget {
@@ -16,9 +18,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   int _selectedCategoryIndex = 0;
-  String _selectedPinId = 'phuoc_thien';
-  final TextEditingController _searchController =
-      TextEditingController(text: 'Charity kitchens near me');
+  final TextEditingController _searchController = TextEditingController(
+    text: 'Charity kitchens near me',
+  );
   bool _isWalkingMode = true;
   String _selectedRadius = 'Within 5 km';
 
@@ -27,22 +29,22 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     {
       'label': 'Charity Kitchens',
       'icon': Icons.volunteer_activism_rounded,
-      'color': Color(0xFFB61722)
+      'color': const Color(0xFFB61722),
     },
     {
       'label': 'Cooked Meals',
       'icon': Icons.lunch_dining_rounded,
-      'color': Color(0xFF855300)
+      'color': const Color(0xFF855300),
     },
     {
       'label': 'Bakery',
       'icon': Icons.bakery_dining_rounded,
-      'color': Color(0xFFFEA619)
+      'color': const Color(0xFFFEA619),
     },
     {
       'label': 'Vegetables',
       'icon': Icons.eco_rounded,
-      'color': Color(0xFF006B2C)
+      'color': const Color(0xFF006B2C),
     },
   ];
 
@@ -62,11 +64,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     super.dispose();
   }
 
-  void _onPinSelected(String pinId) {
-    setState(() {
-      _selectedPinId = pinId;
-    });
-  }
+  void _onPinSelected(String pinId) {}
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +72,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     const bgSurface = Color(0xFFFAF8FF);
     const surfaceLowest = Color(0xFFFFFFFF);
     const surfaceLow = Color(0xFFF2F3FF);
-    const surfaceContainer = Color(0xFFEAEDFF);
-    const surfaceHighest = Color(0xFFDAE2FD);
     const primary = Color(0xFF006B2C);
-    const primaryContainer = Color(0xFF00873A);
     const primaryFixed = Color(0xFF7FFC97);
     const secondary = Color(0xFF855300);
-    const tertiary = Color(0xFFB61722);
     const onSurface = Color(0xFF131B2E);
     const onSurfaceVariant = Color(0xFF3E4A3D);
 
@@ -106,8 +100,10 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                             animation: _pulseController,
                             builder: (context, child) {
                               return CustomPaint(
-                                size: Size(constraints.maxWidth,
-                                    constraints.maxHeight),
+                                size: Size(
+                                  constraints.maxWidth,
+                                  constraints.maxHeight,
+                                ),
                                 painter: _DaNangMapPainter(
                                   animationValue: _pulseController.value,
                                   isWalkingMode: _isWalkingMode,
@@ -138,18 +134,24 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.08),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.08,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12),
+                                    horizontal: 12,
+                                  ),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.search,
-                                          color: primary, size: 22),
+                                      const Icon(
+                                        Icons.search,
+                                        color: primary,
+                                        size: 22,
+                                      ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: TextField(
@@ -182,9 +184,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                               shape: BoxShape.circle,
                                               color: surfaceLow,
                                             ),
-                                            child: const Icon(Icons.close,
-                                                size: 14,
-                                                color: onSurfaceVariant),
+                                            child: const Icon(
+                                              Icons.close,
+                                              size: 14,
+                                              color: onSurfaceVariant,
+                                            ),
                                           ),
                                         ),
                                     ],
@@ -200,8 +204,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                     color: surfaceLowest,
                                     borderRadius: BorderRadius.circular(12),
                                     elevation: 2,
-                                    shadowColor:
-                                        Colors.black.withValues(alpha: 0.1),
+                                    shadowColor: Colors.black.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     child: InkWell(
                                       onTap: () {
                                         _showFilterBottomSheet(context);
@@ -210,8 +215,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                       child: const SizedBox(
                                         width: 48,
                                         height: 48,
-                                        child: Icon(Icons.tune,
-                                            color: onSurface, size: 22),
+                                        child: Icon(
+                                          Icons.tune,
+                                          color: onSurface,
+                                          size: 22,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -247,8 +255,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              children: List.generate(_categories.length,
-                                  (index) {
+                              children: List.generate(_categories.length, (
+                                index,
+                              ) {
                                 final cat = _categories[index];
                                 final isSelected =
                                     _selectedCategoryIndex == index;
@@ -258,8 +267,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                     color: isSelected ? primary : surfaceLowest,
                                     borderRadius: BorderRadius.circular(20),
                                     elevation: 1,
-                                    shadowColor:
-                                        Colors.black.withValues(alpha: 0.08),
+                                    shadowColor: Colors.black.withValues(
+                                      alpha: 0.08,
+                                    ),
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
@@ -270,7 +280,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                       child: Container(
                                         height: 34,
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 14),
+                                          horizontal: 14,
+                                        ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -322,12 +333,17 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                           borderRadius: BorderRadius.circular(20),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.radar,
-                                    color: primary, size: 16),
+                                const Icon(
+                                  Icons.radar,
+                                  color: primary,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   _selectedRadius,
@@ -338,8 +354,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                   ),
                                 ),
                                 const SizedBox(width: 2),
-                                const Icon(Icons.expand_more,
-                                    color: onSurfaceVariant, size: 16),
+                                const Icon(
+                                  Icons.expand_more,
+                                  color: onSurfaceVariant,
+                                  size: 16,
+                                ),
                               ],
                             ),
                           ),
@@ -417,7 +436,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                               left: scaleX(45),
                               top: scaleY(280),
                               child: _buildClusterPin(
-                                  '+15', const Color(0xFF855300)),
+                                '+15',
+                                const Color(0xFF855300),
+                              ),
                             ),
 
                             // USER LIVE LOCATION BEACON
@@ -445,7 +466,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                      'Vị trí hiện tại: Hải Châu, Đà Nẵng'),
+                                    'Vị trí hiện tại: Hải Châu, Đà Nẵng',
+                                  ),
                                   duration: Duration(seconds: 1),
                                 ),
                               );
@@ -459,7 +481,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                      'Đã chuyển chế độ xem: Bản đồ cứu trợ chi tiết'),
+                                    'Đã chuyển chế độ xem: Bản đồ cứu trợ chi tiết',
+                                  ),
                                   duration: Duration(seconds: 1),
                                 ),
                               );
@@ -534,12 +557,12 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
         child: Column(
           children: [
             // Status bar info row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     '9:41',
                     style: TextStyle(
                       fontSize: 12,
@@ -548,9 +571,12 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     ),
                   ),
                   Row(
-                    children: const [
-                      Icon(Icons.signal_cellular_alt,
-                          size: 16, color: onSurface),
+                    children: [
+                      Icon(
+                        Icons.signal_cellular_alt,
+                        size: 16,
+                        color: onSurface,
+                      ),
                       SizedBox(width: 4),
                       Icon(Icons.wifi, size: 16, color: onSurface),
                       SizedBox(width: 4),
@@ -574,8 +600,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                         errorBuilder: (context, error, stackTrace) {
                           return const Row(
                             children: [
-                              Icon(Icons.eco_rounded,
-                                  color: primary, size: 26),
+                              Icon(Icons.eco_rounded, color: primary, size: 26),
                               SizedBox(width: 4),
                               Text(
                                 'OptiMeal',
@@ -595,23 +620,29 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Khu vực hiện tại: Hải Châu, Đà Nẵng, Việt Nam'),
+                                'Khu vực hiện tại: Hải Châu, Đà Nẵng, Việt Nam',
+                              ),
                               duration: Duration(seconds: 1),
                             ),
                           );
                         },
                         borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 4),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
                           child: Row(
                             children: [
-                              const Icon(Icons.location_on,
-                                  color: primary, size: 18),
-                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.location_on,
+                                color: primary,
+                                size: 18,
+                              ),
+                              SizedBox(width: 4),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text(
                                     'Pickup Location',
                                     style: TextStyle(
@@ -630,8 +661,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                                   ),
                                 ],
                               ),
-                              const Icon(Icons.keyboard_arrow_down,
-                                  size: 16, color: onSurfaceVariant),
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: onSurfaceVariant,
+                              ),
                             ],
                           ),
                         ),
@@ -643,8 +677,10 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                       Stack(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.notifications_none,
-                                color: onSurface),
+                            icon: const Icon(
+                              Icons.notifications_none,
+                              color: onSurface,
+                            ),
                             onPressed: () {},
                           ),
                           Positioned(
@@ -678,8 +714,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                         child: const CircleAvatar(
                           radius: 16,
                           backgroundColor: Color(0xFFDAE2FD),
-                          child: Icon(Icons.person,
-                              size: 18, color: Color(0xFF006B2C)),
+                          child: Icon(
+                            Icons.person,
+                            size: 18,
+                            color: Color(0xFF006B2C),
+                          ),
                         ),
                       ),
                     ],
@@ -701,8 +740,6 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     required Color ringColor,
     bool isPulsing = false,
   }) {
-    final isSelected = _selectedPinId == id;
-
     return GestureDetector(
       onTap: () => _onPinSelected(id),
       child: Column(
@@ -772,11 +809,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
           // Pin Tip Triangle
           Transform.rotate(
             angle: math.pi / 4,
-            child: Container(
-              width: 8,
-              height: 8,
-              color: pinColor,
-            ),
+            child: Container(width: 8, height: 8, color: pinColor),
           ),
         ],
       ),
@@ -806,11 +839,14 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.volunteer_activism_rounded,
-                    color: primary, size: 14),
+              children: [
+                Icon(
+                  Icons.volunteer_activism_rounded,
+                  color: primary,
+                  size: 14,
+                ),
                 SizedBox(width: 4),
                 Text(
                   'Phuoc Thien Charity • 60 left',
@@ -837,7 +873,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: primary.withValues(
-                          alpha: 0.25 * (1 - _pulseController.value)),
+                        alpha: 0.25 * (1 - _pulseController.value),
+                      ),
                     ),
                   );
                 },
@@ -857,19 +894,18 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     ),
                   ],
                 ),
-                child: const Icon(Icons.soup_kitchen_rounded,
-                    color: Colors.white, size: 24),
+                child: const Icon(
+                  Icons.soup_kitchen_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ],
           ),
           // Tip
           Transform.rotate(
             angle: math.pi / 4,
-            child: Container(
-              width: 10,
-              height: 10,
-              color: primary,
-            ),
+            child: Container(width: 10, height: 10, color: primary),
           ),
         ],
       ),
@@ -920,7 +956,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: primary.withValues(
-                    alpha: 0.2 * (1 - _pulseController.value)),
+                  alpha: 0.2 * (1 - _pulseController.value),
+                ),
               ),
             ),
             // User Dot
@@ -982,7 +1019,6 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     const surfaceLow = Color(0xFFF2F3FF);
     const surfaceHighest = Color(0xFFDAE2FD);
     const primary = Color(0xFF006B2C);
-    const primaryContainer = Color(0xFF00873A);
     const onSurface = Color(0xFF131B2E);
     const onSurfaceVariant = Color(0xFF3E4A3D);
     const secondary = Color(0xFF855300);
@@ -1023,15 +1059,17 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
               Row(
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Icon(Icons.verified, size: 13, color: primary),
                         SizedBox(width: 4),
                         Text(
@@ -1046,8 +1084,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(Icons.star, size: 13, color: secondary),
                       SizedBox(width: 2),
                       Text(
@@ -1060,10 +1098,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                       ),
                       Text(
                         ' (142 rescues)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: onSurfaceVariant,
-                        ),
+                        style: TextStyle(fontSize: 11, color: onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -1071,15 +1106,17 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
               ),
               // Live ETA & Distance Pill
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAEDFF),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.directions_walk, size: 15, color: primary),
                     SizedBox(width: 4),
                     Text(
@@ -1102,10 +1139,10 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Phuoc Thien Charity Kitchen',
                       style: TextStyle(
@@ -1117,8 +1154,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.location_on,
-                            size: 15, color: Color(0xFF6E7B6C)),
+                        Icon(
+                          Icons.location_on,
+                          size: 15,
+                          color: Color(0xFF6E7B6C),
+                        ),
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -1142,8 +1182,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                   width: 56,
                   height: 56,
                   color: const Color(0xFFE2E7FF),
-                  child: const Icon(Icons.soup_kitchen_rounded,
-                      size: 32, color: primary),
+                  child: const Icon(
+                    Icons.soup_kitchen_rounded,
+                    size: 32,
+                    color: primary,
+                  ),
                 ),
               ),
             ],
@@ -1186,15 +1229,20 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFEA619).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.schedule,
-                              size: 13, color: Color(0xFF684000)),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 13,
+                            color: Color(0xFF684000),
+                          ),
                           SizedBox(width: 4),
                           Text(
                             '45m left',
@@ -1210,9 +1258,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                   ],
                 ),
                 const SizedBox(height: 8),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text(
                       'Portions Available',
                       style: TextStyle(fontSize: 11, color: onSurfaceVariant),
@@ -1245,10 +1293,10 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                 // Progress Bar (60%)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
+                  child: const LinearProgressIndicator(
                     value: 0.6,
                     backgroundColor: surfaceHighest,
-                    valueColor: const AlwaysStoppedAnimation<Color>(primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(primary),
                     minHeight: 8,
                   ),
                 ),
@@ -1270,7 +1318,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            'Đã sao chép liên kết chia sẻ điểm cứu trợ!'),
+                          'Đã sao chép liên kết chia sẻ điểm cứu trợ!',
+                        ),
                         duration: Duration(seconds: 1),
                       ),
                     );
@@ -1300,9 +1349,9 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                       ),
                       elevation: 2,
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Reserve Meal & Route',
                           style: TextStyle(
@@ -1328,7 +1377,6 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     const bgSurface = Color(0xFFFAF8FF);
     const primary = Color(0xFF006B2C);
     const primaryContainer = Color(0xFF00873A);
-    const onSurfaceVariant = Color(0xFF3E4A3D);
 
     return Container(
       decoration: BoxDecoration(
@@ -1382,8 +1430,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.add,
-                            color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),
@@ -1434,11 +1485,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isActive ? primary : onSurfaceVariant,
-            ),
+            Icon(icon, size: 22, color: isActive ? primary : onSurfaceVariant),
             const SizedBox(height: 2),
             Text(
               label,
@@ -1455,7 +1502,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
   }
 
   void _showFilterBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -1509,6 +1556,98 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showRadiusSelector(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final options = [
+          'Within 1 km',
+          'Within 3 km',
+          'Within 5 km',
+          'Within 10 km',
+        ];
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((opt) {
+              return ListTile(
+                title: Text(
+                  opt,
+                  style: TextStyle(
+                    fontWeight: _selectedRadius == opt
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                trailing: _selectedRadius == opt
+                    ? const Icon(Icons.check, color: Color(0xFF006B2C))
+                    : null,
+                onTap: () {
+                  setState(() {
+                    _selectedRadius = opt;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showReserveConfirmation(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF006B2C),
+                size: 24,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Xác Nhận Giữ Chỗ',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Bạn đã giữ 1 suất ăn trưa tại Bếp ăn Từ thiện Phước Thiện.\n\nMã QR nhận thức ăn đã được lưu vào mục Hồ sơ. Lộ trình đi bộ (850m • 10 phút) đã sẵn sàng!',
+            style: TextStyle(fontSize: 14, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF006B2C),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                context.push(RoutePaths.profile);
+              },
+              child: const Text('Xem Mã QR'),
+            ),
+          ],
         );
       },
     );
@@ -1780,6 +1919,258 @@ class _DaNangMapPainter extends CustomPainter {
 
   void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint,
       double dashWidth, double dashSpace, double offsetPhase) {
+    final dx = p2.dx - p1.dx;
+    final dy = p2.dy - p1.dy;
+    final totalDistance = math.sqrt(dx * dx + dy * dy);
+    final unitX = dx / totalDistance;
+    final unitY = dy / totalDistance;
+
+    final phaseOffset = (offsetPhase * (dashWidth + dashSpace));
+    double currentDist = phaseOffset % (dashWidth + dashSpace);
+
+    while (currentDist < totalDistance) {
+      final startX = p1.dx + unitX * currentDist;
+      final startY = p1.dy + unitY * currentDist;
+      final endDist = math.min(currentDist + dashWidth, totalDistance);
+      final endX = p1.dx + unitX * endDist;
+      final endY = p1.dy + unitY * endDist;
+
+      canvas.drawLine(Offset(startX, startY), Offset(endX, endY), paint);
+      currentDist += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DaNangMapPainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue ||
+        oldDelegate.isWalkingMode != isWalkingMode;
+  }
+}
+
+/// Custom painter rendering stylized Da Nang map vector (Han River, bridges, coastline, parks, walking route)
+class _DaNangMapPainter extends CustomPainter {
+  final double animationValue;
+  final bool isWalkingMode;
+
+  _DaNangMapPainter({
+    required this.animationValue,
+    required this.isWalkingMode,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scaleX = size.width / 390.0;
+    final scaleY = size.height / 520.0;
+
+    canvas.save();
+    canvas.scale(scaleX, scaleY);
+
+    // 1. Land Base
+    final landPaint = Paint()..color = const Color(0xFFEAEFF8);
+    canvas.drawRect(const Rect.fromLTWH(0, 0, 390, 520), landPaint);
+
+    // 2. Urban Parks & Green Reserves
+    final parkPaint1 = Paint()
+      ..color = const Color(0xFFD2F0DB).withValues(alpha: 0.8)
+      ..style = PaintingStyle.fill;
+    final park1 = Path()
+      ..moveTo(-20, 80)
+      ..quadraticBezierTo(60, 50, 110, 110)
+      ..relativeQuadraticBezierTo(-70, 110, -90, 110)
+      ..close();
+    canvas.drawPath(park1, parkPaint1);
+
+    final parkPaint2 = Paint()
+      ..color = const Color(0xFFD2F0DB).withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+    final park2 = Path()
+      ..moveTo(260, 20)
+      ..quadraticBezierTo(320, 0, 380, 40)
+      ..relativeQuadraticBezierTo(10, 100, -30, 90)
+      ..close();
+    canvas.drawPath(park2, parkPaint2);
+
+    final parkPaint3 = Paint()
+      ..color = const Color(0xFFDCF7E3).withValues(alpha: 0.9)
+      ..style = PaintingStyle.fill;
+    final park3 = Path()
+      ..moveTo(280, 340)
+      ..quadraticBezierTo(360, 300, 390, 380)
+      ..relativeQuadraticBezierTo(-50, 100, -110, -40)
+      ..close();
+    canvas.drawPath(park3, parkPaint3);
+
+    // 3. Han River Watercourse
+    final riverPaint = Paint()
+      ..color = const Color(0xFFBDD8F8)
+      ..style = PaintingStyle.fill;
+    final riverPath = Path()
+      ..moveTo(150, -20)
+      ..cubicTo(165, 70, 140, 160, 185, 240)
+      ..cubicTo(230, 320, 215, 440, 240, 540)
+      ..lineTo(210, 540)
+      ..cubicTo(180, 470, 180, 370, 150, 270)
+      ..cubicTo(110, 180, 120, 70, 95, -20)
+      ..close();
+    canvas.drawPath(riverPath, riverPaint);
+
+    // 4. Coastline East Sea (My Khe Beach)
+    final coastPaint = Paint()
+      ..color = const Color(0xFFC5DFFE)
+      ..style = PaintingStyle.fill;
+    final coastPath = Path()
+      ..moveTo(340, -10)
+      ..quadraticBezierTo(370, 180, 365, 350)
+      ..relativeQuadraticBezierTo(20, 190, 30, 190)
+      ..lineTo(410, 530)
+      ..lineTo(410, -10)
+      ..close();
+    canvas.drawPath(coastPath, coastPaint);
+
+    // 5. City Secondary Grid Roads
+    final gridPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.7)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(const Offset(40, 20), const Offset(40, 500), gridPaint);
+    canvas.drawLine(const Offset(90, 20), const Offset(90, 500), gridPaint);
+    canvas.drawLine(const Offset(260, 20), const Offset(260, 500), gridPaint);
+    canvas.drawLine(const Offset(300, 20), const Offset(300, 500), gridPaint);
+
+    canvas.drawLine(const Offset(0, 90), const Offset(380, 90), gridPaint);
+    canvas.drawLine(const Offset(0, 230), const Offset(380, 230), gridPaint);
+    canvas.drawLine(const Offset(0, 340), const Offset(380, 340), gridPaint);
+    canvas.drawLine(const Offset(0, 470), const Offset(380, 470), gridPaint);
+
+    // 6. Primary Arterials & Bridges
+    // Dragon Bridge (Cầu Rồng)
+    final bridgePaintWhite = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 7
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    final bridgePaintInner = Paint()
+      ..color = const Color(0xFFCBD5E1)
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final dragonBridge = Path()
+      ..moveTo(100, 275)
+      ..quadraticBezierTo(170, 270, 240, 275);
+    canvas.drawPath(dragonBridge, bridgePaintWhite);
+    canvas.drawPath(dragonBridge, bridgePaintInner);
+
+    // Han River Bridge
+    final hanBridge = Path()
+      ..moveTo(115, 160)
+      ..lineTo(200, 165);
+    canvas.drawPath(hanBridge, bridgePaintWhite);
+    canvas.drawPath(hanBridge, bridgePaintInner);
+
+    // Tran Thi Ly Bridge
+    final tranBridge = Path()
+      ..moveTo(130, 395)
+      ..lineTo(225, 385);
+    canvas.drawPath(tranBridge, bridgePaintWhite);
+    canvas.drawPath(tranBridge, bridgePaintInner);
+
+    // Coastal Road (Vo Nguyen Giap)
+    final coastalRoad = Path()
+      ..moveTo(330, -10)
+      ..cubicTo(340, 180, 335, 340, 350, 530);
+    canvas.drawPath(coastalRoad, bridgePaintWhite);
+
+    // 7. Landmark Typography Labels
+    _drawText(
+      canvas,
+      'HAN RIVER',
+      const Offset(145, 300),
+      9,
+      const Color(0xFF64748B),
+      FontWeight.w700,
+    );
+    _drawText(
+      canvas,
+      'HAI CHAU',
+      const Offset(32, 200),
+      8,
+      const Color(0xFF94A3B8),
+      FontWeight.w600,
+    );
+    _drawText(
+      canvas,
+      'SON TRA',
+      const Offset(280, 260),
+      8,
+      const Color(0xFF94A3B8),
+      FontWeight.w600,
+    );
+    _drawText(
+      canvas,
+      'MY KHE',
+      const Offset(290, 460),
+      8,
+      const Color(0xFF94A3B8),
+      FontWeight.w600,
+    );
+
+    // 8. Animated Walking Route Path to Selected Kitchen
+    if (isWalkingMode) {
+      final routePaint = Paint()
+        ..color = const Color(0xFF00873A)
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke;
+
+      // Draw dashed route from user (125, 340) to kitchen (195, 275)
+      const p1 = Offset(125, 340);
+      const p2 = Offset(140, 310);
+      const p3 = Offset(175, 300);
+      const p4 = Offset(195, 275);
+
+      _drawDashedLine(canvas, p1, p2, routePaint, 6, 5, animationValue);
+      _drawDashedLine(canvas, p2, p3, routePaint, 6, 5, animationValue);
+      _drawDashedLine(canvas, p3, p4, routePaint, 6, 5, animationValue);
+    }
+
+    canvas.restore();
+  }
+
+  void _drawText(
+    Canvas canvas,
+    String text,
+    Offset offset,
+    double fontSize,
+    Color color,
+    FontWeight weight,
+  ) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: fontSize,
+          fontWeight: weight,
+          letterSpacing: 0.5,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, offset);
+  }
+
+  void _drawDashedLine(
+    Canvas canvas,
+    Offset p1,
+    Offset p2,
+    Paint paint,
+    double dashWidth,
+    double dashSpace,
+    double offsetPhase,
+  ) {
     final dx = p2.dx - p1.dx;
     final dy = p2.dy - p1.dy;
     final totalDistance = math.sqrt(dx * dx + dy * dy);

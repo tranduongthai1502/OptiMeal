@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/review.dart';
@@ -14,16 +15,13 @@ class CheckNoShowLimitUseCase {
   Future<Either<Failure, bool>> call(String userId) async {
     final result = await repository.getUserReputation(userId);
 
-    return result.fold(
-      (failure) => Left(failure),
-      (reputation) {
-        if (reputation.noShowCount >= AppConstants.maxNoShowThreshold ||
-            reputation.isRestricted) {
-          return const Left(ReputationRestrictedFailure());
-        }
-        return const Right(true);
-      },
-    );
+    return result.fold((failure) => Left(failure), (reputation) {
+      if (reputation.noShowCount >= AppConstants.maxNoShowThreshold ||
+          reputation.isRestricted) {
+        return const Left(ReputationRestrictedFailure());
+      }
+      return const Right(true);
+    });
   }
 }
 
@@ -35,7 +33,8 @@ class SubmitReviewUseCase {
   Future<Either<Failure, Review>> call(Review review) {
     if (review.rating < 1 || review.rating > 5) {
       return Future.value(
-          const Left(ServerFailure('Đánh giá phải từ 1 đến 5 sao.')));
+        const Left(ServerFailure('Đánh giá phải từ 1 đến 5 sao.')),
+      );
     }
     return repository.submitReview(review);
   }

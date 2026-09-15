@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -26,10 +27,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   }
 
   Future<void> _handleConfirmRole() async {
-    final success = await ref.read(authStateProvider.notifier).selectRole(
-          _selectedRole,
-          displayName: _nameController.text.trim(),
-        );
+    final success = await ref
+        .read(authStateProvider.notifier)
+        .selectRole(_selectedRole, displayName: _nameController.text.trim());
 
     if (!mounted) return;
 
@@ -68,7 +68,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               const Text(
                 'Điều này giúp chúng tôi cá nhân hóa trải nghiệm chia sẻ thực phẩm phù hợp với bạn.',
                 style: TextStyle(
-                    fontSize: 14, color: AppColors.textSecondaryLight),
+                  fontSize: 14,
+                  color: AppColors.textSecondaryLight,
+                ),
               ),
               const SizedBox(height: 28),
 

@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
@@ -55,7 +56,8 @@ class ListingsRepositoryImpl implements ListingsRepository {
 
   @override
   Future<Either<Failure, FoodListing>> createListing(
-      FoodListing listing) async {
+    FoodListing listing,
+  ) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }

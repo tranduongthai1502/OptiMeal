@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
@@ -16,11 +17,10 @@ class RecipeDetailScreen extends ConsumerWidget {
     final recipeAsync = ref.watch(recipeDetailProvider(recipeId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chi tiết công thức nấu lớn'),
-      ),
+      appBar: AppBar(title: const Text('Chi tiết công thức nấu lớn')),
       body: recipeAsync.when(
-        loading: () => const AppLoadingIndicator(message: 'Đang tải công thức...'),
+        loading: () =>
+            const AppLoadingIndicator(message: 'Đang tải công thức...'),
         error: (err, _) => AppErrorView(
           message: err.toString(),
           onRetry: () => ref.refresh(recipeDetailProvider(recipeId)),
@@ -46,7 +46,9 @@ class RecipeDetailScreen extends ConsumerWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primaryContainer,
                               borderRadius: BorderRadius.circular(8),
@@ -63,8 +65,9 @@ class RecipeDetailScreen extends ConsumerWidget {
                           Text(
                             'Thời gian: ${recipe.prepTimeMinutes + recipe.cookTimeMinutes} phút',
                             style: const TextStyle(
-                                color: AppColors.textSecondaryLight,
-                                fontWeight: FontWeight.w600),
+                              color: AppColors.textSecondaryLight,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -72,13 +75,17 @@ class RecipeDetailScreen extends ConsumerWidget {
                       Text(
                         recipe.title,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         recipe.description,
                         style: const TextStyle(
-                            fontSize: 13, color: AppColors.textSecondaryLight),
+                          fontSize: 13,
+                          color: AppColors.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ),
@@ -91,44 +98,55 @@ class RecipeDetailScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.shield_outlined,
-                              color: AppColors.primary, size: 20),
+                          Icon(
+                            Icons.shield_outlined,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'Hướng dẫn sơ chế & An toàn vệ sinh (AI)',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                fontSize: 14),
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
-                      ...recipe.safetyNotes.map((note) => Padding(
-                            padding: const EdgeInsets.only(bottom: 6.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('• ',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary)),
-                                Expanded(
-                                  child: Text(
-                                    note,
-                                    style: const TextStyle(fontSize: 12.5),
-                                  ),
+                      ...recipe.safetyNotes.map(
+                        (note) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '• ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
                                 ),
-                              ],
-                            ),
-                          )),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  note,
+                                  style: const TextStyle(fontSize: 12.5),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -148,7 +166,9 @@ class RecipeDetailScreen extends ConsumerWidget {
                       Text(
                         'Checklist nguyên liệu & gia vị (${recipe.targetPortions} suất):',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       ...recipe.ingredients.map((ing) {
@@ -205,7 +225,9 @@ class RecipeDetailScreen extends ConsumerWidget {
                       const Text(
                         'Quy trình chế biến chảo lớn (Batch Steps):',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       ...recipe.cookingSteps.asMap().entries.map((entry) {
@@ -232,7 +254,10 @@ class RecipeDetailScreen extends ConsumerWidget {
                               Expanded(
                                 child: Text(
                                   stepText,
-                                  style: const TextStyle(fontSize: 13, height: 1.4),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    height: 1.4,
+                                  ),
                                 ),
                               ),
                             ],
@@ -251,7 +276,8 @@ class RecipeDetailScreen extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            'Đã ghi nhận công thức vào ca nấu! Nguyên liệu đã được trừ khỏi kho lạnh.'),
+                          'Đã ghi nhận công thức vào ca nấu! Nguyên liệu đã được trừ khỏi kho lạnh.',
+                        ),
                         backgroundColor: AppColors.primary,
                       ),
                     );

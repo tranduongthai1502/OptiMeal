@@ -16,7 +16,9 @@ abstract class ListingsRemoteDataSource {
   Future<FoodListingModel> createListing(FoodListingModel listing);
 
   Future<FoodListingModel> updateListingStatus(
-      String id, ListingStatus newStatus);
+    String id,
+    ListingStatus newStatus,
+  );
 
   Future<void> cancelListing(String id, String ownerId);
 }
@@ -167,7 +169,9 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
 
   @override
   Future<FoodListingModel> updateListingStatus(
-      String id, ListingStatus newStatus) async {
+    String id,
+    ListingStatus newStatus,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     final index = _mockListings.indexWhere((e) => e.id == id);
     if (index != -1) {
