@@ -1652,6 +1652,299 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
       },
     );
   }
+
+  void _showRadiusSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final options = ['Within 1 km', 'Within 3 km', 'Within 5 km', 'Within 10 km'];
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((opt) {
+              return ListTile(
+                title: Text(opt,
+                    style: TextStyle(
+                        fontWeight: _selectedRadius == opt
+                            ? FontWeight.bold
+                            : FontWeight.normal)),
+                trailing: _selectedRadius == opt
+                    ? const Icon(Icons.check, color: Color(0xFF006B2C))
+                    : null,
+                onTap: () {
+                  setState(() {
+                    _selectedRadius = opt;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showReserveConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.check_circle_rounded,
+                  color: Color(0xFF006B2C), size: 24),
+              SizedBox(width: 8),
+              Text('Xác Nhận Giữ Chỗ',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: const Text(
+            'Bạn đã giữ 1 suất ăn trưa tại Bếp ăn Từ thiện Phước Thiện.\n\nMã QR nhận thức ăn đã được lưu vào mục Hồ sơ. Lộ trình đi bộ (850m • 10 phút) đã sẵn sàng!',
+            style: TextStyle(fontSize: 14, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Đóng'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF006B2C),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                context.push(RoutePaths.profile);
+              },
+              child: const Text('Xem Mã QR'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Custom painter rendering stylized Da Nang map vector (Han River, bridges, coastline, parks, walking route)
+class _DaNangMapPainter extends CustomPainter {
+  final double animationValue;
+  final bool isWalkingMode;
+
+  _DaNangMapPainter({
+    required this.animationValue,
+    required this.isWalkingMode,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scaleX = size.width / 390.0;
+    final scaleY = size.height / 520.0;
+
+    canvas.save();
+    canvas.scale(scaleX, scaleY);
+
+    // 1. Land Base
+    final landPaint = Paint()..color = const Color(0xFFEAEFF8);
+    canvas.drawRect(const Rect.fromLTWH(0, 0, 390, 520), landPaint);
+
+    // 2. Urban Parks & Green Reserves
+    final parkPaint1 = Paint()
+      ..color = const Color(0xFFD2F0DB).withValues(alpha: 0.8)
+      ..style = PaintingStyle.fill;
+    final park1 = Path()
+      ..moveTo(-20, 80)
+      ..quadraticBezierTo(60, 50, 110, 110)
+      ..relativeQuadraticBezierTo(-70, 110, -90, 110)
+      ..close();
+    canvas.drawPath(park1, parkPaint1);
+
+    final parkPaint2 = Paint()
+      ..color = const Color(0xFFD2F0DB).withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+    final park2 = Path()
+      ..moveTo(260, 20)
+      ..quadraticBezierTo(320, 0, 380, 40)
+      ..relativeQuadraticBezierTo(10, 100, -30, 90)
+      ..close();
+    canvas.drawPath(park2, parkPaint2);
+
+    final parkPaint3 = Paint()
+      ..color = const Color(0xFFDCF7E3).withValues(alpha: 0.9)
+      ..style = PaintingStyle.fill;
+    final park3 = Path()
+      ..moveTo(280, 340)
+      ..quadraticBezierTo(360, 300, 390, 380)
+      ..relativeQuadraticBezierTo(-50, 100, -110, -40)
+      ..close();
+    canvas.drawPath(park3, parkPaint3);
+
+    // 3. Han River Watercourse
+    final riverPaint = Paint()
+      ..color = const Color(0xFFBDD8F8)
+      ..style = PaintingStyle.fill;
+    final riverPath = Path()
+      ..moveTo(150, -20)
+      ..cubicTo(165, 70, 140, 160, 185, 240)
+      ..cubicTo(230, 320, 215, 440, 240, 540)
+      ..lineTo(210, 540)
+      ..cubicTo(180, 470, 180, 370, 150, 270)
+      ..cubicTo(110, 180, 120, 70, 95, -20)
+      ..close();
+    canvas.drawPath(riverPath, riverPaint);
+
+    // 4. Coastline East Sea (My Khe Beach)
+    final coastPaint = Paint()
+      ..color = const Color(0xFFC5DFFE)
+      ..style = PaintingStyle.fill;
+    final coastPath = Path()
+      ..moveTo(340, -10)
+      ..quadraticBezierTo(370, 180, 365, 350)
+      ..relativeQuadraticBezierTo(20, 190, 30, 190)
+      ..lineTo(410, 530)
+      ..lineTo(410, -10)
+      ..close();
+    canvas.drawPath(coastPath, coastPaint);
+
+    // 5. City Secondary Grid Roads
+    final gridPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.7)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(const Offset(40, 20), const Offset(40, 500), gridPaint);
+    canvas.drawLine(const Offset(90, 20), const Offset(90, 500), gridPaint);
+    canvas.drawLine(const Offset(260, 20), const Offset(260, 500), gridPaint);
+    canvas.drawLine(const Offset(300, 20), const Offset(300, 500), gridPaint);
+
+    canvas.drawLine(const Offset(0, 90), const Offset(380, 90), gridPaint);
+    canvas.drawLine(const Offset(0, 230), const Offset(380, 230), gridPaint);
+    canvas.drawLine(const Offset(0, 340), const Offset(380, 340), gridPaint);
+    canvas.drawLine(const Offset(0, 470), const Offset(380, 470), gridPaint);
+
+    // 6. Primary Arterials & Bridges
+    // Dragon Bridge (Cầu Rồng)
+    final bridgePaintWhite = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 7
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    final bridgePaintInner = Paint()
+      ..color = const Color(0xFFCBD5E1)
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final dragonBridge = Path()
+      ..moveTo(100, 275)
+      ..quadraticBezierTo(170, 270, 240, 275);
+    canvas.drawPath(dragonBridge, bridgePaintWhite);
+    canvas.drawPath(dragonBridge, bridgePaintInner);
+
+    // Han River Bridge
+    final hanBridge = Path()
+      ..moveTo(115, 160)
+      ..lineTo(200, 165);
+    canvas.drawPath(hanBridge, bridgePaintWhite);
+    canvas.drawPath(hanBridge, bridgePaintInner);
+
+    // Tran Thi Ly Bridge
+    final tranBridge = Path()
+      ..moveTo(130, 395)
+      ..lineTo(225, 385);
+    canvas.drawPath(tranBridge, bridgePaintWhite);
+    canvas.drawPath(tranBridge, bridgePaintInner);
+
+    // Coastal Road (Vo Nguyen Giap)
+    final coastalRoad = Path()
+      ..moveTo(330, -10)
+      ..cubicTo(340, 180, 335, 340, 350, 530);
+    canvas.drawPath(coastalRoad, bridgePaintWhite);
+
+    // 7. Landmark Typography Labels
+    _drawText(canvas, 'HAN RIVER', const Offset(145, 300), 9,
+        const Color(0xFF64748B), FontWeight.w700);
+    _drawText(canvas, 'HAI CHAU', const Offset(32, 200), 8,
+        const Color(0xFF94A3B8), FontWeight.w600);
+    _drawText(canvas, 'SON TRA', const Offset(280, 260), 8,
+        const Color(0xFF94A3B8), FontWeight.w600);
+    _drawText(canvas, 'MY KHE', const Offset(290, 460), 8,
+        const Color(0xFF94A3B8), FontWeight.w600);
+
+    // 8. Animated Walking Route Path to Selected Kitchen
+    if (isWalkingMode) {
+      final routePaint = Paint()
+        ..color = const Color(0xFF00873A)
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke;
+
+      // Draw dashed route from user (125, 340) to kitchen (195, 275)
+      final p1 = const Offset(125, 340);
+      final p2 = const Offset(140, 310);
+      final p3 = const Offset(175, 300);
+      final p4 = const Offset(195, 275);
+
+      _drawDashedLine(canvas, p1, p2, routePaint, 6, 5, animationValue);
+      _drawDashedLine(canvas, p2, p3, routePaint, 6, 5, animationValue);
+      _drawDashedLine(canvas, p3, p4, routePaint, 6, 5, animationValue);
+    }
+
+    canvas.restore();
+  }
+
+  void _drawText(Canvas canvas, String text, Offset offset, double fontSize,
+      Color color, FontWeight weight) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: fontSize,
+          fontWeight: weight,
+          letterSpacing: 0.5,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, offset);
+  }
+
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint,
+      double dashWidth, double dashSpace, double offsetPhase) {
+    final dx = p2.dx - p1.dx;
+    final dy = p2.dy - p1.dy;
+    final totalDistance = math.sqrt(dx * dx + dy * dy);
+    final unitX = dx / totalDistance;
+    final unitY = dy / totalDistance;
+
+    final phaseOffset = (offsetPhase * (dashWidth + dashSpace));
+    double currentDist = phaseOffset % (dashWidth + dashSpace);
+
+    while (currentDist < totalDistance) {
+      final startX = p1.dx + unitX * currentDist;
+      final startY = p1.dy + unitY * currentDist;
+      final endDist = math.min(currentDist + dashWidth, totalDistance);
+      final endX = p1.dx + unitX * endDist;
+      final endY = p1.dy + unitY * endDist;
+
+      canvas.drawLine(Offset(startX, startY), Offset(endX, endY), paint);
+      currentDist += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DaNangMapPainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue ||
+        oldDelegate.isWalkingMode != isWalkingMode;
+  }
 }
 
 /// Custom painter rendering stylized Da Nang map vector (Han River, bridges, coastline, parks, walking route)
