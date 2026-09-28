@@ -115,7 +115,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+                            urlTemplate:
+                                'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.example.optimeal',
                           ),
                         ],
@@ -372,7 +373,6 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -1524,4 +1524,3 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
     );
   }
 }
-
