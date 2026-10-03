@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../auth/domain/entities/user_entity.dart';
 import '../../domain/entities/food_listing.dart';
 import '../models/food_listing_model.dart';
 

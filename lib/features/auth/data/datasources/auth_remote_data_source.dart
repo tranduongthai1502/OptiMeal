@@ -31,9 +31,6 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
 
-  // Holds the verificationId across the sendOtp → verifyOtp flow
-  String? _pendingVerificationId;
-
   AuthFirebaseDataSourceImpl({
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
@@ -45,7 +42,6 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<String> sendOtp(String phoneNumber) async {
-    final completer = Future<String>.value('');
     late String resolvedVerificationId;
 
     await _firebaseAuth.verifyPhoneNumber(
@@ -59,12 +55,9 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
         throw Exception('OTP verification failed: ${e.message}');
       },
       codeSent: (String verificationId, int? resendToken) {
-        _pendingVerificationId = verificationId;
         resolvedVerificationId = verificationId;
       },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _pendingVerificationId = verificationId;
-      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
     );
 
     // Wait briefly for codeSent callback to fire

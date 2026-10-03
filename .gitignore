@@ -49,7 +49,6 @@ app.*.map.json
 # Firebase generated files
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
-lib/firebase_options.dart
 
 # Android build outputs & Gradle cache
 .gradle/
