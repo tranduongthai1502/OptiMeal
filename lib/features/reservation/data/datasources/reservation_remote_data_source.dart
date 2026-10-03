@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/reservation.dart';
 import '../models/reservation_model.dart';
 
@@ -20,8 +22,16 @@ abstract class ReservationRemoteDataSource {
   Future<ReservationModel> markAsExpired(String reservationId);
 }
 
+/// Firestore implementation for Reservation data source.
+/// Collection: `reservations`
 class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
-  final Map<String, ReservationModel> _mockStorage = {};
+  final FirebaseFirestore _firestore;
+
+  ReservationFirebaseDataSourceImpl({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  CollectionReference<Map<String, dynamic>> get _col =>
+      _firestore.collection('reservations');
 
   @override
   Future<ReservationModel> createHoldReservation({
@@ -29,9 +39,10 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
     required String claimerId,
     required String ownerId,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    final id = 'res-${DateTime.now().millisecondsSinceEpoch}';
+    final docRef = _col.doc(); // auto-generated ID
+    final id = docRef.id;
     final now = DateTime.now();
+
     final model = ReservationModel(
       id: id,
       listingId: listingId,
@@ -40,30 +51,21 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
       status: ReservationStatus.held,
       heldAt: now,
       expiresAt: now.add(const Duration(minutes: 20)),
-      qrCodeData: 'OPTIMEAL-PICKUP-$id-$listingId',
+      qrCodeData: 'OPTIMEAL-HANDSHAKE-RECEIVER-$id-$claimerId',
+      donorQrCodeData: 'OPTIMEAL-HANDSHAKE-DONOR-$id-$ownerId',
     );
-    _mockStorage[id] = model;
+
+    await docRef.set(model.toMap());
     return model;
   }
 
   @override
   Future<ReservationModel> getReservationById(String id) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (_mockStorage.containsKey(id)) {
-      return _mockStorage[id]!;
+    final snapshot = await _col.doc(id).get();
+    if (!snapshot.exists) {
+      throw Exception('Reservation $id not found');
     }
-    // Return sample reservation if not found in mock storage
-    final now = DateTime.now();
-    return ReservationModel(
-      id: id,
-      listingId: 'listing-001',
-      claimerId: 'user-claimer-01',
-      ownerId: 'store-touslesjours',
-      status: ReservationStatus.held,
-      heldAt: now.subtract(const Duration(minutes: 5)),
-      expiresAt: now.add(const Duration(minutes: 15)),
-      qrCodeData: 'OPTIMEAL-PICKUP-$id-listing-001',
-    );
+    return ReservationModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
@@ -71,56 +73,49 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
     required String reservationId,
     required String qrCodeData,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    final current = await getReservationById(reservationId);
-    final confirmed = ReservationModel(
-      id: current.id,
-      listingId: current.listingId,
-      claimerId: current.claimerId,
-      ownerId: current.ownerId,
-      status: ReservationStatus.completed,
-      heldAt: current.heldAt,
-      expiresAt: current.expiresAt,
-      qrCodeData: current.qrCodeData,
-      completedAt: DateTime.now(),
-    );
-    _mockStorage[reservationId] = confirmed;
-    return confirmed;
+    final docRef = _col.doc(reservationId);
+    final snapshot = await docRef.get();
+    if (!snapshot.exists) throw Exception('Reservation not found');
+
+    final current = ReservationModel.fromMap(snapshot.data()!, snapshot.id);
+
+    // Double-handshake: determine which side is confirming
+    final isReceiverQr = qrCodeData.contains('RECEIVER');
+    final updatedReceiverConfirmed =
+        isReceiverQr ? true : current.receiverConfirmed;
+    final updatedDonorConfirmed =
+        !isReceiverQr ? true : current.donorConfirmed;
+    final isCompleted = updatedReceiverConfirmed && updatedDonorConfirmed;
+
+    final updates = <String, dynamic>{
+      'receiverConfirmed': updatedReceiverConfirmed,
+      'donorConfirmed': updatedDonorConfirmed,
+      'status': isCompleted
+          ? ReservationStatus.completed.name
+          : current.status.name,
+      if (isCompleted)
+        'completedAt': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    await docRef.update(updates);
+
+    final updated = await docRef.get();
+    return ReservationModel.fromMap(updated.data()!, updated.id);
   }
 
   @override
   Future<void> cancelReservation(String reservationId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (_mockStorage.containsKey(reservationId)) {
-      final current = _mockStorage[reservationId]!;
-      _mockStorage[reservationId] = ReservationModel(
-        id: current.id,
-        listingId: current.listingId,
-        claimerId: current.claimerId,
-        ownerId: current.ownerId,
-        status: ReservationStatus.cancelled,
-        heldAt: current.heldAt,
-        expiresAt: current.expiresAt,
-        qrCodeData: current.qrCodeData,
-      );
-    }
+    await _col.doc(reservationId).update({
+      'status': ReservationStatus.cancelled.name,
+    });
   }
 
   @override
   Future<ReservationModel> markAsExpired(String reservationId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    final current = await getReservationById(reservationId);
-    final expired = ReservationModel(
-      id: current.id,
-      listingId: current.listingId,
-      claimerId: current.claimerId,
-      ownerId: current.ownerId,
-      status: ReservationStatus.expired,
-      heldAt: current.heldAt,
-      expiresAt: current.expiresAt,
-      qrCodeData: current.qrCodeData,
-    );
-    _mockStorage[reservationId] = expired;
-    return expired;
+    await _col.doc(reservationId).update({
+      'status': ReservationStatus.expired.name,
+    });
+    final snapshot = await _col.doc(reservationId).get();
+    return ReservationModel.fromMap(snapshot.data()!, snapshot.id);
   }
 }

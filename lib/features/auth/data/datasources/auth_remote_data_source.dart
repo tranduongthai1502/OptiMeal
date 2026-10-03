@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/user_model.dart';
 import '../../domain/entities/user_entity.dart';
 
@@ -22,16 +25,51 @@ abstract class AuthRemoteDataSource {
   Future<void> signOut();
 }
 
-/// Firebase implementation skeleton for AuthRemoteDataSource.
-/// Uses FirebaseAuth & Cloud Firestore.
+/// Firebase implementation for AuthRemoteDataSource.
+/// Uses FirebaseAuth (Phone OTP) & Cloud Firestore (users collection).
 class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
-  // In production: final FirebaseAuth _firebaseAuth; final FirebaseFirestore _firestore;
+  final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
+
+  // Holds the verificationId across the sendOtp → verifyOtp flow
+  String? _pendingVerificationId;
+
+  AuthFirebaseDataSourceImpl({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
+
+  CollectionReference<Map<String, dynamic>> get _usersCol =>
+      _firestore.collection('users');
 
   @override
   Future<String> sendOtp(String phoneNumber) async {
-    // Stub implementation simulating OTP send for initial scaffolding
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    return 'fake-verification-id-for-$phoneNumber';
+    final completer = Future<String>.value('');
+    late String resolvedVerificationId;
+
+    await _firebaseAuth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      timeout: const Duration(seconds: 60),
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        // Auto-retrieval on Android: sign in directly
+        await _firebaseAuth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        throw Exception('OTP verification failed: ${e.message}');
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        _pendingVerificationId = verificationId;
+        resolvedVerificationId = verificationId;
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        _pendingVerificationId = verificationId;
+      },
+    );
+
+    // Wait briefly for codeSent callback to fire
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    return resolvedVerificationId;
   }
 
   @override
@@ -39,21 +77,42 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
     required String verificationId,
     required String smsCode,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    // Sample mock return for scaffold
-    return UserModel(
-      id: 'mock-user-101',
-      phoneNumber: '+84987654321',
-      displayName: 'Nguyễn Văn A',
-      role: null, // First-time user needs role onboarding
-      createdAt: DateTime.now(),
+    final credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
     );
+
+    final userCredential =
+        await _firebaseAuth.signInWithCredential(credential);
+    final firebaseUser = userCredential.user!;
+
+    // Upsert user document in Firestore
+    final docRef = _usersCol.doc(firebaseUser.uid);
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      final newUser = UserModel(
+        id: firebaseUser.uid,
+        phoneNumber: firebaseUser.phoneNumber ?? '',
+        role: null,
+        createdAt: DateTime.now(),
+      );
+      await docRef.set(newUser.toMap());
+      return newUser;
+    }
+
+    return UserModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
   Future<UserModel?> getCurrentUser() async {
-    // Scaffold initial state
-    return null;
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser == null) return null;
+
+    final snapshot = await _usersCol.doc(firebaseUser.uid).get();
+    if (!snapshot.exists) return null;
+
+    return UserModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
@@ -62,18 +121,19 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
     required UserRole role,
     String? displayName,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    return UserModel(
-      id: userId,
-      phoneNumber: '+84987654321',
-      displayName: displayName ?? 'Người dùng',
-      role: role,
-      createdAt: DateTime.now(),
-    );
+    final docRef = _usersCol.doc(userId);
+
+    await docRef.update({
+      'role': role.name,
+      if (displayName != null) 'displayName': displayName,
+    });
+
+    final snapshot = await docRef.get();
+    return UserModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
   Future<void> signOut() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await _firebaseAuth.signOut();
   }
 }

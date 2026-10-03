@@ -1,3 +1,7 @@
+import 'dart:math' as math;
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../domain/entities/food_listing.dart';
 import '../models/food_listing_model.dart';
@@ -23,111 +27,19 @@ abstract class ListingsRemoteDataSource {
   Future<void> cancelListing(String id, String ownerId);
 }
 
+/// Firestore implementation for Listings (food_listings collection).
+///
+/// NOTE: Geo-radius filtering is done client-side for now.
+/// For production scale, replace with GeoFlutterFire or a Cloud Function
+/// that queries a geohash index.
 class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
-  // In-memory mock list for initial scaffold and development testing
-  final List<FoodListingModel> _mockListings = [
-    FoodListingModel(
-      id: 'listing-001',
-      title: '30kg Cải thảo, Cà chua bi & Bắp cải Đà Lạt',
-      description:
-          'Nông sản tươi xanh giải cứu từ chuyến xe Lâm Đồng. Rau củ còn tươi nguyên, phù hợp cho bếp ăn thiện nguyện hoặc quán ăn nấu suất lớn.',
-      photos: [
-        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
-      ],
-      quantity: 30,
-      unit: 'kg',
-      category: FoodCategory.vegetables,
-      condition: FoodCondition.free,
-      expiresAt: DateTime.now().add(const Duration(hours: 18)),
-      pickupWindowStart: DateTime.now(),
-      pickupWindowEnd: DateTime.now().add(const Duration(hours: 6)),
-      latitude: 10.7769, // Ho Chi Minh City center
-      longitude: 106.7009,
-      addressText: 'Siêu thị Nông Sản Sạch, 180 Hai Bà Trưng, Quận 1, TP.HCM',
-      allergenTags: [],
-      ownerId: 'store-nongsan',
-      ownerName: 'Siêu thị Nông Sản Xanh',
-      ownerType: UserRole.store,
-      status: ListingStatus.available,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
-    ),
-    FoodListingModel(
-      id: 'listing-002',
-      title: '50kg Gạo ST25 & Đậu xanh khô nguyên bao',
-      description:
-          'Gạo và đậu khô sạch từ nhà hảo tâm tặng cho bếp ăn hoặc người có hoàn cảnh khó khăn.',
-      photos: [
-        'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80',
-      ],
-      quantity: 50,
-      unit: 'kg',
-      category: FoodCategory.dryGoods,
-      condition: FoodCondition.free,
-      expiresAt: DateTime.now().add(const Duration(days: 30)),
-      pickupWindowStart: DateTime.now(),
-      pickupWindowEnd: DateTime.now().add(const Duration(hours: 12)),
-      latitude: 10.7725,
-      longitude: 106.6980,
-      addressText: '45 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM',
-      allergenTags: [],
-      ownerId: 'user-donor-nguyen',
-      ownerName: 'Quỹ Thiện Nguyện Bồ Đề',
-      ownerType: UserRole.individual,
-      status: ListingStatus.available,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 50)),
-    ),
-    FoodListingModel(
-      id: 'listing-003',
-      title: 'Bếp Cơm Nụ Cười - Phát 150 Suất Cơm Chay Miễn Phí',
-      description:
-          'Điểm phát cơm từ thiện trưa hàng ngày cho bà con lao động nghèo, người khuyết tật và người vô gia cư. Cơm nóng kèm canh rau củ dinh dưỡng.',
-      photos: [
-        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
-      ],
-      quantity: 150,
-      unit: 'suất',
-      category: FoodCategory.charityMealPoint,
-      isCharityPoint: true,
-      condition: FoodCondition.free,
-      expiresAt: DateTime.now().add(const Duration(hours: 3)),
-      pickupWindowStart: DateTime.now().add(const Duration(minutes: 30)),
-      pickupWindowEnd: DateTime.now().add(const Duration(hours: 2)),
-      latitude: 10.7812,
-      longitude: 106.6954,
-      addressText: 'Chùa Vĩnh Nghiêm, 339 Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCM',
-      allergenTags: ['Đậu nành'],
-      ownerId: 'kitchen-nucuoi',
-      ownerName: 'Bếp Cơm Từ Thiện Nụ Cười',
-      ownerType: UserRole.charityKitchen,
-      status: ListingStatus.available,
-      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-    ),
-    FoodListingModel(
-      id: 'listing-004',
-      title: 'Bánh mì ngũ cốc & Croissant cuối ngày',
-      description:
-          'Còn dư 5 ổ bánh mì ngũ cốc và 3 bánh sừng trâu nướng mới sáng nay. Đóng gói sạch sẽ trong túi giấy thực phẩm.',
-      photos: [
-        'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
-      ],
-      quantity: 8,
-      unit: 'hộp',
-      category: FoodCategory.cookedMeals,
-      condition: FoodCondition.free,
-      expiresAt: DateTime.now().add(const Duration(hours: 4)),
-      pickupWindowStart: DateTime.now(),
-      pickupWindowEnd: DateTime.now().add(const Duration(hours: 3)),
-      latitude: 10.7745,
-      longitude: 106.7020,
-      addressText: 'Tiệm Bánh Tous Les Jours, Quận 1',
-      allergenTags: ['Gluten', 'Sữa'],
-      ownerId: 'store-bakery',
-      ownerName: 'Tous Les Jours Bakery',
-      ownerType: UserRole.store,
-      status: ListingStatus.available,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    ),
-  ];
+  final FirebaseFirestore _firestore;
+
+  ListingsFirebaseDataSourceImpl({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  CollectionReference<Map<String, dynamic>> get _col =>
+      _firestore.collection('food_listings');
 
   @override
   Future<List<FoodListingModel>> getNearbyListings({
@@ -137,34 +49,60 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodCondition? condition,
     FoodCategory? category,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    var results = _mockListings
-        .where((item) => item.status == ListingStatus.available)
-        .toList();
+    // Build base query: only available, not expired
+    Query<Map<String, dynamic>> query = _col
+        .where('status', isEqualTo: ListingStatus.available.name)
+        .where(
+          'expiresAt',
+          isGreaterThan: DateTime.now().millisecondsSinceEpoch,
+        )
+        .orderBy('expiresAt')
+        .orderBy('createdAt', descending: true)
+        .limit(100);
+
     if (condition != null) {
-      results = results.where((item) => item.condition == condition).toList();
+      query = query.where('condition', isEqualTo: condition.name);
     }
     if (category != null) {
-      results = results.where((item) => item.category == category).toList();
+      query = query.where('category', isEqualTo: category.name);
     }
-    return results;
+
+    final snapshot = await query.get();
+    final listings = snapshot.docs
+        .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+        .toList();
+
+    // Client-side geo filter (Haversine approximation)
+    return listings.where((listing) {
+      final dist = _haversineKm(
+        latitude,
+        longitude,
+        listing.latitude,
+        listing.longitude,
+      );
+      return dist <= radiusKm;
+    }).toList();
   }
 
   @override
   Future<FoodListingModel> getListingById(String id) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    final item = _mockListings.firstWhere(
-      (element) => element.id == id,
-      orElse: () => _mockListings.first,
-    );
-    return item;
+    final snapshot = await _col.doc(id).get();
+    if (!snapshot.exists) throw Exception('Listing $id not found');
+    return FoodListingModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
   Future<FoodListingModel> createListing(FoodListingModel listing) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    _mockListings.insert(0, listing);
-    return listing;
+    final docRef =
+        listing.id.isEmpty ? _col.doc() : _col.doc(listing.id);
+    final data = listing.toMap();
+    await docRef.set(data);
+
+    final saved = FoodListingModel.fromMap(
+      {...data, 'id': docRef.id},
+      docRef.id,
+    );
+    return saved;
   }
 
   @override
@@ -172,38 +110,42 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     String id,
     ListingStatus newStatus,
   ) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    final index = _mockListings.indexWhere((e) => e.id == id);
-    if (index != -1) {
-      final updated = FoodListingModel(
-        id: _mockListings[index].id,
-        title: _mockListings[index].title,
-        description: _mockListings[index].description,
-        photos: _mockListings[index].photos,
-        quantity: _mockListings[index].quantity,
-        condition: _mockListings[index].condition,
-        price: _mockListings[index].price,
-        expiresAt: _mockListings[index].expiresAt,
-        pickupWindowStart: _mockListings[index].pickupWindowStart,
-        pickupWindowEnd: _mockListings[index].pickupWindowEnd,
-        latitude: _mockListings[index].latitude,
-        longitude: _mockListings[index].longitude,
-        addressText: _mockListings[index].addressText,
-        allergenTags: _mockListings[index].allergenTags,
-        ownerId: _mockListings[index].ownerId,
-        ownerName: _mockListings[index].ownerName,
-        ownerType: _mockListings[index].ownerType,
-        status: newStatus,
-        createdAt: _mockListings[index].createdAt,
-      );
-      _mockListings[index] = updated;
-      return updated;
-    }
-    throw Exception('Listing not found');
+    await _col.doc(id).update({'status': newStatus.name});
+    final snapshot = await _col.doc(id).get();
+    return FoodListingModel.fromMap(snapshot.data()!, snapshot.id);
   }
 
   @override
   Future<void> cancelListing(String id, String ownerId) async {
-    await updateListingStatus(id, ListingStatus.cancelled);
+    // Verify ownership before cancelling
+    final snapshot = await _col.doc(id).get();
+    if (!snapshot.exists) throw Exception('Listing not found');
+
+    final data = snapshot.data()!;
+    if (data['ownerId'] != ownerId) {
+      throw Exception('Unauthorized: only the owner can cancel this listing');
+    }
+
+    await _col.doc(id).update({'status': ListingStatus.cancelled.name});
   }
+
+  /// Haversine formula — returns distance in km between two lat/lng points.
+  double _haversineKm(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
+    const r = 6371.0; // Earth radius in km
+    final dLat = _toRad(lat2 - lat1);
+    final dLon = _toRad(lon2 - lon1);
+    final a = math.pow(math.sin(dLat / 2), 2) +
+        math.cos(_toRad(lat1)) *
+            math.cos(_toRad(lat2)) *
+            math.pow(math.sin(dLon / 2), 2);
+    final c = 2 * math.asin(math.sqrt(a));
+    return r * c;
+  }
+
+  double _toRad(double deg) => deg * math.pi / 180;
 }
