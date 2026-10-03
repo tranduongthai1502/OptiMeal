@@ -63,7 +63,8 @@ class AppColors {
 
   // ── Aliases for theme compatibility ──
   static const Color onSecondary = Colors.white;
-  static const Color surfaceLight = surfaceLowest;   // light mode card surface
-  static const Color secondaryLight = secondaryContainer; // dark-theme secondary
-  static const Color secondaryDark = secondary;           // dark-theme secondaryContainer
+  static const Color surfaceLight = surfaceLowest; // light mode card surface
+  static const Color secondaryLight =
+      secondaryContainer; // dark-theme secondary
+  static const Color secondaryDark = secondary; // dark-theme secondaryContainer
 }

@@ -82,8 +82,7 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
       smsCode: smsCode,
     );
 
-    final userCredential =
-        await _firebaseAuth.signInWithCredential(credential);
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
     final firebaseUser = userCredential.user!;
 
     // Upsert user document in Firestore

@@ -363,8 +363,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                 height: 80,
                 child: MapPinWidget(
                   data: pin,
-                  animation:
-                      pin.isPulsing ? _pulseController.view : null,
+                  animation: pin.isPulsing ? _pulseController.view : null,
                 ),
               ),
           ],
@@ -491,9 +490,8 @@ class _RadiusSheet extends StatelessWidget {
                 title: Text(
                   opt,
                   style: TextStyle(
-                    fontWeight: selected == opt
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                    fontWeight:
+                        selected == opt ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 trailing: selected == opt
@@ -559,5 +557,3 @@ class _ReserveDialog extends StatelessWidget {
     );
   }
 }
-
-

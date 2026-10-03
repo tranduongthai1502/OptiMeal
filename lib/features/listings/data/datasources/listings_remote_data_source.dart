@@ -93,8 +93,7 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
 
   @override
   Future<FoodListingModel> createListing(FoodListingModel listing) async {
-    final docRef =
-        listing.id.isEmpty ? _col.doc() : _col.doc(listing.id);
+    final docRef = listing.id.isEmpty ? _col.doc() : _col.doc(listing.id);
     final data = listing.toMap();
     await docRef.set(data);
 

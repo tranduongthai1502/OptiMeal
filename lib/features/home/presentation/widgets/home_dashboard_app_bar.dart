@@ -54,8 +54,7 @@ class HomeDashboardAppBar extends StatelessWidget {
               onTap: onLocationTap,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

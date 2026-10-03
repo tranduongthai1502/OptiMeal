@@ -60,8 +60,7 @@ class DonorCalloutBanner extends StatelessWidget {
               backgroundColor: AppColors.surfaceLowest,
               foregroundColor: AppColors.primary,
               elevation: 0,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

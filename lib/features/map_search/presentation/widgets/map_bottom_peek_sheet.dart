@@ -29,7 +29,8 @@ class MapSelectedPinData {
     required this.portionsTotal,
   });
 
-  double get portionRatio => portionsAvailable / portionsTotal.clamp(1, portionsTotal);
+  double get portionRatio =>
+      portionsAvailable / portionsTotal.clamp(1, portionsTotal);
 }
 
 /// Bottom peek sheet that appears when a map pin is tapped.
@@ -191,7 +192,8 @@ class MapBottomPeekSheet extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.secondaryContainer.withValues(alpha: 0.2),
+                        color:
+                            AppColors.secondaryContainer.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -255,7 +257,8 @@ class MapBottomPeekSheet extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: data.portionRatio,
                     backgroundColor: AppColors.surfaceHigh,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(AppColors.primary),
                     minHeight: 8,
                   ),
                 ),
@@ -277,7 +280,8 @@ class MapBottomPeekSheet extends StatelessWidget {
                   child: const SizedBox(
                     width: 48,
                     height: 48,
-                    child: Icon(Icons.share, color: AppColors.onSurface, size: 20),
+                    child:
+                        Icon(Icons.share, color: AppColors.onSurface, size: 20),
                   ),
                 ),
               ),

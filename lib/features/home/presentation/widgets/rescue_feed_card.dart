@@ -66,7 +66,10 @@ class RescueFeedCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Thumbnail(imageUrl: item.imageUrl, urgentTag: item.urgentTag, urgentColor: item.urgentColor),
+              _Thumbnail(
+                  imageUrl: item.imageUrl,
+                  urgentTag: item.urgentTag,
+                  urgentColor: item.urgentColor),
               const SizedBox(width: 12),
               Expanded(child: _CardDetails(item: item)),
             ],
@@ -94,7 +97,8 @@ class RescueFeedCard extends StatelessWidget {
               ),
               Text(
                 item.tagRight,
-                style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                style: const TextStyle(
+                    fontSize: 11, color: AppColors.onSurfaceVariant),
               ),
             ],
           ),
@@ -103,14 +107,16 @@ class RescueFeedCard extends StatelessWidget {
           // ── Schedule ──
           Row(
             children: [
-              const Icon(Icons.schedule, size: 14, color: AppColors.onSurfaceVariant),
+              const Icon(Icons.schedule,
+                  size: 14, color: AppColors.onSurfaceVariant),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   item.scheduleText,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.onSurfaceVariant),
                 ),
               ),
             ],
@@ -280,7 +286,8 @@ class _ReserveButton extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8),
-                  Text('Holding slot...', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Holding slot...',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
               )
             : isReserved
@@ -289,7 +296,8 @@ class _ReserveButton extends StatelessWidget {
                     children: [
                       Icon(Icons.check_circle, size: 18),
                       SizedBox(width: 6),
-                      Text('Reserved! QR in Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Reserved! QR in Profile',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ],
                   )
                 : const Row(
@@ -297,7 +305,8 @@ class _ReserveButton extends StatelessWidget {
                     children: [
                       Text(
                         'Reserve (Self-Pickup)',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(width: 6),
                       Icon(Icons.arrow_forward, size: 18),

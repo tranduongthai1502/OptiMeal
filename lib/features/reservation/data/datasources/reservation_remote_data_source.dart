@@ -83,18 +83,15 @@ class ReservationFirebaseDataSourceImpl implements ReservationRemoteDataSource {
     final isReceiverQr = qrCodeData.contains('RECEIVER');
     final updatedReceiverConfirmed =
         isReceiverQr ? true : current.receiverConfirmed;
-    final updatedDonorConfirmed =
-        !isReceiverQr ? true : current.donorConfirmed;
+    final updatedDonorConfirmed = !isReceiverQr ? true : current.donorConfirmed;
     final isCompleted = updatedReceiverConfirmed && updatedDonorConfirmed;
 
     final updates = <String, dynamic>{
       'receiverConfirmed': updatedReceiverConfirmed,
       'donorConfirmed': updatedDonorConfirmed,
-      'status': isCompleted
-          ? ReservationStatus.completed.name
-          : current.status.name,
-      if (isCompleted)
-        'completedAt': DateTime.now().millisecondsSinceEpoch,
+      'status':
+          isCompleted ? ReservationStatus.completed.name : current.status.name,
+      if (isCompleted) 'completedAt': DateTime.now().millisecondsSinceEpoch,
     };
 
     await docRef.update(updates);

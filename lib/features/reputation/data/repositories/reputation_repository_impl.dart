@@ -108,8 +108,7 @@ class ReputationRepositoryImpl implements ReputationRepository {
           userId: userId,
           averageRating: (data['averageRating'] as num?)?.toDouble() ?? 5.0,
           totalReviews: (data['totalReviews'] as int?) ?? 0,
-          completedTransactions:
-              (data['completedTransactions'] as int?) ?? 0,
+          completedTransactions: (data['completedTransactions'] as int?) ?? 0,
           noShowCount: (data['noShowCount'] as int?) ?? 0,
           isRestricted: data['isRestricted'] as bool? ?? false,
         ),

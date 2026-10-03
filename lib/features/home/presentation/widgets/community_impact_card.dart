@@ -86,8 +86,7 @@ class CommunityImpactCard extends StatelessWidget {
 
           // CO2 bar
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.primaryContainer,
               borderRadius: BorderRadius.circular(8),

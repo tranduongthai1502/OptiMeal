@@ -325,8 +325,7 @@ class _NavItem extends StatelessWidget {
               item.label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight:
-                    item.isActive ? FontWeight.bold : FontWeight.normal,
+                fontWeight: item.isActive ? FontWeight.bold : FontWeight.normal,
                 color: item.isActive
                     ? AppColors.primary
                     : AppColors.onSurfaceVariant,
