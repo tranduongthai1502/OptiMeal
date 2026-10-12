@@ -54,3 +54,10 @@ ios/Runner/GoogleService-Info.plist
 .gradle/
 /android/.gradle/
 /android/build/
+lib/firebase_options.dart
+
+# Native build folders
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.podspec
+android/.gradle/
