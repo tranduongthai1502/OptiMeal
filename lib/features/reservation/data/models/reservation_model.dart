@@ -10,6 +10,9 @@ class ReservationModel extends Reservation {
     required super.heldAt,
     required super.expiresAt,
     required super.qrCodeData,
+    super.donorQrCodeData = '',
+    super.receiverConfirmed = true,
+    super.donorConfirmed = false,
     super.completedAt,
   });
 
@@ -23,6 +26,9 @@ class ReservationModel extends Reservation {
       heldAt: entity.heldAt,
       expiresAt: entity.expiresAt,
       qrCodeData: entity.qrCodeData,
+      donorQrCodeData: entity.donorQrCodeData,
+      receiverConfirmed: entity.receiverConfirmed,
+      donorConfirmed: entity.donorConfirmed,
       completedAt: entity.completedAt,
     );
   }
@@ -44,6 +50,9 @@ class ReservationModel extends Reservation {
           ? DateTime.fromMillisecondsSinceEpoch(map['expiresAt'] as int)
           : DateTime.now().add(const Duration(minutes: 20)),
       qrCodeData: map['qrCodeData'] as String? ?? '',
+      donorQrCodeData: map['donorQrCodeData'] as String? ?? '',
+      receiverConfirmed: map['receiverConfirmed'] as bool? ?? true,
+      donorConfirmed: map['donorConfirmed'] as bool? ?? false,
       completedAt: map['completedAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['completedAt'] as int)
           : null,
@@ -59,6 +68,9 @@ class ReservationModel extends Reservation {
       'heldAt': heldAt.millisecondsSinceEpoch,
       'expiresAt': expiresAt.millisecondsSinceEpoch,
       'qrCodeData': qrCodeData,
+      'donorQrCodeData': donorQrCodeData,
+      'receiverConfirmed': receiverConfirmed,
+      'donorConfirmed': donorConfirmed,
       'completedAt': completedAt?.millisecondsSinceEpoch,
     };
   }

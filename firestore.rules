@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+
+    function isNotRestricted() {
+      return isSignedIn() && getUserData().isRestricted == false;
+    }
+
+    // ── users ─────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['isRestricted', 'noShowCount', 'reputationScore']);
+      allow delete: if false;
+    }
+
+    // ── store_profiles ────────────────────────────────────────
+    match /store_profiles/{storeId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(storeId) && hasRole('store');
+      allow update: if isOwner(storeId);
+      allow delete: if false;
+    }
+
+    // ── food_listings ─────────────────────────────────────────
+    match /food_listings/{listingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isNotRestricted()
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn()
+        && (
+          resource.data.ownerId == request.auth.uid
+          || (request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['status'])
+              && request.resource.data.status == 'reserved')
+        );
+      allow delete: if false;
+    }
+
+    // ── reservations ──────────────────────────────────────────
+    match /reservations/{reservationId} {
+      allow read: if isSignedIn()
+        && (resource.data.claimerId == request.auth.uid
+            || resource.data.ownerId == request.auth.uid);
+      allow create: if isSignedIn() && isNotRestricted()
+        && request.resource.data.claimerId == request.auth.uid;
+      allow update: if isSignedIn()
+        && (resource.data.claimerId == request.auth.uid
+            || resource.data.ownerId == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'receiverConfirmed', 'donorConfirmed', 'completedAt']);
+      allow delete: if false;
+    }
+
+    // ── reviews ───────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.reviewerId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── user_reputations ──────────────────────────────────────
+    match /user_reputations/{userId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Chỉ ghi qua Firestore Transaction trong app
+    }
+
+    // ── no_show_reports ───────────────────────────────────────
+    match /no_show_reports/{reportId} {
+      allow read: if isSignedIn()
+        && (resource.data.reporterId == request.auth.uid
+            || resource.data.reportedUserId == request.auth.uid);
+      allow create: if isSignedIn()
+        && request.resource.data.reporterId == request.auth.uid;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
