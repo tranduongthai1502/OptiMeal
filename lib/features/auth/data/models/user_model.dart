@@ -13,6 +13,7 @@ class UserModel extends UserEntity {
     super.noShowCount = 0,
     super.isRestricted = false,
     required super.createdAt,
+    super.isNewUser = false,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String id) {
@@ -35,6 +36,7 @@ class UserModel extends UserEntity {
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : DateTime.now(),
+      isNewUser: false,
     );
   }
 
@@ -62,6 +64,7 @@ class UserModel extends UserEntity {
     int? totalPickups,
     int? noShowCount,
     bool? isRestricted,
+    bool? isNewUser,
   }) {
     return UserModel(
       id: id,
@@ -75,6 +78,7 @@ class UserModel extends UserEntity {
       noShowCount: noShowCount ?? this.noShowCount,
       isRestricted: isRestricted ?? this.isRestricted,
       createdAt: createdAt,
+      isNewUser: isNewUser ?? this.isNewUser,
     );
   }
 }

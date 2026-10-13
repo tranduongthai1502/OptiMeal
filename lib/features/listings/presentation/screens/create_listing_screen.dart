@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/food_listing.dart';
 import '../providers/listings_provider.dart';
 
@@ -20,18 +20,16 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  final _quantityController = TextEditingController(text: '10');
+  final _quantityController = TextEditingController();
   final _priceController = TextEditingController();
-  final _addressController = TextEditingController(
-    text: '180 Hai Bà Trưng, Phường Đa Kao, Quận 1, TP.HCM',
-  );
+  final _addressController = TextEditingController();
+  final _latitudeController = TextEditingController();
+  final _longitudeController = TextEditingController();
 
   FoodCategory _category = FoodCategory.vegetables;
   String _unit = 'kg';
   FoodCondition _condition = FoodCondition.free;
   bool _isLoading = false;
-  double _selectedLat = 10.7769;
-  double _selectedLng = 106.7009;
   final List<String> _selectedAllergens = [];
 
   final List<String> _availableAllergens = [
@@ -50,11 +48,25 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     _quantityController.dispose();
     _priceController.dispose();
     _addressController.dispose();
+    _latitudeController.dispose();
+    _longitudeController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final user = ref.read(authStateProvider).user;
+    if (user == null || user.role == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Vui lòng đăng nhập và chọn vai trò trước khi đăng tin.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -65,11 +77,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       id: 'listing-${now.millisecondsSinceEpoch}',
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
-      photos: [
-        isCharity
-            ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80'
-            : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
-      ],
+      photos: const [],
       quantity: int.tryParse(_quantityController.text.trim()) ?? 1,
       unit: _unit,
       category: _category,
@@ -81,22 +89,21 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       expiresAt: now.add(const Duration(hours: 12)),
       pickupWindowStart: now,
       pickupWindowEnd: now.add(const Duration(hours: 6)),
-      latitude: _selectedLat,
-      longitude: _selectedLng,
+      latitude: double.parse(_latitudeController.text.trim()),
+      longitude: double.parse(_longitudeController.text.trim()),
       addressText: _addressController.text.trim(),
       allergenTags: _selectedAllergens,
-      ownerId: 'current-user-id',
-      ownerName: isCharity ? 'Bếp Ăn Thiện Nguyện' : 'Cửa Hàng / Người Tặng',
-      ownerType: isCharity ? UserRole.charityKitchen : UserRole.store,
+      ownerId: user.id,
+      ownerName: user.displayName ?? user.phoneNumber,
+      ownerType: user.role!,
       status: ListingStatus.available,
       createdAt: now,
     );
 
     final result = await ref.read(createListingUseCaseProvider)(newListing);
 
-    setState(() => _isLoading = false);
-
     if (!mounted) return;
+    setState(() => _isLoading = false);
 
     result.fold(
       (failure) {
@@ -150,15 +157,15 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.location_on_rounded,
                             color: AppColors.primary,
                             size: 24,
                           ),
-                          const SizedBox(width: 8),
-                          const Expanded(
+                          SizedBox(width: 8),
+                          Expanded(
                             child: Text(
                               'Vị trí ghim trên Bản đồ',
                               style: TextStyle(
@@ -166,23 +173,6 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                                 fontSize: 15,
                               ),
                             ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _selectedLat = 10.7769;
-                                _selectedLng = 106.7009;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Đã cập nhật tọa độ GPS hiện tại',
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.my_location, size: 16),
-                            label: const Text('GPS của tôi'),
                           ),
                         ],
                       ),
@@ -199,9 +189,61 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                             : null,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Tọa độ ghim: ${_selectedLat.toStringAsFixed(4)}, ${_selectedLng.toStringAsFixed(4)} (Người nhận sẽ được chỉ đường đến đây)',
-                        style: const TextStyle(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _latitudeController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                                signed: true,
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'Vĩ độ *',
+                                hintText: 'Nhập vĩ độ',
+                              ),
+                              validator: (value) {
+                                final latitude = double.tryParse(value ?? '');
+                                if (latitude == null ||
+                                    latitude < -90 ||
+                                    latitude > 90) {
+                                  return 'Nhập vĩ độ hợp lệ';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _longitudeController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                                signed: true,
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'Kinh độ *',
+                                hintText: 'Nhập kinh độ',
+                              ),
+                              validator: (value) {
+                                final longitude = double.tryParse(value ?? '');
+                                if (longitude == null ||
+                                    longitude < -180 ||
+                                    longitude > 180) {
+                                  return 'Nhập kinh độ hợp lệ';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Nhập tọa độ thực tế của điểm nhận thực phẩm.',
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryLight,
                         ),

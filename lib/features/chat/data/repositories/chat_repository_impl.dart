@@ -7,25 +7,18 @@ import '../../domain/entities/chat_message.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final Map<String, List<ChatMessage>> _messagesStore = {};
-  final StreamController<List<ChatMessage>> _controller =
-      StreamController<List<ChatMessage>>.broadcast();
+  final Map<String, StreamController<List<ChatMessage>>> _controllers = {};
 
   @override
-  Stream<List<ChatMessage>> getMessagesStream(String reservationId) {
-    if (!_messagesStore.containsKey(reservationId)) {
-      _messagesStore[reservationId] = [
-        ChatMessage(
-          id: 'msg-1',
-          reservationId: reservationId,
-          senderId: 'donor-01',
-          senderName: 'Tous Les Jours Hai Bà Trưng',
-          text:
-              'Chào bạn! Bánh mì của bạn đã được đóng gói sẵn trong túi giấy. Bạn có thể ghé quầy trước 18:30 nhé.',
-          sentAt: DateTime.now().subtract(const Duration(minutes: 10)),
-        ),
-      ];
-    }
-    return Stream.value(_messagesStore[reservationId]!);
+  Stream<List<ChatMessage>> getMessagesStream(String reservationId) async* {
+    final messages = _messagesStore.putIfAbsent(reservationId, () => []);
+    yield List.unmodifiable(messages);
+    yield* _controllers
+        .putIfAbsent(
+          reservationId,
+          () => StreamController<List<ChatMessage>>.broadcast(),
+        )
+        .stream;
   }
 
   @override
@@ -44,7 +37,9 @@ class ChatRepositoryImpl implements ChatRepository {
       sentAt: DateTime.now(),
     );
     _messagesStore.putIfAbsent(reservationId, () => []).add(newMsg);
-    _controller.add(_messagesStore[reservationId]!);
+    _controllers[reservationId]?.add(
+      List.unmodifiable(_messagesStore[reservationId]!),
+    );
     return Right(newMsg);
   }
 }

@@ -25,6 +25,7 @@ class UserEntity {
   final int noShowCount;
   final bool isRestricted;
   final DateTime createdAt;
+  final bool isNewUser;
 
   const UserEntity({
     required this.id,
@@ -38,6 +39,7 @@ class UserEntity {
     this.noShowCount = 0,
     this.isRestricted = false,
     required this.createdAt,
+    this.isNewUser = false,
   });
 
   bool get hasSelectedRole => role != null;

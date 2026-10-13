@@ -4,18 +4,18 @@ import '../../../../core/theme/app_colors.dart';
 /// Sticky top app-bar for the Home dashboard.
 /// Shows the brand logo, location selector, notification badge, and avatar.
 class HomeDashboardAppBar extends StatelessWidget {
-  final String locationLabel;
+  final String? locationLabel;
   final int notificationCount;
-  final VoidCallback onLocationTap;
-  final VoidCallback onNotificationTap;
+  final VoidCallback? onLocationTap;
+  final VoidCallback? onNotificationTap;
   final VoidCallback onProfileTap;
 
   const HomeDashboardAppBar({
     super.key,
-    this.locationLabel = 'Da Nang, Vietnam',
+    this.locationLabel,
     this.notificationCount = 0,
-    required this.onLocationTap,
-    required this.onNotificationTap,
+    this.onLocationTap,
+    this.onNotificationTap,
     required this.onProfileTap,
   });
 
@@ -78,7 +78,7 @@ class HomeDashboardAppBar extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            locationLabel,
+                            locationLabel ?? 'Chưa xác định vị trí',
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 13,
@@ -89,11 +89,12 @@ class HomeDashboardAppBar extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 18,
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                    if (onLocationTap != null)
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 18,
+                        color: AppColors.onSurfaceVariant,
+                      ),
                   ],
                 ),
               ),
@@ -103,37 +104,38 @@ class HomeDashboardAppBar extends StatelessWidget {
           // Notification bell + Profile avatar
           Row(
             children: [
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications_outlined,
-                      color: AppColors.onSurfaceVariant,
+              if (onNotificationTap != null)
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications_outlined,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      onPressed: onNotificationTap,
                     ),
-                    onPressed: onNotificationTap,
-                  ),
-                  if (notificationCount > 0)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: const BoxDecoration(
-                          color: AppColors.notificationBadge,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$notificationCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
+                    if (notificationCount > 0)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: AppColors.notificationBadge,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '$notificationCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                ),
               InkWell(
                 onTap: onProfileTap,
                 borderRadius: BorderRadius.circular(20),

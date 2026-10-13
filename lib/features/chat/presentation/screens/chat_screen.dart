@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../data/repositories/chat_repository_impl.dart';
 import '../../domain/entities/chat_message.dart';
@@ -33,22 +34,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  void _handleSend() {
+  Future<void> _handleSend() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
-    ref.read(chatRepositoryProvider).sendMessage(
+    final user = ref.read(authStateProvider).user;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập để gửi tin nhắn.')),
+      );
+      return;
+    }
+
+    final result = await ref.read(chatRepositoryProvider).sendMessage(
           reservationId: widget.reservationId,
-          senderId: 'current-user-id',
-          senderName: 'Tôi',
+          senderId: user.id,
+          senderName: user.displayName ?? user.phoneNumber,
           text: text,
         );
-    _textController.clear();
-    setState(() {});
+    if (!mounted) return;
+    result.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      ),
+      (_) => _textController.clear(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(authStateProvider).user;
     final messagesAsync = ref.watch(
       chatMessagesStreamProvider(widget.reservationId),
     );
@@ -73,12 +88,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, _) => Center(child: Text('Lỗi: $err')),
               data: (messages) {
+                if (messages.isEmpty) {
+                  return const Center(child: Text('Chưa có tin nhắn.'));
+                }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[index];
-                    final isMe = msg.senderId == 'current-user-id';
+                    final isMe = msg.senderId == currentUser?.id;
                     return Align(
                       alignment:
                           isMe ? Alignment.centerRight : Alignment.centerLeft,
