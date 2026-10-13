@@ -43,12 +43,14 @@ class AuthState {
   final bool isLoading;
   final UserEntity? user;
   final String? verificationId;
+  final String? phoneNumber;
   final String? errorMessage;
 
   const AuthState({
     this.isLoading = false,
     this.user,
     this.verificationId,
+    this.phoneNumber,
     this.errorMessage,
   });
 
@@ -58,12 +60,14 @@ class AuthState {
     bool? isLoading,
     UserEntity? user,
     String? verificationId,
+    String? phoneNumber,
     String? errorMessage,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
       user: user ?? this.user,
       verificationId: verificationId ?? this.verificationId,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       errorMessage: errorMessage,
     );
   }
@@ -99,6 +103,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           verificationId: verificationId,
+          phoneNumber: phoneNumber,
         );
         return true;
       },

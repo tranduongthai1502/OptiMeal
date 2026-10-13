@@ -10,10 +10,10 @@ class CommunityImpactCard extends StatelessWidget {
 
   const CommunityImpactCard({
     super.key,
-    this.city = 'Da Nang',
-    this.rescuedKg = 320,
-    this.activeKitchens = 12,
-    this.co2PreventedKg = 780,
+    required this.city,
+    required this.rescuedKg,
+    required this.activeKitchens,
+    required this.co2PreventedKg,
   });
 
   @override
@@ -138,13 +138,8 @@ class _LiveBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircleAvatar(
-            radius: 3.5,
-            backgroundColor: AppColors.primary,
-          ),
-          const SizedBox(width: 5),
           Text(
-            'Live $city',
+            city,
             style: const TextStyle(
               color: AppColors.primary,
               fontSize: 11,

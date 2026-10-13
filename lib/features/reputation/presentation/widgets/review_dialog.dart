@@ -5,6 +5,7 @@ import '../../domain/entities/review.dart';
 
 class ReviewDialog extends StatefulWidget {
   final String reservationId;
+  final String reviewerId;
   final String targetUserId;
   final String targetUserName;
   final void Function(Review review) onSubmit;
@@ -12,6 +13,7 @@ class ReviewDialog extends StatefulWidget {
   const ReviewDialog({
     super.key,
     required this.reservationId,
+    required this.reviewerId,
     required this.targetUserId,
     required this.targetUserName,
     required this.onSubmit,
@@ -86,7 +88,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
             final review = Review(
               id: 'rev-${DateTime.now().millisecondsSinceEpoch}',
               reservationId: widget.reservationId,
-              reviewerId: 'current-user-id',
+              reviewerId: widget.reviewerId,
               targetUserId: widget.targetUserId,
               rating: _rating,
               comment: _commentController.text.trim(),

@@ -43,13 +43,15 @@ const kDefaultMapCategories = <MapCategory>[
 class MapSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final int activeFilterCount;
-  final VoidCallback onFilterTap;
+  final VoidCallback? onFilterTap;
+  final ValueChanged<String>? onChanged;
 
   const MapSearchBar({
     super.key,
     required this.controller,
-    required this.activeFilterCount,
-    required this.onFilterTap,
+    this.activeFilterCount = 0,
+    this.onFilterTap,
+    this.onChanged,
   });
 
   @override
@@ -78,6 +80,7 @@ class MapSearchBar extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: controller,
+                    onChanged: onChanged,
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.onSurface,
@@ -111,50 +114,52 @@ class MapSearchBar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 10),
-        // Filter button with badge
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Material(
-              color: AppColors.surfaceLowest,
-              borderRadius: BorderRadius.circular(12),
-              elevation: 2,
-              shadowColor: Colors.black.withValues(alpha: 0.1),
-              child: InkWell(
-                onTap: onFilterTap,
+        if (onFilterTap != null) ...[
+          const SizedBox(width: 10),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Material(
+                color: AppColors.surfaceLowest,
                 borderRadius: BorderRadius.circular(12),
-                child: const SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Icon(Icons.tune, color: AppColors.onSurface, size: 22),
+                elevation: 2,
+                shadowColor: Colors.black.withValues(alpha: 0.1),
+                child: InkWell(
+                  onTap: onFilterTap,
+                  borderRadius: BorderRadius.circular(12),
+                  child: const SizedBox(
+                    width: 48,
+                    height: 48,
+                    child:
+                        Icon(Icons.tune, color: AppColors.onSurface, size: 22),
+                  ),
                 ),
               ),
-            ),
-            if (activeFilterCount > 0)
-              Positioned(
-                top: -4,
-                right: -4,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '$activeFilterCount',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+              if (activeFilterCount > 0)
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$activeFilterCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }

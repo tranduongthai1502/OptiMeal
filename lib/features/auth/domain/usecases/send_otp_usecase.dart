@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../repositories/auth_repository.dart';
+import 'phone_number_formatter.dart';
 
 class SendOtpUseCase {
   final AuthRepository repository;
@@ -9,11 +10,17 @@ class SendOtpUseCase {
   SendOtpUseCase(this.repository);
 
   Future<Either<Failure, String>> call(String phoneNumber) {
-    if (phoneNumber.trim().isEmpty) {
+    final normalizedPhoneNumber =
+        normalizeVietnamesePhoneNumber(phoneNumber.trim());
+    if (normalizedPhoneNumber == null) {
       return Future.value(
-        const Left(AuthFailure('Số điện thoại không được để trống.')),
+        const Left(
+          AuthFailure(
+            'Số điện thoại Việt Nam không hợp lệ. Hãy nhập đủ 10 chữ số.',
+          ),
+        ),
       );
     }
-    return repository.sendOtp(phoneNumber.trim());
+    return repository.sendOtp(normalizedPhoneNumber);
   }
 }

@@ -46,7 +46,7 @@ final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>((
   ref,
 ) async {
   final useCase = ref.watch(getListingsUseCaseProvider);
-  // Default coordinate (HCMC Ben Thanh market) for demo
+  // Default search center until device-location support is connected.
   final result = await useCase(
     latitude: 10.7769,
     longitude: 106.7009,

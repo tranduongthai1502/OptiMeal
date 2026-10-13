@@ -16,7 +16,7 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
 }
 
 class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
-  final _otpController = TextEditingController(text: '123456');
+  final _otpController = TextEditingController();
 
   @override
   void dispose() {
@@ -26,9 +26,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   Future<void> _handleVerify() async {
     final code = _otpController.text.trim();
-    if (code.length != 6) {
+    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đủ 6 chữ số OTP.')),
+        const SnackBar(content: Text('OTP phải gồm đúng 6 chữ số.')),
       );
       return;
     }
@@ -39,10 +39,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
     if (success) {
       final user = ref.read(authStateProvider).user;
-      if (user != null && user.hasSelectedRole) {
-        context.go(RoutePaths.home);
-      } else {
+      if (user?.isNewUser == true) {
         context.go(RoutePaths.onboardingRole);
+      } else {
+        context.go(RoutePaths.home);
       }
     } else {
       final error = ref.read(authStateProvider).errorMessage;
@@ -52,6 +52,36 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         );
       }
     }
+  }
+
+  Future<void> _handleResendOtp() async {
+    final phoneNumber = ref.read(authStateProvider).phoneNumber;
+    if (phoneNumber == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Không tìm thấy số điện thoại. Vui lòng đăng nhập lại.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final success =
+        await ref.read(authStateProvider.notifier).sendOtp(phoneNumber);
+    if (!mounted) return;
+
+    final message = success
+        ? 'Đã gửi lại mã OTP.'
+        : ref.read(authStateProvider).errorMessage ??
+            'Không thể gửi lại mã OTP.';
+    if (success) _otpController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: success ? AppColors.primary : AppColors.error,
+      ),
+    );
   }
 
   @override
@@ -111,11 +141,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã gửi lại mã OTP.')),
-                  );
-                },
+                onPressed: authState.isLoading ? null : _handleResendOtp,
                 child: const Text(
                   'Chưa nhận được mã? Gửi lại',
                   style: TextStyle(

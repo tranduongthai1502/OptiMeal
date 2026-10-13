@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/status_badge.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../reservation/presentation/providers/reservation_provider.dart';
 import '../../domain/entities/food_listing.dart';
 import '../providers/listings_provider.dart';
@@ -269,13 +270,33 @@ class ListingDetailScreen extends ConsumerWidget {
                     label: 'Giữ chỗ ngay (20 phút)',
                     icon: Icons.bookmark_add_rounded,
                     onPressed: () async {
+                      final user = ref.read(authStateProvider).user;
+                      if (user == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Vui lòng đăng nhập để giữ chỗ.'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                        return;
+                      }
+                      if (user.id == listing.ownerId) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Bạn không thể giữ chỗ cho tin của mình.'),
+                          ),
+                        );
+                        return;
+                      }
+
                       final resNotifier = ref.read(
                         reservationNotifierProvider.notifier,
                       );
                       final success = await resNotifier.holdReservation(
                         listingId: listing.id,
                         ownerId: listing.ownerId,
-                        claimerId: 'current-user-id',
+                        claimerId: user.id,
                       );
                       if (context.mounted && success) {
                         final reservation = ref

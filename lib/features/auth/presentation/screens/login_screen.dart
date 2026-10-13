@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
+import '../../domain/usecases/phone_number_formatter.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -16,7 +17,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _phoneController = TextEditingController(text: '0987654321');
+  final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -27,9 +28,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleSendOtp() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final normalizedPhoneNumber =
+        normalizeVietnamesePhoneNumber(_phoneController.text);
+    if (normalizedPhoneNumber == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nhập số điện thoại Việt Nam gồm đủ 10 chữ số.'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    _phoneController.value = TextEditingValue(
+      text: normalizedPhoneNumber,
+      selection: TextSelection.collapsed(offset: normalizedPhoneNumber.length),
+    );
     final success = await ref
         .read(authStateProvider.notifier)
-        .sendOtp(_phoneController.text.trim());
+        .sendOtp(normalizedPhoneNumber);
 
     if (!mounted) return;
 
@@ -113,15 +131,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'Số điện thoại',
-                    hintText: '0912 345 678',
+                    hintText: '0987 654 321',
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Vui lòng nhập số điện thoại';
                     }
-                    if (value.trim().length < 9) {
-                      return 'Số điện thoại không hợp lệ';
+                    if (normalizeVietnamesePhoneNumber(value) == null) {
+                      return 'Nhập số điện thoại Việt Nam hợp lệ';
                     }
                     return null;
                   },

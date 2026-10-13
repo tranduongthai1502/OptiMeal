@@ -17,8 +17,9 @@ class RoleSelectionScreen extends ConsumerStatefulWidget {
 }
 
 class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
+  final _formKey = GlobalKey<FormState>();
   UserRole _selectedRole = UserRole.individual;
-  final _nameController = TextEditingController(text: 'Nguyễn Văn A');
+  final _nameController = TextEditingController();
 
   @override
   void dispose() {
@@ -27,6 +28,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   }
 
   Future<void> _handleConfirmRole() async {
+    if (!_formKey.currentState!.validate()) return;
+
     final success = await ref
         .read(authStateProvider.notifier)
         .selectRole(_selectedRole, displayName: _nameController.text.trim());
@@ -57,73 +60,79 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Bạn tham gia OptiMeal với tư cách nào?',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Điều này giúp chúng tôi cá nhân hóa trải nghiệm chia sẻ thực phẩm phù hợp với bạn.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondaryLight,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Bạn tham gia OptiMeal với tư cách nào?',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 28),
-
-              // Individual Card Option
-              _buildRoleCard(
-                role: UserRole.individual,
-                title: 'Cá nhân / Hộ gia đình',
-                description:
-                    'Chia sẻ thức ăn còn dư hoặc tìm kiếm món ăn miễn phí/giá rẻ quanh bạn.',
-                icon: Icons.person_rounded,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Store Card Option
-              _buildRoleCard(
-                role: UserRole.store,
-                title: 'Cửa hàng / Nhà hàng / Siêu thị',
-                description:
-                    'Tiệm bánh, quán ăn, siêu thị muốn giải cứu thực phẩm cuối ngày và giảm lãng phí.',
-                icon: Icons.storefront_rounded,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Charity Kitchen Card Option
-              _buildRoleCard(
-                role: UserRole.charityKitchen,
-                title: 'Bếp ăn từ thiện / Điểm thiện nguyện',
-                description:
-                    'Nhận mẻ nguyên liệu số lượng lớn để nấu suất ăn từ thiện và chia sẻ điểm phát cơm miễn phí.',
-                icon: Icons.volunteer_activism_rounded,
-              ),
-
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: _selectedRole == UserRole.store
-                      ? 'Tên cửa hàng / thương hiệu'
-                      : _selectedRole == UserRole.charityKitchen
-                          ? 'Tên bếp ăn từ thiện / Tổ chức'
-                          : 'Họ và tên của bạn',
-                  prefixIcon: const Icon(Icons.badge_outlined),
+                const SizedBox(height: 8),
+                const Text(
+                  'Điều này giúp chúng tôi cá nhân hóa trải nghiệm chia sẻ thực phẩm phù hợp với bạn.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondaryLight,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              PrimaryButton(
-                label: 'Bắt đầu sử dụng',
-                isLoading: authState.isLoading,
-                onPressed: _handleConfirmRole,
-              ),
-            ],
+                const SizedBox(height: 28),
+
+                // Individual Card Option
+                _buildRoleCard(
+                  role: UserRole.individual,
+                  title: 'Cá nhân / Hộ gia đình',
+                  description:
+                      'Chia sẻ thức ăn còn dư hoặc tìm kiếm món ăn miễn phí/giá rẻ quanh bạn.',
+                  icon: Icons.person_rounded,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Store Card Option
+                _buildRoleCard(
+                  role: UserRole.store,
+                  title: 'Cửa hàng / Nhà hàng / Siêu thị',
+                  description:
+                      'Tiệm bánh, quán ăn, siêu thị muốn giải cứu thực phẩm cuối ngày và giảm lãng phí.',
+                  icon: Icons.storefront_rounded,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Charity Kitchen Card Option
+                _buildRoleCard(
+                  role: UserRole.charityKitchen,
+                  title: 'Bếp ăn từ thiện / Điểm thiện nguyện',
+                  description:
+                      'Nhận mẻ nguyên liệu số lượng lớn để nấu suất ăn từ thiện và chia sẻ điểm phát cơm miễn phí.',
+                  icon: Icons.volunteer_activism_rounded,
+                ),
+
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: _selectedRole == UserRole.store
+                        ? 'Tên cửa hàng / thương hiệu'
+                        : _selectedRole == UserRole.charityKitchen
+                            ? 'Tên bếp ăn từ thiện / Tổ chức'
+                            : 'Họ và tên của bạn',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Vui lòng nhập tên của bạn'
+                      : null,
+                ),
+                const SizedBox(height: 32),
+                PrimaryButton(
+                  label: 'Bắt đầu sử dụng',
+                  isLoading: authState.isLoading,
+                  onPressed: _handleConfirmRole,
+                ),
+              ],
+            ),
           ),
         ),
       ),
