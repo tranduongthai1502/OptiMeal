@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../core/widgets/listing_image_view.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -50,21 +51,56 @@ class ListingDetailScreen extends ConsumerWidget {
                   height: 240,
                   width: double.infinity,
                   color: AppColors.backgroundLight,
-                  child: listing.photos.isNotEmpty
-                      ? Image.network(
-                          listing.photos.first,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.fastfood,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                        )
-                      : const Icon(
+                  child: listing.photos.isEmpty
+                      ? const Icon(
                           Icons.fastfood,
                           size: 64,
                           color: Colors.grey,
-                        ),
+                        )
+                      : (listing.photos.length == 1
+                          ? _buildListingPhoto(listing.photos.first)
+                          : Stack(
+                              children: [
+                                PageView.builder(
+                                  itemCount: listing.photos.length,
+                                  itemBuilder: (context, index) =>
+                                      _buildListingPhoto(listing.photos[index]),
+                                ),
+                                Positioned(
+                                  bottom: 8,
+                                  right: 12,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black54,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.photo_library_outlined,
+                                          size: 13,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${listing.photos.length} ảnh',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
                 ),
 
                 Padding(
@@ -199,6 +235,49 @@ class ListingDetailScreen extends ConsumerWidget {
                                 color: AppColors.secondary,
                               ),
                             ),
+                            if (listing.locationPhotos.isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.storefront_rounded,
+                                    size: 16,
+                                    color: AppColors.secondary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Ảnh điểm nhận ngoài đời (${listing.locationPhotos.length})',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimaryLight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: 90,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: listing.locationPhotos.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 8),
+                                  itemBuilder: (ctx, idx) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: SizedBox(
+                                        width: 120,
+                                        height: 90,
+                                        child: _buildListingPhoto(
+                                          listing.locationPhotos[idx],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -316,6 +395,20 @@ class ListingDetailScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildListingPhoto(String photoUrl) {
+    return ListingImageView(
+      imageUrl: photoUrl,
+      fit: BoxFit.cover,
+      placeholder: const Center(
+        child: Icon(
+          Icons.fastfood,
+          size: 64,
+          color: Colors.grey,
+        ),
+      ),
     );
   }
 }

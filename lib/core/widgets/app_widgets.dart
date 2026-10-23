@@ -10,6 +10,7 @@ import '../utils/date_time_utils.dart';
 
 export 'app_error_view.dart';
 export 'app_loading_indicator.dart';
+export 'listing_image_view.dart';
 export 'primary_button.dart';
 export 'status_badge.dart';
 

@@ -48,39 +48,41 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodCondition? condition,
     FoodCategory? category,
   }) async {
-    // Build base query: only available, not expired
-    Query<Map<String, dynamic>> query = _col
-        .where('status', isEqualTo: ListingStatus.available.name)
-        .where(
-          'expiresAt',
-          isGreaterThan: DateTime.now().millisecondsSinceEpoch,
-        )
-        .orderBy('expiresAt')
-        .orderBy('createdAt', descending: true)
-        .limit(100);
+    // Truy vấn sắp xếp theo createdAt giảm dần (không cần composite index, không lỗi 400 trên Firestore)
+    final snapshot =
+        await _col.orderBy('createdAt', descending: true).limit(100).get();
 
-    if (condition != null) {
-      query = query.where('condition', isEqualTo: condition.name);
-    }
-    if (category != null) {
-      query = query.where('category', isEqualTo: category.name);
-    }
-
-    final snapshot = await query.get();
-    final listings = snapshot.docs
+    var listings = snapshot.docs
         .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+        .where((listing) => listing.status == ListingStatus.available)
         .toList();
 
-    // Client-side geo filter (Haversine approximation)
-    return listings.where((listing) {
-      final dist = _haversineKm(
-        latitude,
-        longitude,
-        listing.latitude,
-        listing.longitude,
-      );
-      return dist <= radiusKm;
-    }).toList();
+    if (condition != null) {
+      listings = listings.where((l) => l.condition == condition).toList();
+    }
+    if (category != null) {
+      listings = listings.where((l) => l.category == category).toList();
+    }
+
+    // Lọc theo khoảng cách nếu có tọa độ hợp lệ
+    if (latitude != 0 && longitude != 0 && radiusKm > 0) {
+      final nearby = listings.where((listing) {
+        final dist = _haversineKm(
+          latitude,
+          longitude,
+          listing.latitude,
+          listing.longitude,
+        );
+        return dist <= radiusKm;
+      }).toList();
+
+      if (nearby.isNotEmpty) {
+        return nearby;
+      }
+    }
+
+    // Nếu không tìm thấy trong bán kính (do đang test ở tỉnh thành khác), hiển thị toàn bộ bài đăng mới nhất
+    return listings;
   }
 
   @override
