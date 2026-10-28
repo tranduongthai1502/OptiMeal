@@ -1,14 +1,28 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/location_utils.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../map_search/presentation/screens/location_picker_screen.dart';
 import '../../domain/entities/food_listing.dart';
+import '../../../map_search/presentation/providers/map_search_provider.dart';
 import '../providers/listings_provider.dart';
+import '../widgets/location_picker_dialog.dart';
+
+class PickedPhotoItem {
+  final String name;
+  final Uint8List bytes;
+
+  const PickedPhotoItem({required this.name, required this.bytes});
+}
 
 class CreateListingScreen extends ConsumerStatefulWidget {
   const CreateListingScreen({super.key});
@@ -28,6 +42,11 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
   /// Vị trí được chọn bằng map picker — bắt buộc phải có trước khi submit.
   LatLng? _selectedLocation;
+
+  final ImagePicker _picker = ImagePicker();
+  final List<PickedPhotoItem> _foodPhotos = [];
+  final List<PickedPhotoItem> _locationPhotos = [];
+  String? _uploadStatusMessage;
 
   FoodCategory _category = FoodCategory.vegetables;
   String _unit = 'kg';
@@ -81,27 +100,49 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final user = ref.read(authStateProvider).user;
-    if (user == null || user.role == null) {
+    if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content:
-              Text('Vui lòng đăng nhập và chọn vai trò trước khi đăng tin.'),
+          content: Text('Vui lòng đăng nhập trước khi đăng tin.'),
           backgroundColor: AppColors.error,
         ),
       );
+      await context.push(RoutePaths.login);
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (user.role == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn vai trò trước khi đăng tin.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      await context.push(RoutePaths.onboardingRole);
+      return;
+    }
+
+    final totalCount = _foodPhotos.length + _locationPhotos.length;
+    setState(() {
+      _isLoading = true;
+      _uploadStatusMessage =
+          totalCount > 0 ? 'Đang lưu $totalCount ảnh vào Firestore...' : null;
+    });
 
     final now = DateTime.now();
     final isCharity = _category == FoodCategory.charityMealPoint;
+    final listingId = 'listing-${now.millisecondsSinceEpoch}';
+
+    // Lưu ảnh mẻ thực phẩm & ảnh địa điểm nhận dạng Base64 trực tiếp vào Firestore doc
+    final foodUrls = await _uploadPhotos(_foodPhotos);
+    final locationUrls = await _uploadPhotos(_locationPhotos);
 
     final newListing = FoodListing(
-      id: 'listing-${now.millisecondsSinceEpoch}',
+      id: listingId,
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
-      photos: const [],
+      photos: foodUrls,
+      locationPhotos: locationUrls,
       quantity: int.tryParse(_quantityController.text.trim()) ?? 1,
       unit: _unit,
       category: _category,
@@ -127,7 +168,10 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     final result = await ref.read(createListingUseCaseProvider)(newListing);
 
     if (!mounted) return;
-    setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = false;
+      _uploadStatusMessage = null;
+    });
 
     result.fold(
       (failure) {
@@ -146,6 +190,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           ),
         );
         ref.invalidate(nearbyListingsProvider);
+        ref.invalidate(filteredNearbyListingsProvider);
         context.pop();
       },
     );
@@ -153,6 +198,17 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
+    final user = authState.user;
+
+    if (user == null) {
+      return _buildLoginRequiredView(context);
+    }
+
+    if (user.role == null) {
+      return _buildRoleRequiredView(context);
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Ghim mẻ thực phẩm / Điểm phát')),
       body: SafeArea(
@@ -473,6 +529,308 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   icon: Icons.push_pin_rounded,
                   isLoading: _isLoading,
                   onPressed: _handleSubmit,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhotoPickerCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required List<PickedPhotoItem> items,
+    required int maxCount,
+    required bool isLocationPhoto,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: items.isNotEmpty
+              ? (isLocationPhoto ? AppColors.secondary : AppColors.primary)
+                  .withValues(alpha: 0.4)
+              : AppColors.borderLight,
+        ),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isLocationPhoto
+                          ? AppColors.secondary
+                          : AppColors.primary)
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color:
+                      isLocationPhoto ? AppColors.secondary : AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: items.length == maxCount
+                      ? AppColors.success.withValues(alpha: 0.15)
+                      : AppColors.backgroundLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${items.length}/$maxCount ảnh',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: items.length == maxCount
+                        ? AppColors.success
+                        : AppColors.textSecondaryLight,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondaryLight,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 84,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                ...items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            item.bytes,
+                            width: 84,
+                            height: 84,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: -6,
+                          right: -6,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                items.removeAt(index);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: AppColors.error,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close_rounded,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                if (items.length < maxCount)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _showImagePickerSheet(
+                      isLocationPhoto: isLocationPhoto,
+                    ),
+                    child: Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundLight,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.borderLight,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_a_photo_outlined,
+                            size: 24,
+                            color: isLocationPhoto
+                                ? AppColors.secondary
+                                : AppColors.primary,
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Thêm ảnh',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondaryLight,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginRequiredView(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ghim mẻ thực phẩm / Điểm phát')),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lock_outline_rounded,
+                    color: AppColors.primary,
+                    size: 46,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Yêu cầu đăng nhập',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Bạn cần đăng nhập bằng số điện thoại để ghim mẻ thực phẩm hoặc điểm phát cơm lên bản đồ. Điều này giúp bảo đảm tính xác thực và thông tin liên hệ cho người nhận.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondaryLight,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                PrimaryButton(
+                  label: 'Đăng nhập ngay',
+                  icon: Icons.login_rounded,
+                  onPressed: () => context.push(RoutePaths.login),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Quay lại'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleRequiredView(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ghim mẻ thực phẩm / Điểm phát')),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.badge_outlined,
+                    color: AppColors.secondary,
+                    size: 46,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Chọn vai trò của bạn',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Vui lòng chọn vai trò (Cá nhân/Hộ gia đình, Cửa hàng/Quán ăn hoặc Bếp từ thiện) để kích hoạt quyền đăng mẻ thực phẩm.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondaryLight,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                PrimaryButton(
+                  label: 'Chọn vai trò ngay',
+                  icon: Icons.arrow_forward_rounded,
+                  onPressed: () => context.push(RoutePaths.onboardingRole),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Quay lại'),
                 ),
               ],
             ),

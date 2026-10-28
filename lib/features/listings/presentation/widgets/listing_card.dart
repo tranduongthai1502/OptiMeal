@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../core/widgets/listing_image_view.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../domain/entities/food_listing.dart';
 
@@ -31,14 +32,11 @@ class ListingCard extends StatelessWidget {
                   width: double.infinity,
                   color: AppColors.backgroundLight,
                   child: hasPhoto
-                      ? Image.network(
-                          listing.photos.first,
+                      ? ListingImageView(
+                          imageUrl: listing.photos.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.fastfood,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
+                          height: 160,
+                          width: double.infinity,
                         )
                       : const Icon(
                           Icons.fastfood,

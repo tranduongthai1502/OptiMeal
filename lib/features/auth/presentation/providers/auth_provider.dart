@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/network_info.dart';
@@ -79,6 +82,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final VerifyOtpUseCase _verifyOtpUseCase;
   final UpdateUserRoleUseCase _updateUserRoleUseCase;
   final AuthRepository _authRepository;
+  StreamSubscription<User?>? _authSubscription;
 
   AuthNotifier({
     required SendOtpUseCase sendOtpUseCase,
@@ -89,7 +93,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
         _verifyOtpUseCase = verifyOtpUseCase,
         _updateUserRoleUseCase = updateUserRoleUseCase,
         _authRepository = authRepository,
-        super(const AuthState());
+        super(const AuthState(isLoading: true)) {
+    _initAuthState();
+  }
+
+  void _initAuthState() {
+    try {
+      _authSubscription =
+          FirebaseAuth.instance.authStateChanges().listen((fbUser) async {
+        if (fbUser == null) {
+          state = const AuthState(isLoading: false);
+        } else {
+          final result = await _authRepository.getCurrentUser();
+          result.fold(
+            (failure) => state = const AuthState(isLoading: false),
+            (user) => state = AuthState(isLoading: false, user: user),
+          );
+        }
+      });
+    } catch (_) {
+      // Graceful fallback in environments without Firebase (e.g. unit/widget tests)
+      state = const AuthState(isLoading: false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   Future<bool> sendOtp(String phoneNumber) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
