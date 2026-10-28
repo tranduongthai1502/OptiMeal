@@ -28,4 +28,15 @@ abstract class ListingsRepository {
 
   /// Cancels a listing by owner.
   Future<Either<Failure, void>> cancelListing(String id, String ownerId);
+
+  /// Stream realtime các đơn trong bán kính (lọc Haversine client-side).
+  Stream<List<FoodListing>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  });
+
+  /// Nhận đơn an toàn qua Firestore transaction.
+  /// Trả về Right(true) nếu thành công, Right(false) nếu đã có người nhận.
+  Future<Either<Failure, bool>> claimListing(String id, String receiverId);
 }
