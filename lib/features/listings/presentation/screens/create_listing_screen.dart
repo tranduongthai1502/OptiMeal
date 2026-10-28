@@ -4,13 +4,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/location_utils.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../map_search/presentation/screens/location_picker_screen.dart';
 import '../../domain/entities/food_listing.dart';
 import '../../../map_search/presentation/providers/map_search_provider.dart';
 import '../providers/listings_provider.dart';
@@ -38,8 +39,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   final _quantityController = TextEditingController();
   final _priceController = TextEditingController();
   final _addressController = TextEditingController();
-  final _latitudeController = TextEditingController();
-  final _longitudeController = TextEditingController();
+
+  /// Vị trí được chọn bằng map picker — bắt buộc phải có trước khi submit.
+  LatLng? _selectedLocation;
 
   final ImagePicker _picker = ImagePicker();
   final List<PickedPhotoItem> _foodPhotos = [];
@@ -68,154 +70,33 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     _quantityController.dispose();
     _priceController.dispose();
     _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
     super.dispose();
   }
 
-  Future<void> _openMapPicker() async {
-    final currentLat = double.tryParse(_latitudeController.text.trim());
-    final currentLng = double.tryParse(_longitudeController.text.trim());
-
-    final result = await LocationPickerDialog.show(
-      context,
-      initialLatitude: currentLat,
-      initialLongitude: currentLng,
-      maxRadiusKm: 1.0,
+  Future<void> _openLocationPicker() async {
+    final picked = await Navigator.of(context).push<LatLng>(
+      MaterialPageRoute(
+        builder: (_) =>
+            LocationPickerScreen(initialPosition: _selectedLocation),
+      ),
     );
-
-    if (result != null && mounted) {
-      setState(() {
-        _latitudeController.text = result.latitude.toStringAsFixed(6);
-        _longitudeController.text = result.longitude.toStringAsFixed(6);
-        if (result.address != null && result.address!.trim().isNotEmpty) {
-          _addressController.text = result.address!;
-        }
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Đã chọn vị trí bàn giao (Cách bạn ${LocationUtils.formatDistance(result.distanceKm)})',
-          ),
-          backgroundColor: AppColors.primary,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    if (picked != null) {
+      setState(() => _selectedLocation = picked);
     }
   }
 
-  Future<void> _pickPhoto({
-    required ImageSource source,
-    required bool isLocationPhoto,
-  }) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 720,
-        maxHeight: 720,
-        imageQuality: 65,
-      );
-      if (image != null) {
-        final bytes = await image.readAsBytes();
-        setState(() {
-          if (isLocationPhoto) {
-            _locationPhotos
-                .add(PickedPhotoItem(name: image.name, bytes: bytes));
-          } else {
-            _foodPhotos.add(PickedPhotoItem(name: image.name, bytes: bytes));
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi chọn ảnh: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showImagePickerSheet({required bool isLocationPhoto}) {
-    final targetList = isLocationPhoto ? _locationPhotos : _foodPhotos;
-    final maxCount = isLocationPhoto ? 2 : 4;
-
-    if (targetList.length >= maxCount) {
+  Future<void> _handleSubmit() async {
+    // Kiểm tra vị trí trước khi validate form
+    if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Tối đa $maxCount ảnh cho mục này.'),
-          backgroundColor: AppColors.warning,
+        const SnackBar(
+          content: Text('Vui lòng chọn vị trí trên bản đồ.'),
+          backgroundColor: AppColors.error,
         ),
       );
       return;
     }
 
-    showModalBottomSheet<void>(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 6),
-              child: Text(
-                isLocationPhoto
-                    ? 'Chụp / Chọn ảnh điểm nhận ngoài đời'
-                    : 'Chụp / Chọn ảnh mẻ thực phẩm',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded,
-                  color: AppColors.primary),
-              title: const Text('Chụp ảnh mới (Camera)'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickPhoto(
-                  source: ImageSource.camera,
-                  isLocationPhoto: isLocationPhoto,
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_rounded,
-                  color: AppColors.primary),
-              title: const Text('Chọn ảnh từ thư viện'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickPhoto(
-                  source: ImageSource.gallery,
-                  isLocationPhoto: isLocationPhoto,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<List<String>> _uploadPhotos(
-    List<PickedPhotoItem> items,
-  ) async {
-    final List<String> urls = [];
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
-      // Lưu trực tiếp dưới dạng Base64 Data URI vào Cloud Firestore (hoàn toàn miễn phí, 0 lỗi CORS)
-      final base64String = base64Encode(item.bytes);
-      urls.add('data:image/jpeg;base64,$base64String');
-    }
-    return urls;
-  }
-
-  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final user = ref.read(authStateProvider).user;
@@ -273,8 +154,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
       expiresAt: now.add(const Duration(hours: 12)),
       pickupWindowStart: now,
       pickupWindowEnd: now.add(const Duration(hours: 6)),
-      latitude: double.parse(_latitudeController.text.trim()),
-      longitude: double.parse(_longitudeController.text.trim()),
+      latitude: _selectedLocation!.latitude,
+      longitude: _selectedLocation!.longitude,
       addressText: _addressController.text.trim(),
       allergenTags: _selectedAllergens,
       ownerId: user.id,
@@ -338,206 +219,100 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Map Pinning Preview Box
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderLight),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                // ── Chọn vị trí bằng bản đồ ──────────────────────────────────
+                const Text(
+                  'Vị trí ghim trên Bản đồ *',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            color: AppColors.primary,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          const Expanded(
-                            child: Text(
-                              'Vị trí ghim trên Bản đồ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: _openMapPicker,
-                            icon: const Icon(Icons.map_rounded, size: 18),
-                            label: const Text('Chọn trên map'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                              side: const BorderSide(color: AppColors.primary),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ],
+                ),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: _openLocationPicker,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceLow,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _selectedLocation != null
+                            ? AppColors.primary
+                            : AppColors.borderLight,
+                        width: _selectedLocation != null ? 1.5 : 1.0,
                       ),
-                      const SizedBox(height: 10),
-                      InkWell(
-                        onTap: _openMapPicker,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.touch_app_rounded,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Mở bản đồ chọn điểm nhận (giới hạn trong bán kính 1km)',
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _selectedLocation != null
+                              ? Icons.location_on_rounded
+                              : Icons.add_location_alt_outlined,
+                          color: _selectedLocation != null
+                              ? AppColors.primary
+                              : AppColors.onSurfaceVariant,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _selectedLocation == null
+                              ? const Text(
+                                  'Bấm để chọn vị trí trên bản đồ',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: AppColors.onSurfaceVariant,
+                                    fontSize: 14,
                                   ),
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Đã chọn vị trí ✓',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Lat: ${_selectedLocation!.latitude.toStringAsFixed(5)}'
+                                      '  Lng: ${_selectedLocation!.longitude.toStringAsFixed(5)}',
+                                      style: const TextStyle(
+                                        color: AppColors.onSurfaceVariant,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: _addressController,
-                        decoration: const InputDecoration(
-                          labelText: 'Địa chỉ bàn giao trực tiếp *',
-                          hintText: 'Nhập số nhà, tên đường, phường/quận...',
-                          prefixIcon: Icon(Icons.map_outlined),
+                        Icon(
+                          Icons.chevron_right,
+                          color: _selectedLocation != null
+                              ? AppColors.primary
+                              : AppColors.onSurfaceVariant,
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Vui lòng nhập địa chỉ bàn giao'
-                            : null,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _latitudeController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                decimal: true,
-                                signed: true,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'Vĩ độ *',
-                                hintText: 'Nhập vĩ độ',
-                              ),
-                              validator: (value) {
-                                final latitude = double.tryParse(value ?? '');
-                                if (latitude == null ||
-                                    latitude < -90 ||
-                                    latitude > 90) {
-                                  return 'Nhập vĩ độ hợp lệ';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _longitudeController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                decimal: true,
-                                signed: true,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'Kinh độ *',
-                                hintText: 'Nhập kinh độ',
-                              ),
-                              validator: (value) {
-                                final longitude = double.tryParse(value ?? '');
-                                if (longitude == null ||
-                                    longitude < -180 ||
-                                    longitude > 180) {
-                                  return 'Nhập kinh độ hợp lệ';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Bạn có thể bấm "Chọn trên map" để tự động điền tọa độ và địa chỉ trong phạm vi 1km.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // 1. Ảnh địa điểm nhận ngoài đời
-                _buildPhotoPickerCard(
-                  title: 'Ảnh địa điểm nhận ngoài đời',
-                  subtitle:
-                      'Chụp mặt tiền, cổng nhà, biển hiệu hoặc bàn nhận đồ để người nhận dễ tìm thấy.',
-                  icon: Icons.storefront_outlined,
-                  items: _locationPhotos,
-                  maxCount: 2,
-                  isLocationPhoto: true,
-                ),
-                const SizedBox(height: 16),
-
-                // 2. Hình ảnh mặt hàng / thực phẩm
-                _buildPhotoPickerCard(
-                  title: 'Hình ảnh mặt hàng / thực phẩm',
-                  subtitle:
-                      'Chụp mẻ nguyên liệu, đồ ăn, phần cơm hoặc quy cách đóng gói thực tế.',
-                  icon: Icons.fastfood_outlined,
-                  items: _foodPhotos,
-                  maxCount: 4,
-                  isLocationPhoto: false,
+                // ── Địa chỉ văn bản ──────────────────────────────────────────
+                TextFormField(
+                  controller: _addressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Địa chỉ bàn giao trực tiếp *',
+                    hintText: 'Nhập số nhà, tên đường, phường/quận...',
+                    prefixIcon: Icon(Icons.map_outlined),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Vui lòng nhập địa chỉ bàn giao'
+                      : null,
                 ),
                 const SizedBox(height: 20),
 
-                // Category Selector
+                // ── Danh mục ──────────────────────────────────────────────────
                 const Text(
                   'Danh mục phân loại *',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -545,13 +320,17 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<FoodCategory>(
                   initialValue: _category,
+                  isExpanded: true,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.category_outlined),
                   ),
                   items: FoodCategory.values.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(cat.displayName),
+                      child: Text(
+                        cat.displayName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -574,7 +353,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Title
+                // ── Tiêu đề ───────────────────────────────────────────────────
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
@@ -591,7 +370,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Description
+                // ── Mô tả ─────────────────────────────────────────────────────
                 TextFormField(
                   controller: _descController,
                   maxLines: 3,
@@ -602,11 +381,13 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Quantity & Unit & Condition row
+                // ── Số lượng + đơn vị + hình thức ────────────────────────────
+                // FIX overflow: isExpanded + flex cân đối + khoảng cách nhỏ lại
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: TextFormField(
                         controller: _quantityController,
                         keyboardType: TextInputType.number,
@@ -618,39 +399,61 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                             : null,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: DropdownButtonFormField<String>(
                         initialValue: _unit,
+                        isExpanded: true,
                         decoration: const InputDecoration(labelText: 'Đơn vị'),
                         items: const [
-                          DropdownMenuItem(value: 'kg', child: Text('kg')),
-                          DropdownMenuItem(value: 'suất', child: Text('suất')),
-                          DropdownMenuItem(value: 'phần', child: Text('phần')),
-                          DropdownMenuItem(value: 'hộp', child: Text('hộp')),
+                          DropdownMenuItem(
+                            value: 'kg',
+                            child: Text('kg', overflow: TextOverflow.ellipsis),
+                          ),
+                          DropdownMenuItem(
+                            value: 'suất',
+                            child:
+                                Text('suất', overflow: TextOverflow.ellipsis),
+                          ),
+                          DropdownMenuItem(
+                            value: 'phần',
+                            child:
+                                Text('phần', overflow: TextOverflow.ellipsis),
+                          ),
+                          DropdownMenuItem(
+                            value: 'hộp',
+                            child: Text('hộp', overflow: TextOverflow.ellipsis),
+                          ),
                         ],
                         onChanged: (val) {
                           if (val != null) setState(() => _unit = val);
                         },
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: DropdownButtonFormField<FoodCondition>(
                         initialValue: _condition,
+                        isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Hình thức',
                         ),
                         items: const [
                           DropdownMenuItem(
                             value: FoodCondition.free,
-                            child: Text('Tặng 0đ'),
+                            child: Text(
+                              'Tặng 0đ',
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: FoodCondition.paid,
-                            child: Text('Giá cứu hộ'),
+                            child: Text(
+                              'Giá cứu hộ',
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                         onChanged: _category == FoodCategory.charityMealPoint
@@ -687,7 +490,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
                 const SizedBox(height: 20),
 
-                // Allergens
+                // ── Dị ứng thực phẩm ──────────────────────────────────────────
                 const Text(
                   'Cảnh báo dị ứng thực phẩm (nếu có):',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
@@ -718,10 +521,11 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
 
                 const SizedBox(height: 32),
 
-                // Submit Button
+                // ── Nút submit ─────────────────────────────────────────────────
+                // FIX overflow: rút ngắn label để vừa Row icon + Text trong
+                // PrimaryButton trên màn hình hẹp.
                 PrimaryButton(
-                  label: _uploadStatusMessage ??
-                      'Xác nhận ghim mẻ thực phẩm lên Bản đồ',
+                  label: 'Ghim lên Bản đồ',
                   icon: Icons.push_pin_rounded,
                   isLoading: _isLoading,
                   onPressed: _handleSubmit,

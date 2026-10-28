@@ -24,11 +24,23 @@ abstract class ListingsRemoteDataSource {
   );
 
   Future<void> cancelListing(String id, String ownerId);
+
+  /// Stream realtime các đơn status=available, chưa hết hạn.
+  /// Lọc theo bán kính client-side bằng Haversine.
+  Stream<List<FoodListingModel>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  });
+
+  /// Nhận đơn an toàn qua Firestore runTransaction.
+  /// Trả về true nếu thành công, false nếu đã có người nhận trước.
+  Future<bool> claimListing(String id, String receiverId);
 }
 
 /// Firestore implementation for Listings (food_listings collection).
 ///
-/// NOTE: Geo-radius filtering is done client-side for now.
+/// NOTE: Geo-radius filtering is done client-side for now (Haversine).
 /// For production scale, replace with GeoFlutterFire or a Cloud Function
 /// that queries a geohash index.
 class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
@@ -129,7 +141,64 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     await _col.doc(id).update({'status': ListingStatus.cancelled.name});
   }
 
-  /// Haversine formula — returns distance in km between two lat/lng points.
+  @override
+  Stream<List<FoodListingModel>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  }) {
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    return _col
+        .where('status', isEqualTo: ListingStatus.available.name)
+        .where('expiresAt', isGreaterThan: nowMs)
+        .orderBy('expiresAt')
+        .limit(200)
+        .snapshots()
+        .map((snapshot) {
+      final all = snapshot.docs
+          .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+          .toList();
+      // Lọc Haversine client-side
+      return all.where((listing) {
+        final dist = _haversineKm(
+          latitude,
+          longitude,
+          listing.latitude,
+          listing.longitude,
+        );
+        return dist <= radiusKm;
+      }).toList();
+    });
+  }
+
+  @override
+  Future<bool> claimListing(String id, String receiverId) async {
+    final docRef = _col.doc(id);
+    bool claimed = false;
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw Exception('Đơn không tồn tại.');
+      }
+      final status = snapshot.data()?['status'] as String?;
+      if (status != ListingStatus.available.name) {
+        // Đơn đã được nhận hoặc hết hạn
+        claimed = false;
+        return;
+      }
+      transaction.update(docRef, {
+        'status': ListingStatus.reserved.name,
+        'receiverId': receiverId,
+        'claimedAt': DateTime.now().millisecondsSinceEpoch,
+      });
+      claimed = true;
+    });
+
+    return claimed;
+  }
+
+  /// Haversine formula — trả về khoảng cách km giữa hai toạ độ.
   double _haversineKm(
     double lat1,
     double lon1,

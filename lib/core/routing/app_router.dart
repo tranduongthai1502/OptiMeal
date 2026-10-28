@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,12 +20,52 @@ import '../../features/reservation/presentation/screens/reservation_detail_scree
 import '../../features/store_profile/presentation/screens/store_profile_screen.dart';
 import 'route_paths.dart';
 
+/// Chuyển đổi một Stream thành Listenable để GoRouter tự động reload khi Stream thay đổi (ví dụ: authStateChanges).
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+      (dynamic _) => notifyListeners(),
+    );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Application GoRouter configuration supporting deep linking and standard navigation.
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: RoutePaths.home,
+  initialLocation: RoutePaths.login,
+  refreshListenable:
+      GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
+  redirect: (BuildContext context, GoRouterState state) {
+    final location = state.uri.path;
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+
+    final isAuthRoute = location == RoutePaths.login ||
+        location == RoutePaths.otpVerification;
+
+    // 1. Chưa đăng nhập: chỉ cho phép vào /login hoặc /otp-verification
+    if (!isLoggedIn) {
+      return isAuthRoute ? null : RoutePaths.login;
+    }
+
+    // 2. Đã đăng nhập: không cho phép quay lại /login hoặc /otp-verification
+    if (isAuthRoute || location == '/') {
+      return RoutePaths.home;
+    }
+
+    // Cho phép đi tiếp vào các route bình thường
+    return null;
+  },
   routes: [
     GoRoute(
       path: RoutePaths.login,

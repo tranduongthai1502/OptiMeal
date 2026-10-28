@@ -84,10 +84,40 @@ class ListingsRepositoryImpl implements ListingsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cancelListing(String id, String ownerId) async {
+  Future<Either<Failure, void>> cancelListing(
+      String id, String ownerId) async {
     try {
       await remoteDataSource.cancelListing(id, ownerId);
       return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<List<FoodListing>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  }) {
+    return remoteDataSource.watchNearbyListings(
+      latitude: latitude,
+      longitude: longitude,
+      radiusKm: radiusKm,
+    );
+  }
+
+  @override
+  Future<Either<Failure, bool>> claimListing(
+    String id,
+    String receiverId,
+  ) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure());
+    }
+    try {
+      final success = await remoteDataSource.claimListing(id, receiverId);
+      return Right(success);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
