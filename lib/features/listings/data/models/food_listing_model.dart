@@ -7,6 +7,7 @@ class FoodListingModel extends FoodListing {
     required super.title,
     required super.description,
     required super.photos,
+    super.locationPhotos = const [],
     required super.quantity,
     super.unit = 'phần',
     super.category = FoodCategory.cookedMeals,
@@ -33,6 +34,7 @@ class FoodListingModel extends FoodListing {
       title: entity.title,
       description: entity.description,
       photos: entity.photos,
+      locationPhotos: entity.locationPhotos,
       quantity: entity.quantity,
       unit: entity.unit,
       category: entity.category,
@@ -60,6 +62,10 @@ class FoodListingModel extends FoodListing {
       title: map['title'] as String? ?? '',
       description: map['description'] as String? ?? '',
       photos: (map['photos'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      locationPhotos: (map['locationPhotos'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -110,6 +116,7 @@ class FoodListingModel extends FoodListing {
       'title': title,
       'description': description,
       'photos': photos,
+      'locationPhotos': locationPhotos,
       'quantity': quantity,
       'unit': unit,
       'category': category.name,

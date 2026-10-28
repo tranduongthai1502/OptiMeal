@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../../listings/presentation/widgets/listing_card.dart';
 import '../widgets/donor_callout_banner.dart';
@@ -105,6 +106,12 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final user = ref.watch(authStateProvider).user;
+    final locationLabel = user != null
+        ? (user.displayName != null && user.displayName!.isNotEmpty
+            ? user.displayName
+            : (user.phoneNumber.isNotEmpty ? user.phoneNumber : 'Đã đăng nhập'))
+        : 'Chưa đăng nhập';
 
     return Scaffold(
       backgroundColor: AppColors.bgSurface,
@@ -115,75 +122,87 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
       ),
       body: Stack(
         children: [
-          // ── Scrollable content ──
-          SingleChildScrollView(
-            // top: chỗ cho app bar (~58 + safe area top)
-            // bottom: chỗ cho bottom nav (70) + device safe area
-            padding: EdgeInsets.only(
-              top: 72,
-              bottom: 70 + bottomInset + 16,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Quick actions
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: QuickActionsRow(actions: _buildQuickActions()),
-                ),
-                const SizedBox(height: 18),
-
-                // Section header
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SectionHeader(
-                    title: 'Tin thực phẩm đang có',
-                    onSeeAll: () => context.push(RoutePaths.mapSearch),
+          // ── Scrollable content với kéo để làm mới (Pull to refresh) ──
+          RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(nearbyListingsProvider);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              // top: chỗ cho app bar (~58 + safe area top)
+              // bottom: chỗ cho bottom nav (70) + device safe area
+              padding: EdgeInsets.only(
+                top: 72,
+                bottom: 70 + bottomInset + 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Quick actions
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: QuickActionsRow(actions: _buildQuickActions()),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 18),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ref.watch(nearbyListingsProvider).when(
-                        loading: () => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        error: (error, _) => Text(
-                          'Không tải được tin thực phẩm: $error',
-                          style: const TextStyle(color: AppColors.error),
-                        ),
-                        data: (listings) {
-                          if (listings.isEmpty) {
-                            return const Text(
-                              'Chưa có tin thực phẩm nào trong khu vực tìm kiếm.',
-                              textAlign: TextAlign.center,
-                            );
-                          }
-                          return Column(
-                            children: [
-                              for (final listing in listings)
-                                ListingCard(
-                                  listing: listing,
-                                  onTap: () => context.push(
-                                    RoutePaths.listingDetailPath(listing.id),
+                  // Section header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SectionHeader(
+                      title: 'Tin thực phẩm đang có',
+                      onSeeAll: () => context.push(RoutePaths.mapSearch),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ref.watch(nearbyListingsProvider).when(
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          error: (error, _) => Text(
+                            'Không tải được tin thực phẩm: $error',
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                          data: (listings) {
+                            if (listings.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 24.0),
+                                child: Text(
+                                  'Chưa có tin thực phẩm nào được ghim. Bạn hãy là người đầu tiên ghim thực phẩm nhé!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColors.textSecondaryLight,
                                   ),
                                 ),
-                            ],
-                          );
-                        },
-                      ),
-                ),
-                const SizedBox(height: 14),
-
-                // Donor callout
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: DonorCalloutBanner(
-                    onPostNow: () => context.push(RoutePaths.createListing),
+                              );
+                            }
+                            return Column(
+                              children: [
+                                for (final listing in listings)
+                                  ListingCard(
+                                    listing: listing,
+                                    onTap: () => context.push(
+                                      RoutePaths.listingDetailPath(listing.id),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 14),
+
+                  // Donor callout
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: DonorCalloutBanner(
+                      onPostNow: () => context.push(RoutePaths.createListing),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -195,6 +214,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
             child: SafeArea(
               bottom: false,
               child: HomeDashboardAppBar(
+                locationLabel: locationLabel,
                 onLocationTap: () => context.push(RoutePaths.mapSearch),
                 onProfileTap: () => context.push(RoutePaths.profile),
               ),
