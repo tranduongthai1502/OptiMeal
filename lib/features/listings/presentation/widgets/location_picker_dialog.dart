@@ -24,12 +24,16 @@ class LocationPickerResult {
 }
 
 class LocationPickerDialog extends StatefulWidget {
+  final double? userLatitude;
+  final double? userLongitude;
   final double? initialLatitude;
   final double? initialLongitude;
   final double maxRadiusKm;
 
   const LocationPickerDialog({
     super.key,
+    this.userLatitude,
+    this.userLongitude,
     this.initialLatitude,
     this.initialLongitude,
     this.maxRadiusKm = 1.0,
@@ -37,6 +41,8 @@ class LocationPickerDialog extends StatefulWidget {
 
   static Future<LocationPickerResult?> show(
     BuildContext context, {
+    double? userLatitude,
+    double? userLongitude,
     double? initialLatitude,
     double? initialLongitude,
     double maxRadiusKm = 1.0,
@@ -45,6 +51,8 @@ class LocationPickerDialog extends StatefulWidget {
       context: context,
       barrierDismissible: true,
       builder: (ctx) => LocationPickerDialog(
+        userLatitude: userLatitude,
+        userLongitude: userLongitude,
         initialLatitude: initialLatitude,
         initialLongitude: initialLongitude,
         maxRadiusKm: maxRadiusKm,
@@ -65,13 +73,36 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   String? _addressText;
 
   bool _isLoadingGps = true;
+  bool _hasRealGps = false;
   bool _isGeocoding = false;
   String? _gpsWarning;
+
+  static const _kDefaultDanang = LatLng(16.0544, 108.2022);
 
   @override
   void initState() {
     super.initState();
-    _resolveUserLocation();
+    if (widget.userLatitude != null && widget.userLongitude != null) {
+      final userPos = LatLng(widget.userLatitude!, widget.userLongitude!);
+      final initialTarget =
+          (widget.initialLatitude != null && widget.initialLongitude != null)
+              ? LatLng(widget.initialLatitude!, widget.initialLongitude!)
+              : userPos;
+      final initialDist = LocationUtils.calculateDistanceKm(
+        userPos.latitude,
+        userPos.longitude,
+        initialTarget.latitude,
+        initialTarget.longitude,
+      );
+      _userLocation = userPos;
+      _selectedLocation = initialTarget;
+      _distanceKm = initialDist;
+      _hasRealGps = true;
+      _isLoadingGps = false;
+      unawaited(_reverseGeocode(initialTarget));
+    } else {
+      _resolveUserLocation();
+    }
   }
 
   @override
@@ -83,12 +114,13 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   Future<void> _resolveUserLocation() async {
     setState(() => _isLoadingGps = true);
 
-    LatLng userPos = const LatLng(10.7769, 106.7009); // Mặc định TP.HCM
+    LatLng userPos = _kDefaultDanang;
+    bool gotRealGps = false;
 
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _gpsWarning = 'Dịch vụ định vị đang tắt, đang dùng vị trí mặc định.';
+        _gpsWarning = 'Dịch vụ định vị đang tắt. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
       } else {
         LocationPermission permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
@@ -98,23 +130,36 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
           _gpsWarning =
-              'Không có quyền truy cập GPS, đang dùng vị trí mặc định.';
+              'Chưa cấp quyền GPS. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
         } else {
           try {
             final position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high,
-              timeLimit: const Duration(seconds: 8),
+              desiredAccuracy: LocationAccuracy.medium,
+              timeLimit: const Duration(seconds: 5),
             );
             userPos = LatLng(position.latitude, position.longitude);
+            gotRealGps = true;
             _gpsWarning = null;
           } catch (_) {
-            _gpsWarning =
-                'Không thể lấy GPS tức thời, sử dụng vị trí tạm thời.';
+            try {
+              final lastKnown = await Geolocator.getLastKnownPosition();
+              if (lastKnown != null) {
+                userPos = LatLng(lastKnown.latitude, lastKnown.longitude);
+                gotRealGps = true;
+                _gpsWarning = null;
+              } else {
+                _gpsWarning =
+                    'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+              }
+            } catch (_) {
+              _gpsWarning =
+                  'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+            }
           }
         }
       }
     } catch (_) {
-      _gpsWarning = 'Không thể lấy GPS tức thời, sử dụng vị trí tạm thời.';
+      _gpsWarning = 'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
     }
 
     final initialTarget =
@@ -122,12 +167,14 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
             ? LatLng(widget.initialLatitude!, widget.initialLongitude!)
             : userPos;
 
-    final initialDist = LocationUtils.calculateDistanceKm(
-      userPos.latitude,
-      userPos.longitude,
-      initialTarget.latitude,
-      initialTarget.longitude,
-    );
+    final initialDist = gotRealGps
+        ? LocationUtils.calculateDistanceKm(
+            userPos.latitude,
+            userPos.longitude,
+            initialTarget.latitude,
+            initialTarget.longitude,
+          )
+        : 0.0;
 
     if (!mounted) return;
 
@@ -135,6 +182,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
       _userLocation = userPos;
       _selectedLocation = initialTarget;
       _distanceKm = initialDist;
+      _hasRealGps = gotRealGps;
       _isLoadingGps = false;
     });
 
@@ -178,14 +226,14 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   }
 
   void _onMapTap(TapPosition tapPosition, LatLng point) {
-    if (_userLocation == null) return;
-
-    final dist = LocationUtils.calculateDistanceKm(
-      _userLocation!.latitude,
-      _userLocation!.longitude,
-      point.latitude,
-      point.longitude,
-    );
+    final dist = (_hasRealGps && _userLocation != null)
+        ? LocationUtils.calculateDistanceKm(
+            _userLocation!.latitude,
+            _userLocation!.longitude,
+            point.latitude,
+            point.longitude,
+          )
+        : 0.0;
 
     setState(() {
       _selectedLocation = point;
@@ -195,7 +243,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     _reverseGeocode(point);
   }
 
-  bool get _isWithinRange => _distanceKm <= widget.maxRadiusKm;
+  bool get _isWithinRange => !_hasRealGps || _distanceKm <= widget.maxRadiusKm;
 
   @override
   Widget build(BuildContext context) {
@@ -302,10 +350,14 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                       TileLayer(
                         urlTemplate:
                             'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+                        fallbackUrl:
+                            'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+                        subdomains: const ['a', 'b', 'c'],
                         userAgentPackageName: 'com.example.optimeal',
+                        errorTileCallback: (tile, error, stackTrace) {},
                       ),
-                      // Circle 5km quanh vị trí thực tế của người dùng
-                      if (_userLocation != null)
+                      // Circle 1km quanh vị trí thực tế của người dùng (khi có GPS)
+                      if (_hasRealGps && _userLocation != null)
                         CircleLayer(
                           circles: [
                             CircleMarker(
@@ -385,9 +437,14 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                         FloatingActionButton.small(
                           heroTag: 'recenter_gps',
                           backgroundColor: Colors.white,
-                          onPressed: () {
-                            if (_userLocation != null) {
+                          onPressed: () async {
+                            if (_hasRealGps && _userLocation != null) {
                               _mapController.move(_userLocation!, 15);
+                            } else {
+                              await _resolveUserLocation();
+                              if (_userLocation != null) {
+                                _mapController.move(_userLocation!, 15);
+                              }
                             }
                           },
                           child: const Icon(
@@ -515,9 +572,11 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _isWithinRange
-                                ? 'Cách bạn: ${LocationUtils.formatDistance(_distanceKm)} (Hợp lệ trong ${widget.maxRadiusKm.toInt()}km)'
-                                : 'Cách bạn: ${LocationUtils.formatDistance(_distanceKm)} — Quá xa! (Chỉ cho phép <= ${widget.maxRadiusKm.toInt()}km)',
+                            !_hasRealGps
+                                ? 'Chọn điểm bất kỳ trên bản đồ (Chưa có tín hiệu GPS thực tế)'
+                                : _isWithinRange
+                                    ? 'Cách bạn: ${LocationUtils.formatDistance(_distanceKm)} (Hợp lệ trong ${widget.maxRadiusKm.toInt()}km)'
+                                    : 'Cách bạn: ${LocationUtils.formatDistance(_distanceKm)} — Quá xa! (Chỉ cho phép <= ${widget.maxRadiusKm.toInt()}km)',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,

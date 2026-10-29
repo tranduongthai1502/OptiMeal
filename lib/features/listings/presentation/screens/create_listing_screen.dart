@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../../core/routing/route_paths.dart';
@@ -11,8 +12,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/location_utils.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../map_search/presentation/screens/location_picker_screen.dart';
 import '../../domain/entities/food_listing.dart';
+import '../../../map_search/presentation/providers/location_provider.dart';
 import '../../../map_search/presentation/providers/map_search_provider.dart';
 import '../providers/listings_provider.dart';
 import '../widgets/location_picker_dialog.dart';
@@ -64,6 +65,19 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pos = ref.read(locationProvider).position;
+      if (pos != null && _selectedLocation == null && mounted) {
+        setState(() {
+          _selectedLocation = LatLng(pos.latitude, pos.longitude);
+        });
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
@@ -74,15 +88,147 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   }
 
   Future<void> _openLocationPicker() async {
-    final picked = await Navigator.of(context).push<LatLng>(
-      MaterialPageRoute(
-        builder: (_) =>
-            LocationPickerScreen(initialPosition: _selectedLocation),
+    final currentGps = ref.read(locationProvider).position;
+    final initialLat = _selectedLocation?.latitude ?? currentGps?.latitude;
+    final initialLng = _selectedLocation?.longitude ?? currentGps?.longitude;
+
+    final result = await LocationPickerDialog.show(
+      context,
+      userLatitude: currentGps?.latitude,
+      userLongitude: currentGps?.longitude,
+      initialLatitude: initialLat,
+      initialLongitude: initialLng,
+      maxRadiusKm: 1.0,
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _selectedLocation = LatLng(result.latitude, result.longitude);
+        if (result.address != null && result.address!.trim().isNotEmpty) {
+          _addressController.text = result.address!;
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.distanceKm > 0
+                ? 'Đã chọn vị trí bàn giao (Cách bạn ${LocationUtils.formatDistance(result.distanceKm)})'
+                : 'Đã chọn vị trí bàn giao trên bản đồ',
+          ),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _pickPhoto({
+    required ImageSource source,
+    required bool isLocationPhoto,
+  }) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 720,
+        maxHeight: 720,
+        imageQuality: 65,
+      );
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          if (isLocationPhoto) {
+            _locationPhotos
+                .add(PickedPhotoItem(name: image.name, bytes: bytes));
+          } else {
+            _foodPhotos.add(PickedPhotoItem(name: image.name, bytes: bytes));
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi chọn ảnh: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showImagePickerSheet({required bool isLocationPhoto}) {
+    final targetList = isLocationPhoto ? _locationPhotos : _foodPhotos;
+    final maxCount = isLocationPhoto ? 2 : 4;
+
+    if (targetList.length >= maxCount) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Tối đa $maxCount ảnh cho mục này.'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14, bottom: 6),
+              child: Text(
+                isLocationPhoto
+                    ? 'Chụp / Chọn ảnh điểm nhận ngoài đời'
+                    : 'Chụp / Chọn ảnh mẻ thực phẩm',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_rounded,
+                  color: AppColors.primary),
+              title: const Text('Chụp ảnh mới (Camera)'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(
+                  source: ImageSource.camera,
+                  isLocationPhoto: isLocationPhoto,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded,
+                  color: AppColors.primary),
+              title: const Text('Chọn ảnh từ thư viện'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(
+                  source: ImageSource.gallery,
+                  isLocationPhoto: isLocationPhoto,
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
-    if (picked != null) {
-      setState(() => _selectedLocation = picked);
+  }
+
+  Future<List<String>> _uploadPhotos(
+    List<PickedPhotoItem> items,
+  ) async {
+    final List<String> urls = [];
+    for (int i = 0; i < items.length; i++) {
+      final item = items[i];
+      // Lưu trực tiếp dưới dạng Base64 Data URI vào Cloud Firestore (hoàn toàn miễn phí, 0 lỗi CORS)
+      final base64String = base64Encode(item.bytes);
+      urls.add('data:image/jpeg;base64,$base64String');
     }
+    return urls;
   }
 
   Future<void> _handleSubmit() async {
@@ -199,6 +345,15 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
+    final locationState = ref.watch(locationProvider);
+
+    // Tự động gán vị trí nếu có GPS và chưa gán
+    if (_selectedLocation == null && locationState.position != null) {
+      _selectedLocation = LatLng(
+        locationState.position!.latitude,
+        locationState.position!.longitude,
+      );
+    }
     final user = authState.user;
 
     if (user == null) {
@@ -309,6 +464,30 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Vui lòng nhập địa chỉ bàn giao'
                       : null,
+                ),
+                const SizedBox(height: 20),
+
+                // 1. Ảnh địa điểm nhận ngoài đời
+                _buildPhotoPickerCard(
+                  title: 'Ảnh địa điểm nhận ngoài đời',
+                  subtitle:
+                      'Chụp mặt tiền, cổng nhà, biển hiệu hoặc bàn nhận đồ để người nhận dễ tìm thấy.',
+                  icon: Icons.storefront_outlined,
+                  items: _locationPhotos,
+                  maxCount: 2,
+                  isLocationPhoto: true,
+                ),
+                const SizedBox(height: 16),
+
+                // 2. Hình ảnh mặt hàng / thực phẩm
+                _buildPhotoPickerCard(
+                  title: 'Hình ảnh mặt hàng / thực phẩm',
+                  subtitle:
+                      'Chụp mẻ nguyên liệu, đồ ăn, phần cơm hoặc quy cách đóng gói thực tế.',
+                  icon: Icons.fastfood_outlined,
+                  items: _foodPhotos,
+                  maxCount: 4,
+                  isLocationPhoto: false,
                 ),
                 const SizedBox(height: 20),
 
@@ -525,7 +704,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 // FIX overflow: rút ngắn label để vừa Row icon + Text trong
                 // PrimaryButton trên màn hình hẹp.
                 PrimaryButton(
-                  label: 'Ghim lên Bản đồ',
+                  label: _uploadStatusMessage ?? 'Ghim lên Bản đồ',
                   icon: Icons.push_pin_rounded,
                   isLoading: _isLoading,
                   onPressed: _handleSubmit,

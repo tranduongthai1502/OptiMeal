@@ -124,7 +124,10 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
             children: [
               TileLayer(
                 urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+                fallbackUrl:
+                    'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.optimeal',
                 errorTileCallback: (tile, error, stackTrace) {},
               ),

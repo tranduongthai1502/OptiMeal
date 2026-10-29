@@ -147,27 +147,40 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     required double longitude,
     required double radiusKm,
   }) {
-    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    // Truy vấn sắp xếp theo createdAt giảm dần (không cần composite index trên Firestore)
+    // Sau đó lọc status, expiresAt và khoảng cách client-side
     return _col
-        .where('status', isEqualTo: ListingStatus.available.name)
-        .where('expiresAt', isGreaterThan: nowMs)
-        .orderBy('expiresAt')
+        .orderBy('createdAt', descending: true)
         .limit(200)
         .snapshots()
         .map((snapshot) {
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
       final all = snapshot.docs
           .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+          .where((listing) =>
+              listing.status == ListingStatus.available &&
+              listing.expiresAt.millisecondsSinceEpoch > nowMs)
           .toList();
-      // Lọc Haversine client-side
-      return all.where((listing) {
-        final dist = _haversineKm(
-          latitude,
-          longitude,
-          listing.latitude,
-          listing.longitude,
-        );
-        return dist <= radiusKm;
-      }).toList();
+
+      // Lọc theo khoảng cách nếu có toạ độ hợp lệ
+      if (latitude != 0 && longitude != 0 && radiusKm > 0) {
+        final nearby = all.where((listing) {
+          final dist = _haversineKm(
+            latitude,
+            longitude,
+            listing.latitude,
+            listing.longitude,
+          );
+          return dist <= radiusKm;
+        }).toList();
+
+        if (nearby.isNotEmpty) {
+          return nearby;
+        }
+      }
+
+      // Nếu không tìm thấy trong bán kính (do đang test ở vị trí khác), hiển thị toàn bộ
+      return all;
     });
   }
 

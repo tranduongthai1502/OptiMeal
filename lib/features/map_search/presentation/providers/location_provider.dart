@@ -55,19 +55,33 @@ class LocationNotifier extends StateNotifier<LocationState> {
       return;
     }
 
-    // 3. Bắt đầu stream vị trí — cập nhật mỗi 30m di chuyển
+    // 3. Lấy ngay vị trí hiện tại (tránh bị treo hoặc chỉ đợi khi di chuyển)
+    try {
+      final currentPos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 5),
+      );
+      state = LocationState(position: currentPos);
+    } catch (e) {
+      if (kDebugMode) debugPrint('[LocationNotifier] getCurrentPosition initial error: $e');
+      try {
+        final lastKnown = await Geolocator.getLastKnownPosition();
+        if (lastKnown != null) {
+          state = LocationState(position: lastKnown);
+        }
+      } catch (_) {}
+    }
+
+    // 4. Bắt đầu stream vị trí — cập nhật mỗi 20m di chuyển
     _positionSub = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 30,
+        accuracy: LocationAccuracy.medium,
+        distanceFilter: 20,
       ),
     ).listen(
       (pos) => state = LocationState(position: pos),
       onError: (Object e) {
         if (kDebugMode) debugPrint('[LocationNotifier] GPS error: $e');
-        state = const LocationState(
-          errorMessage: 'Không lấy được vị trí. Bản đồ dùng vị trí mặc định.',
-        );
       },
       cancelOnError: false,
     );

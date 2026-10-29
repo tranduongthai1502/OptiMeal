@@ -356,15 +356,18 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
         ),
       ),
       children: [
-        // ── OSM tile — userAgentPackageName phải khớp applicationId ──────────
+        // ── OSM DE Tile (CORS-friendly, miễn phí & không cần API key) ───────
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: 'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+          fallbackUrl:
+              'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+          subdomains: const ['a', 'b', 'c'],
           userAgentPackageName: 'com.example.optimeal',
           // Tile lỗi (mất mạng): nuốt lỗi, không crash
           errorTileCallback: (tile, error, stackTrace) {},
         ),
 
-        // ── Ghi nguồn OSM (bắt buộc theo ToS OpenStreetMap) ─────────────────
+        // ── Ghi nguồn bản đồ (bắt buộc theo ToS OpenStreetMap) ───────────────
         const RichAttributionWidget(
           attributions: [
             TextSourceAttribution('© OpenStreetMap contributors'),
