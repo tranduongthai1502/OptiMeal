@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart' hide Path;
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../home/presentation/widgets/home_dashboard_app_bar.dart';
 import '../../../listings/domain/entities/food_listing.dart';
 import '../providers/location_provider.dart';
@@ -93,9 +94,19 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).user;
     final locationState = ref.watch(locationProvider);
     final listingsAsync = ref.watch(nearbyListingsStreamProvider);
     final routeTarget = ref.watch(routeTargetProvider);
+
+    final userText = user != null
+        ? (user.displayName != null && user.displayName!.isNotEmpty
+            ? user.displayName!
+            : (user.phoneNumber.isNotEmpty ? user.phoneNumber : 'Đã đăng nhập'))
+        : 'Chưa đăng nhập';
+    final locationLabel = locationState.hasPosition
+        ? '$userText (Đã bật GPS)'
+        : userText;
 
     // Auto-pan lần đầu khi GPS có kết quả
     if (!_hasCenteredOnUser && locationState.hasPosition) {
@@ -284,6 +295,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
             left: 0,
             right: 0,
             child: HomeDashboardAppBar(
+              locationLabel: locationLabel,
               onProfileTap: () => context.push(RoutePaths.profile),
             ),
           ),
@@ -343,17 +355,11 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
 
     return FlutterMap(
       mapController: _mapController,
-      options: MapOptions(
+      options: const MapOptions(
         initialCenter: _kDefaultCenter,
         initialZoom: 14.5,
-        minZoom: 5,
+        minZoom: 3,
         maxZoom: 18,
-        cameraConstraint: CameraConstraint.containCenter(
-          bounds: LatLngBounds(
-            const LatLng(8.18, 102.14),
-            const LatLng(23.39, 109.46),
-          ),
-        ),
       ),
       children: [
         // ── OSM DE Tile (CORS-friendly, miễn phí & không cần API key) ───────

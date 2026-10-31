@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
@@ -118,43 +120,51 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     bool gotRealGps = false;
 
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        _gpsWarning = 'Dịch vụ định vị đang tắt. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
-      } else {
-        LocationPermission permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
+      if (!kIsWeb) {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          _gpsWarning = 'Dịch vụ định vị đang tắt. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+          setState(() {
+            _userLocation = userPos;
+            _selectedLocation = userPos;
+            _isLoadingGps = false;
+          });
+          return;
         }
+      }
 
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          _gpsWarning =
-              'Chưa cấp quyền GPS. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
-        } else {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _gpsWarning =
+            'Chưa cấp quyền GPS. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+      } else {
+        try {
+          final position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 15),
+          );
+          userPos = LatLng(position.latitude, position.longitude);
+          gotRealGps = true;
+          _gpsWarning = null;
+        } catch (_) {
           try {
-            final position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.medium,
-              timeLimit: const Duration(seconds: 5),
-            );
-            userPos = LatLng(position.latitude, position.longitude);
-            gotRealGps = true;
-            _gpsWarning = null;
-          } catch (_) {
-            try {
-              final lastKnown = await Geolocator.getLastKnownPosition();
-              if (lastKnown != null) {
-                userPos = LatLng(lastKnown.latitude, lastKnown.longitude);
-                gotRealGps = true;
-                _gpsWarning = null;
-              } else {
-                _gpsWarning =
-                    'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
-              }
-            } catch (_) {
+            final lastKnown = await Geolocator.getLastKnownPosition();
+            if (lastKnown != null) {
+              userPos = LatLng(lastKnown.latitude, lastKnown.longitude);
+              gotRealGps = true;
+              _gpsWarning = null;
+            } else {
               _gpsWarning =
                   'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
             }
+          } catch (_) {
+            _gpsWarning =
+                'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
           }
         }
       }
@@ -339,8 +349,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                   FlutterMap(
                     mapController: _mapController,
                     options: MapOptions(
-                      initialCenter:
-                          _selectedLocation ?? const LatLng(10.7769, 106.7009),
+                      initialCenter: _selectedLocation ?? _kDefaultDanang,
                       initialZoom: 14.5,
                       minZoom: 4,
                       maxZoom: 18,

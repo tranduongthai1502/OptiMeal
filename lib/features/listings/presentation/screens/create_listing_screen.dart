@@ -13,7 +13,6 @@ import '../../../../core/utils/location_utils.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/food_listing.dart';
-import '../../../map_search/presentation/providers/location_provider.dart';
 import '../../../map_search/presentation/providers/map_search_provider.dart';
 import '../providers/listings_provider.dart';
 import '../widgets/location_picker_dialog.dart';
@@ -65,19 +64,6 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final pos = ref.read(locationProvider).position;
-      if (pos != null && _selectedLocation == null && mounted) {
-        setState(() {
-          _selectedLocation = LatLng(pos.latitude, pos.longitude);
-        });
-      }
-    });
-  }
-
-  @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
@@ -88,16 +74,10 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   }
 
   Future<void> _openLocationPicker() async {
-    final currentGps = ref.read(locationProvider).position;
-    final initialLat = _selectedLocation?.latitude ?? currentGps?.latitude;
-    final initialLng = _selectedLocation?.longitude ?? currentGps?.longitude;
-
     final result = await LocationPickerDialog.show(
       context,
-      userLatitude: currentGps?.latitude,
-      userLongitude: currentGps?.longitude,
-      initialLatitude: initialLat,
-      initialLongitude: initialLng,
+      initialLatitude: _selectedLocation?.latitude,
+      initialLongitude: _selectedLocation?.longitude,
       maxRadiusKm: 1.0,
     );
     if (result != null && mounted) {
@@ -345,15 +325,6 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
-    final locationState = ref.watch(locationProvider);
-
-    // Tự động gán vị trí nếu có GPS và chưa gán
-    if (_selectedLocation == null && locationState.position != null) {
-      _selectedLocation = LatLng(
-        locationState.position!.latitude,
-        locationState.position!.longitude,
-      );
-    }
     final user = authState.user;
 
     if (user == null) {

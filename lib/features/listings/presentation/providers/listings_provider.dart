@@ -49,12 +49,13 @@ final cancelListingUseCaseProvider = Provider<CancelListingUseCase>((ref) {
 // ── Nearby listings (one-shot FutureProvider) ───────────────────────────────
 
 /// FutureProvider one-shot (dùng cho màn hình detail và các nơi không cần realtime).
+/// Mặc định truy vấn thực phẩm gần trung tâm Đà Nẵng, không kích hoạt GPS nền.
 final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>(
   (ref) async {
     final useCase = ref.watch(getListingsUseCaseProvider);
     final result = await useCase(
-      latitude: 10.7769,
-      longitude: 106.7009,
+      latitude: 16.0544,
+      longitude: 108.2022,
       radiusKm: AppConstants.defaultSearchRadiusKm,
     );
     return result.fold(
