@@ -104,9 +104,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
             ? user.displayName!
             : (user.phoneNumber.isNotEmpty ? user.phoneNumber : 'Đã đăng nhập'))
         : 'Chưa đăng nhập';
-    final locationLabel = locationState.hasPosition
-        ? '$userText (Đã bật GPS)'
-        : userText;
+    final locationLabel =
+        locationState.hasPosition ? '$userText (Đã bật GPS)' : userText;
 
     // Auto-pan lần đầu khi GPS có kết quả
     if (!_hasCenteredOnUser && locationState.hasPosition) {
@@ -275,8 +274,8 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                           ),
                           data: (_) => Text(
                             visibleListings.isEmpty
-                                ? 'Không có đơn phù hợp gần đây.'
-                                : 'Có ${visibleListings.length} đơn gần bạn.',
+                                ? 'Không có mẻ thực phẩm trong bán kính 20 km.'
+                                : 'Có ${visibleListings.length} mẻ thực phẩm trong bán kính 20 km.',
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -397,8 +396,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
           ),
 
         // ── Polyline tuyến đường ORS ─────────────────────────────────────────
-        if (routeParams != null)
-          _RoutePolylineLayer(params: routeParams),
+        if (routeParams != null) _RoutePolylineLayer(params: routeParams),
 
         // ── Marker món ăn ────────────────────────────────────────────────────
         MarkerLayer(
@@ -423,8 +421,7 @@ class _HomeMapSearchScreenState extends ConsumerState<HomeMapSearchScreen>
                         : AppColors.secondaryFixed,
                     isPulsing: listing.isExpiringSoon,
                   ),
-                  animation:
-                      listing.isExpiringSoon ? _beaconController : null,
+                  animation: listing.isExpiringSoon ? _beaconController : null,
                   onTap: () => _openListingSheet(listing),
                 ),
               ),

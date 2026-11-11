@@ -29,4 +29,3 @@ class RouteResult {
     return '$minutes phút';
   }
 }
-

@@ -123,7 +123,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
       if (!kIsWeb) {
         bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          _gpsWarning = 'Dịch vụ định vị đang tắt. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+          _gpsWarning =
+              'Dịch vụ định vị đang tắt. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
           setState(() {
             _userLocation = userPos;
             _selectedLocation = userPos;
@@ -169,7 +170,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
         }
       }
     } catch (_) {
-      _gpsWarning = 'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
+      _gpsWarning =
+          'Không lấy được GPS tức thời. Bạn có thể chọn điểm bàn giao tự do trên bản đồ.';
     }
 
     final initialTarget =

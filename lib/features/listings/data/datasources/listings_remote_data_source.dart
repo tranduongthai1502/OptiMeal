@@ -66,7 +66,9 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
 
     var listings = snapshot.docs
         .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
-        .where((listing) => listing.status == ListingStatus.available)
+        .where((listing) =>
+            listing.status == ListingStatus.available &&
+            listing.expiresAt.isAfter(DateTime.now()))
         .toList();
 
     if (condition != null) {
@@ -88,12 +90,11 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
         return dist <= radiusKm;
       }).toList();
 
-      if (nearby.isNotEmpty) {
-        return nearby;
-      }
+      return nearby;
     }
 
-    // Nếu không tìm thấy trong bán kính (do đang test ở tỉnh thành khác), hiển thị toàn bộ bài đăng mới nhất
+    // Không có tọa độ hợp lệ thì chỉ trả dữ liệu thô; FoodMap luôn có
+    // fallback về trung tâm Đà Nẵng nên vẫn lọc đúng bán kính 20 km.
     return listings;
   }
 
@@ -174,12 +175,10 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
           return dist <= radiusKm;
         }).toList();
 
-        if (nearby.isNotEmpty) {
-          return nearby;
-        }
+        return nearby;
       }
 
-      // Nếu không tìm thấy trong bán kính (do đang test ở vị trí khác), hiển thị toàn bộ
+      // Không có tọa độ hợp lệ thì trả dữ liệu thô.
       return all;
     });
   }

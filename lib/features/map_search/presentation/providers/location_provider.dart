@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/utils/location_utils.dart';
 
@@ -29,93 +30,56 @@ class LocationState {
 class LocationNotifier extends StateNotifier<LocationState> {
   StreamSubscription<Position>? _positionSub;
 
+  static const _savedLatitudeKey = 'last_location_latitude';
+  static const _savedLongitudeKey = 'last_location_longitude';
+
   LocationNotifier() : super(const LocationState(isLoading: true)) {
     _init();
   }
 
   Future<void> _init() async {
-    // 1. Trên Web: Thử lấy ngay vị trí qua REST API IP Geolocation trước
-    // Vì máy tính/Chrome không có GPS phần cứng và hay bị Google định tuyến nhầm sang Đài Loan.
-    if (kIsWeb) {
-      final ipCoords = await LocationUtils.getIpCoordinates();
-      if (ipCoords != null) {
-        final pos = Position(
-          latitude: ipCoords.latitude,
-          longitude: ipCoords.longitude,
-          timestamp: DateTime.now(),
-          accuracy: 100.0,
-          altitude: 0.0,
-          altitudeAccuracy: 0.0,
-          heading: 0.0,
-          headingAccuracy: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
-        );
-        state = LocationState(position: pos);
-        return;
-      }
-    }
+    // Luôn xin quyền GPS trước IP geolocation để trình duyệt hiện prompt
+    // "Allow location" ngay khi người dùng vào ứng dụng.
+    final savedPosition = await _loadSavedPosition();
 
-    // 2. Kiểm tra service GPS
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // 1. Kiểm tra service GPS (web không có service toggle như mobile).
+    final serviceEnabled =
+        kIsWeb ? true : await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Nếu GPS tắt, thử lấy qua IP
-      final ipCoords = await LocationUtils.getIpCoordinates();
-      if (ipCoords != null) {
-        final pos = Position(
-          latitude: ipCoords.latitude,
-          longitude: ipCoords.longitude,
-          timestamp: DateTime.now(),
-          accuracy: 100.0,
-          altitude: 0.0,
-          altitudeAccuracy: 0.0,
-          heading: 0.0,
-          headingAccuracy: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
+      if (savedPosition != null) {
+        state = LocationState(
+          position: savedPosition,
+          errorMessage: 'Định vị đang tắt. Đang dùng vị trí đã lưu.',
         );
-        state = LocationState(position: pos);
         return;
       }
       state = const LocationState(
-        errorMessage: 'GPS đang tắt. Bản đồ hiển thị mặc định tại Đà Nẵng.',
+        errorMessage: 'Hãy bật định vị để tìm món ăn gần bạn.',
       );
       return;
     }
 
-    // 3. Xin quyền vị trí
+    // 2. Xin quyền vị trí. Không dùng IP trước bước này vì sẽ không hiện prompt.
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      // Nếu bị từ chối quyền, fallback qua IP để người dùng vẫn dùng được app
-      final ipCoords = await LocationUtils.getIpCoordinates();
-      if (ipCoords != null) {
-        final pos = Position(
-          latitude: ipCoords.latitude,
-          longitude: ipCoords.longitude,
-          timestamp: DateTime.now(),
-          accuracy: 100.0,
-          altitude: 0.0,
-          altitudeAccuracy: 0.0,
-          heading: 0.0,
-          headingAccuracy: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
+      if (savedPosition != null) {
+        state = LocationState(
+          position: savedPosition,
+          errorMessage: 'Chưa cấp quyền định vị. Đang dùng vị trí đã lưu.',
         );
-        state = LocationState(position: pos);
         return;
       }
       state = const LocationState(
-        errorMessage:
-            'Chưa cấp quyền vị trí. Bản đồ hiển thị mặc định tại Đà Nẵng.',
+        errorMessage: 'Hãy cho phép truy cập vị trí để tìm món ăn gần bạn.',
       );
       return;
     }
 
-    // 4. Lấy ngay vị trí hiện tại với độ chính xác cao
+    // 3. Lấy ngay vị trí hiện tại với độ chính xác cao.
     try {
       final currentPos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -131,47 +95,41 @@ class LocationNotifier extends StateNotifier<LocationState> {
       if (isTaiwan) {
         final ipCoords = await LocationUtils.getIpCoordinates();
         if (ipCoords != null) {
-          final pos = Position(
-            latitude: ipCoords.latitude,
-            longitude: ipCoords.longitude,
-            timestamp: DateTime.now(),
-            accuracy: 100.0,
-            altitude: 0.0,
-            altitudeAccuracy: 0.0,
-            heading: 0.0,
-            headingAccuracy: 0.0,
-            speed: 0.0,
-            speedAccuracy: 0.0,
+          final pos = _positionFromCoordinates(
+            ipCoords.latitude,
+            ipCoords.longitude,
           );
           state = LocationState(position: pos);
+          await _savePosition(pos);
           return;
         }
       }
 
       state = LocationState(position: currentPos);
+      await _savePosition(currentPos);
     } catch (e) {
-      if (kDebugMode) debugPrint('[LocationNotifier] getCurrentPosition initial error: $e');
+      if (kDebugMode)
+        debugPrint('[LocationNotifier] getCurrentPosition initial error: $e');
       final ipCoords = await LocationUtils.getIpCoordinates();
       if (ipCoords != null) {
-        final pos = Position(
-          latitude: ipCoords.latitude,
-          longitude: ipCoords.longitude,
-          timestamp: DateTime.now(),
-          accuracy: 100.0,
-          altitude: 0.0,
-          altitudeAccuracy: 0.0,
-          heading: 0.0,
-          headingAccuracy: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
+        final pos = _positionFromCoordinates(
+          ipCoords.latitude,
+          ipCoords.longitude,
         );
         state = LocationState(position: pos);
+        await _savePosition(pos);
         return;
       }
       try {
         final lastKnown = await Geolocator.getLastKnownPosition();
         if (lastKnown != null) {
           state = LocationState(position: lastKnown);
+          await _savePosition(lastKnown);
+        } else if (savedPosition != null) {
+          state = LocationState(
+            position: savedPosition,
+            errorMessage: 'Không lấy được GPS. Đang dùng vị trí đã lưu.',
+          );
         }
       } catch (_) {}
     }
@@ -190,6 +148,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
             pos.longitude <= 123.0;
         if (!isTaiwan) {
           state = LocationState(position: pos);
+          unawaited(_savePosition(pos));
         }
       },
       onError: (Object e) {
@@ -197,6 +156,43 @@ class LocationNotifier extends StateNotifier<LocationState> {
       },
       cancelOnError: false,
     );
+  }
+
+  Position _positionFromCoordinates(double latitude, double longitude) {
+    return Position(
+      latitude: latitude,
+      longitude: longitude,
+      timestamp: DateTime.now(),
+      accuracy: 100.0,
+      altitude: 0.0,
+      altitudeAccuracy: 0.0,
+      heading: 0.0,
+      headingAccuracy: 0.0,
+      speed: 0.0,
+      speedAccuracy: 0.0,
+    );
+  }
+
+  Future<Position?> _loadSavedPosition() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lat = prefs.getDouble(_savedLatitudeKey);
+      final lng = prefs.getDouble(_savedLongitudeKey);
+      if (lat == null || lng == null) return null;
+      return _positionFromCoordinates(lat, lng);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _savePosition(Position position) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble(_savedLatitudeKey, position.latitude);
+      await prefs.setDouble(_savedLongitudeKey, position.longitude);
+    } catch (_) {
+      // Local persistence is optional; GPS still works when it is unavailable.
+    }
   }
 
   /// Gọi lại để refresh vị trí (ví dụ khi người dùng bấm "về vị trí của tôi").
@@ -214,10 +210,8 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 }
 
-/// Provider vị trí GPS riêng cho màn hình Food Map.
-/// Dùng autoDispose để chỉ khởi tạo và xin GPS khi người dùng mở Food Map,
-/// và tự động giải phóng GPS khi người dùng rời khỏi Food Map.
-final locationProvider =
-    StateNotifierProvider.autoDispose<LocationNotifier, LocationState>(
+/// Provider dùng chung cho Home, Food Map và màn chọn vị trí.
+/// Không autoDispose để giữ vị trí đã lấy trong suốt phiên ứng dụng.
+final locationProvider = StateNotifierProvider<LocationNotifier, LocationState>(
   (ref) => LocationNotifier(),
 );

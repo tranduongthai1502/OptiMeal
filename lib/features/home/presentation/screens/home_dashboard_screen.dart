@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,7 @@ import '../../../../core/widgets/app_widgets.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../../listings/presentation/widgets/listing_card.dart';
+import '../../../map_search/presentation/providers/location_provider.dart';
 import '../widgets/donor_callout_banner.dart';
 import '../widgets/home_dashboard_app_bar.dart';
 import '../widgets/quick_actions_row.dart';
@@ -31,6 +34,24 @@ class HomeDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
+  Timer? _expiryRefreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Một listing có thể hết hạn sau khi Home đã tải xong dữ liệu.
+    // Rebuild định kỳ để card biến mất ngay cả khi Firestore chưa có snapshot mới.
+    _expiryRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _expiryRefreshTimer?.cancel();
+    super.dispose();
+  }
+
   // ── Quick-action data (defined here so context.push is accessible) ─────────
 
   List<QuickAction> _buildQuickActions() {
@@ -106,12 +127,16 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final locationState = ref.watch(locationProvider);
     final user = ref.watch(authStateProvider).user;
-    final locationLabel = user != null
+    final accountLabel = user != null
         ? (user.displayName != null && user.displayName!.isNotEmpty
             ? user.displayName
             : (user.phoneNumber.isNotEmpty ? user.phoneNumber : 'Đã đăng nhập'))
         : 'Chưa đăng nhập';
+    final locationLabel = locationState.hasPosition
+        ? accountLabel
+        : 'Bật định vị để tìm món gần bạn';
 
     return Scaffold(
       backgroundColor: AppColors.bgSurface,
@@ -166,7 +191,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             style: const TextStyle(color: AppColors.error),
                           ),
                           data: (listings) {
-                            if (listings.isEmpty) {
+                            final activeListings = listings
+                                .where((listing) => listing.isStillValid)
+                                .toList();
+                            if (activeListings.isEmpty) {
                               return const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 24.0),
                                 child: Text(
@@ -180,7 +208,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             }
                             return Column(
                               children: [
-                                for (final listing in listings)
+                                for (final listing in activeListings)
                                   ListingCard(
                                     listing: listing,
                                     onTap: () => context.push(

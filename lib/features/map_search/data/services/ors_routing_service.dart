@@ -25,8 +25,7 @@ class OrsRoutingService {
 
   final http.Client _client;
 
-  OrsRoutingService({http.Client? client})
-      : _client = client ?? http.Client();
+  OrsRoutingService({http.Client? client}) : _client = client ?? http.Client();
 
   /// Tính tuyến đường lái xe từ [from] đến [to].
   /// Ném [RoutingException] với thông báo tiếng Việt cho mọi tình huống lỗi.
@@ -108,9 +107,8 @@ class OrsRoutingService {
       final feature = features[0] as Map<String, dynamic>;
       final geometry = feature['geometry'] as Map<String, dynamic>;
       final coords = geometry['coordinates'] as List<dynamic>;
-      final summary =
-          (feature['properties'] as Map<String, dynamic>)['summary']
-              as Map<String, dynamic>;
+      final summary = (feature['properties'] as Map<String, dynamic>)['summary']
+          as Map<String, dynamic>;
 
       // ORS trả [lng, lat] → chuyển sang LatLng(lat, lng)
       final points = coords.map<LatLng>((c) {
@@ -136,4 +134,3 @@ class OrsRoutingService {
     }
   }
 }
-

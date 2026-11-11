@@ -12,6 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/location_utils.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../map_search/presentation/providers/location_provider.dart';
 import '../../domain/entities/food_listing.dart';
 import '../../../map_search/presentation/providers/map_search_provider.dart';
 import '../providers/listings_provider.dart';
@@ -74,8 +75,13 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   }
 
   Future<void> _openLocationPicker() async {
+    // Dùng cùng vị trí đã được khởi tạo ở cấp app với FoodMap. Nhờ vậy
+    // trình duyệt chỉ cần xác nhận quyền định vị một lần cho cả hai luồng.
+    final locationState = ref.read(locationProvider);
     final result = await LocationPickerDialog.show(
       context,
+      userLatitude: locationState.position?.latitude,
+      userLongitude: locationState.position?.longitude,
       initialLatitude: _selectedLocation?.latitude,
       initialLongitude: _selectedLocation?.longitude,
       maxRadiusKm: 1.0,

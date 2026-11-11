@@ -9,7 +9,8 @@ class LocationUtils {
   /// Lấy toạ độ vị trí địa lý thông qua REST API IP Geolocation.
   /// Rất hữu ích trên môi trường Web/PC không có chip GPS thực tế hoặc bị Google Chrome
   /// định tuyến sai sang Đài Loan.
-  static Future<({double latitude, double longitude})?> getIpCoordinates() async {
+  static Future<({double latitude, double longitude})?>
+      getIpCoordinates() async {
     // 1. Thử qua HTTPS ipwho.is (hỗ trợ tốt trên web)
     try {
       final res = await http

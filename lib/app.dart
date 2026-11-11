@@ -5,12 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_constants.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/map_search/presentation/providers/location_provider.dart';
 
 class OptiMealApp extends ConsumerWidget {
   const OptiMealApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Khởi tạo định vị ngay khi mở app để trình duyệt hiện prompt xin quyền,
+    // thay vì đợi đến lúc người dùng mở Food Map.
+    ref.watch(locationProvider);
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

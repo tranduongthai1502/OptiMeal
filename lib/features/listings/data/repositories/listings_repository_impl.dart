@@ -84,8 +84,7 @@ class ListingsRepositoryImpl implements ListingsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cancelListing(
-      String id, String ownerId) async {
+  Future<Either<Failure, void>> cancelListing(String id, String ownerId) async {
     try {
       await remoteDataSource.cancelListing(id, ownerId);
       return const Right(null);

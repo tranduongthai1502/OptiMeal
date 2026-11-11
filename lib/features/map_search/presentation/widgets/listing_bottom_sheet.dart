@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/location_utils.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/domain/entities/food_listing.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
@@ -24,8 +25,7 @@ class ListingBottomSheet extends ConsumerStatefulWidget {
   const ListingBottomSheet({super.key, required this.listing});
 
   @override
-  ConsumerState<ListingBottomSheet> createState() =>
-      _ListingBottomSheetState();
+  ConsumerState<ListingBottomSheet> createState() => _ListingBottomSheetState();
 }
 
 class _ListingBottomSheetState extends ConsumerState<ListingBottomSheet> {
@@ -284,6 +284,24 @@ class _ListingBottomSheetState extends ConsumerState<ListingBottomSheet> {
           ),
 
           const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(
+                Icons.event_available_outlined,
+                size: 17,
+                color: AppColors.textSecondaryLight,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Hiển thị đến: ${DateTimeUtils.formatDateTime(listing.expiresAt)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondaryLight,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           const Divider(height: 1, color: AppColors.borderLight),
           const SizedBox(height: 16),
 
@@ -451,4 +469,3 @@ class _InfoChip extends StatelessWidget {
     );
   }
 }
-

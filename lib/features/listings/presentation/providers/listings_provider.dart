@@ -4,6 +4,7 @@ import 'package:fpdart/fpdart.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_info.dart';
+import '../../../map_search/presentation/providers/location_provider.dart';
 import '../../data/datasources/listings_remote_data_source.dart';
 import '../../data/repositories/listings_repository_impl.dart';
 import '../../domain/entities/food_listing.dart';
@@ -52,11 +53,12 @@ final cancelListingUseCaseProvider = Provider<CancelListingUseCase>((ref) {
 /// Mặc định truy vấn thực phẩm gần trung tâm Đà Nẵng, không kích hoạt GPS nền.
 final nearbyListingsProvider = FutureProvider.autoDispose<List<FoodListing>>(
   (ref) async {
+    final locationState = ref.watch(locationProvider);
     final useCase = ref.watch(getListingsUseCaseProvider);
     final result = await useCase(
-      latitude: 16.0544,
-      longitude: 108.2022,
-      radiusKm: AppConstants.defaultSearchRadiusKm,
+      latitude: locationState.position?.latitude ?? 16.0544,
+      longitude: locationState.position?.longitude ?? 108.2022,
+      radiusKm: AppConstants.maxSearchRadiusKm,
     );
     return result.fold(
       (failure) => throw Exception(failure.message),

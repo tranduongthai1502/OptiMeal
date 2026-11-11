@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../listings/domain/entities/food_listing.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../domain/entities/search_filter.dart';
@@ -23,7 +24,7 @@ final searchNearbyListingsUseCaseProvider =
 
 /// Bộ lọc hiện tại (bán kính, loại, v.v.)
 final searchFilterProvider = StateProvider<SearchFilter>((ref) {
-  return const SearchFilter();
+  return const SearchFilter(radiusKm: AppConstants.maxSearchRadiusKm);
 });
 
 /// Mode: Map view vs List view.

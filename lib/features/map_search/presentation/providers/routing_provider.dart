@@ -39,9 +39,8 @@ class RouteParams {
 /// - autoDispose: huỷ khi không còn được lắng nghe.
 /// - family: cache riêng theo từng cặp (from, to) — tránh gọi lặp.
 /// - Chỉ gọi API khi người dùng chủ động bấm nút "Xem đường đi".
-final routeProvider = FutureProvider.autoDispose
-    .family<RouteResult, RouteParams>((ref, params) {
+final routeProvider =
+    FutureProvider.autoDispose.family<RouteResult, RouteParams>((ref, params) {
   final service = OrsRoutingService();
   return service.getRoute(from: params.from, to: params.to);
 });
-
