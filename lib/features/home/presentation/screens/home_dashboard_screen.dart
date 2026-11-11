@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_widgets.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/presentation/providers/listings_provider.dart';
 import '../../../listings/presentation/widgets/listing_card.dart';
+import '../../../map_search/presentation/providers/location_provider.dart';
 import '../widgets/donor_callout_banner.dart';
 import '../widgets/home_dashboard_app_bar.dart';
 import '../widgets/quick_actions_row.dart';
@@ -30,6 +34,24 @@ class HomeDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
+  Timer? _expiryRefreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Một listing có thể hết hạn sau khi Home đã tải xong dữ liệu.
+    // Rebuild định kỳ để card biến mất ngay cả khi Firestore chưa có snapshot mới.
+    _expiryRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _expiryRefreshTimer?.cancel();
+    super.dispose();
+  }
+
   // ── Quick-action data (defined here so context.push is accessible) ─────────
 
   List<QuickAction> _buildQuickActions() {
@@ -104,15 +126,40 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final locationState = ref.watch(locationProvider);
+    final user = ref.watch(authStateProvider).user;
+    final accountLabel = user != null
+        ? (user.displayName != null && user.displayName!.isNotEmpty
+            ? user.displayName
+            : (user.phoneNumber.isNotEmpty ? user.phoneNumber : 'Đã đăng nhập'))
+        : 'Chưa đăng nhập';
+    final locationLabel = locationState.hasPosition
+        ? accountLabel
+        : 'Bật định vị để tìm món gần bạn';
+
     return Scaffold(
       backgroundColor: AppColors.bgSurface,
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            // ── Scrollable content ──
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(top: 80, bottom: 100),
+      // ── Bottom nav ghim cứng — Scaffold tự tính safe-area ──
+      bottomNavigationBar: AppBottomNavBar(
+        items: _buildNavItems(),
+        centerIndex: 2,
+      ),
+      body: Stack(
+        children: [
+          // ── Scrollable content với kéo để làm mới (Pull to refresh) ──
+          RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(nearbyListingsProvider);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              // top: chỗ cho app bar (~58 + safe area top)
+              // bottom: chỗ cho bottom nav (70) + device safe area
+              padding: EdgeInsets.only(
+                top: 72,
+                bottom: 70 + bottomInset + 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -144,15 +191,24 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                             style: const TextStyle(color: AppColors.error),
                           ),
                           data: (listings) {
-                            if (listings.isEmpty) {
-                              return const Text(
-                                'Chưa có tin thực phẩm nào trong khu vực tìm kiếm.',
-                                textAlign: TextAlign.center,
+                            final activeListings = listings
+                                .where((listing) => listing.isStillValid)
+                                .toList();
+                            if (activeListings.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 24.0),
+                                child: Text(
+                                  'Chưa có tin thực phẩm nào được ghim. Bạn hãy là người đầu tiên ghim thực phẩm nhé!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColors.textSecondaryLight,
+                                  ),
+                                ),
                               );
                             }
                             return Column(
                               children: [
-                                for (final listing in listings)
+                                for (final listing in activeListings)
                                   ListingCard(
                                     listing: listing,
                                     onTap: () => context.push(
@@ -176,30 +232,23 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                 ],
               ),
             ),
+          ),
 
-            // ── Fixed top app-bar ──
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
+          // ── Fixed top app-bar (overlay trên scroll content) ──
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
               child: HomeDashboardAppBar(
+                locationLabel: locationLabel,
                 onLocationTap: () => context.push(RoutePaths.mapSearch),
                 onProfileTap: () => context.push(RoutePaths.profile),
               ),
             ),
-
-            // ── Fixed bottom nav ──
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: AppBottomNavBar(
-                items: _buildNavItems(),
-                centerIndex: 2,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

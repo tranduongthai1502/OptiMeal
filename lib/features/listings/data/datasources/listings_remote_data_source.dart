@@ -24,11 +24,23 @@ abstract class ListingsRemoteDataSource {
   );
 
   Future<void> cancelListing(String id, String ownerId);
+
+  /// Stream realtime các đơn status=available, chưa hết hạn.
+  /// Lọc theo bán kính client-side bằng Haversine.
+  Stream<List<FoodListingModel>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  });
+
+  /// Nhận đơn an toàn qua Firestore runTransaction.
+  /// Trả về true nếu thành công, false nếu đã có người nhận trước.
+  Future<bool> claimListing(String id, String receiverId);
 }
 
 /// Firestore implementation for Listings (food_listings collection).
 ///
-/// NOTE: Geo-radius filtering is done client-side for now.
+/// NOTE: Geo-radius filtering is done client-side for now (Haversine).
 /// For production scale, replace with GeoFlutterFire or a Cloud Function
 /// that queries a geohash index.
 class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
@@ -48,39 +60,42 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     FoodCondition? condition,
     FoodCategory? category,
   }) async {
-    // Build base query: only available, not expired
-    Query<Map<String, dynamic>> query = _col
-        .where('status', isEqualTo: ListingStatus.available.name)
-        .where(
-          'expiresAt',
-          isGreaterThan: DateTime.now().millisecondsSinceEpoch,
-        )
-        .orderBy('expiresAt')
-        .orderBy('createdAt', descending: true)
-        .limit(100);
+    // Truy vấn sắp xếp theo createdAt giảm dần (không cần composite index, không lỗi 400 trên Firestore)
+    final snapshot =
+        await _col.orderBy('createdAt', descending: true).limit(100).get();
 
-    if (condition != null) {
-      query = query.where('condition', isEqualTo: condition.name);
-    }
-    if (category != null) {
-      query = query.where('category', isEqualTo: category.name);
-    }
-
-    final snapshot = await query.get();
-    final listings = snapshot.docs
+    var listings = snapshot.docs
         .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+        .where((listing) =>
+            listing.status == ListingStatus.available &&
+            listing.expiresAt.isAfter(DateTime.now()))
         .toList();
 
-    // Client-side geo filter (Haversine approximation)
-    return listings.where((listing) {
-      final dist = _haversineKm(
-        latitude,
-        longitude,
-        listing.latitude,
-        listing.longitude,
-      );
-      return dist <= radiusKm;
-    }).toList();
+    if (condition != null) {
+      listings = listings.where((l) => l.condition == condition).toList();
+    }
+    if (category != null) {
+      listings = listings.where((l) => l.category == category).toList();
+    }
+
+    // Lọc theo khoảng cách nếu có tọa độ hợp lệ
+    if (latitude != 0 && longitude != 0 && radiusKm > 0) {
+      final nearby = listings.where((listing) {
+        final dist = _haversineKm(
+          latitude,
+          longitude,
+          listing.latitude,
+          listing.longitude,
+        );
+        return dist <= radiusKm;
+      }).toList();
+
+      return nearby;
+    }
+
+    // Không có tọa độ hợp lệ thì chỉ trả dữ liệu thô; FoodMap luôn có
+    // fallback về trung tâm Đà Nẵng nên vẫn lọc đúng bán kính 20 km.
+    return listings;
   }
 
   @override
@@ -127,7 +142,75 @@ class ListingsFirebaseDataSourceImpl implements ListingsRemoteDataSource {
     await _col.doc(id).update({'status': ListingStatus.cancelled.name});
   }
 
-  /// Haversine formula — returns distance in km between two lat/lng points.
+  @override
+  Stream<List<FoodListingModel>> watchNearbyListings({
+    required double latitude,
+    required double longitude,
+    required double radiusKm,
+  }) {
+    // Truy vấn sắp xếp theo createdAt giảm dần (không cần composite index trên Firestore)
+    // Sau đó lọc status, expiresAt và khoảng cách client-side
+    return _col
+        .orderBy('createdAt', descending: true)
+        .limit(200)
+        .snapshots()
+        .map((snapshot) {
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
+      final all = snapshot.docs
+          .map((doc) => FoodListingModel.fromMap(doc.data(), doc.id))
+          .where((listing) =>
+              listing.status == ListingStatus.available &&
+              listing.expiresAt.millisecondsSinceEpoch > nowMs)
+          .toList();
+
+      // Lọc theo khoảng cách nếu có toạ độ hợp lệ
+      if (latitude != 0 && longitude != 0 && radiusKm > 0) {
+        final nearby = all.where((listing) {
+          final dist = _haversineKm(
+            latitude,
+            longitude,
+            listing.latitude,
+            listing.longitude,
+          );
+          return dist <= radiusKm;
+        }).toList();
+
+        return nearby;
+      }
+
+      // Không có tọa độ hợp lệ thì trả dữ liệu thô.
+      return all;
+    });
+  }
+
+  @override
+  Future<bool> claimListing(String id, String receiverId) async {
+    final docRef = _col.doc(id);
+    bool claimed = false;
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw Exception('Đơn không tồn tại.');
+      }
+      final status = snapshot.data()?['status'] as String?;
+      if (status != ListingStatus.available.name) {
+        // Đơn đã được nhận hoặc hết hạn
+        claimed = false;
+        return;
+      }
+      transaction.update(docRef, {
+        'status': ListingStatus.reserved.name,
+        'receiverId': receiverId,
+        'claimedAt': DateTime.now().millisecondsSinceEpoch,
+      });
+      claimed = true;
+    });
+
+    return claimed;
+  }
+
+  /// Haversine formula — trả về khoảng cách km giữa hai toạ độ.
   double _haversineKm(
     double lat1,
     double lon1,

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../domain/entities/food_listing.dart';
 
@@ -72,15 +74,15 @@ class FoodListingModel extends FoodListing {
       condition:
           map['condition'] == 'paid' ? FoodCondition.paid : FoodCondition.free,
       price: (map['price'] as num?)?.toDouble(),
-      expiresAt: map['expiresAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['expiresAt'] as int)
-          : DateTime.now().add(const Duration(hours: 4)),
-      pickupWindowStart: map['pickupWindowStart'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['pickupWindowStart'] as int)
-          : DateTime.now(),
-      pickupWindowEnd: map['pickupWindowEnd'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['pickupWindowEnd'] as int)
-          : DateTime.now().add(const Duration(hours: 2)),
+      expiresAt: _parseDateTime(
+        map['expiresAt'],
+        DateTime.now().add(const Duration(hours: 4)),
+      ),
+      pickupWindowStart: _parseDateTime(map['pickupWindowStart'], DateTime.now()),
+      pickupWindowEnd: _parseDateTime(
+        map['pickupWindowEnd'],
+        DateTime.now().add(const Duration(hours: 2)),
+      ),
       latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
       addressText: map['addressText'] as String? ?? '',
@@ -99,10 +101,22 @@ class FoodListingModel extends FoodListing {
         orElse: () => ListingStatus.available,
       ),
       isCharityPoint: map['isCharityPoint'] as bool? ?? false,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-          : DateTime.now(),
+      createdAt: _parseDateTime(map['createdAt'], DateTime.now()),
     );
+  }
+
+  /// Firebase cũ có thể lưu ngày dưới dạng milliseconds, Timestamp hoặc chuỗi.
+  /// Chuẩn hoá tất cả về DateTime để một bản ghi lỗi không làm hỏng cả stream.
+  static DateTime _parseDateTime(dynamic value, DateTime fallback) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is num) {
+      return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    }
+    if (value is String) {
+      return DateTime.tryParse(value) ?? fallback;
+    }
+    return fallback;
   }
 
   Map<String, dynamic> toMap() {

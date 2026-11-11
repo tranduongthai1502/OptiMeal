@@ -193,6 +193,24 @@ class ListingCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.event_available_outlined,
+                        size: 15,
+                        color: AppColors.textSecondaryLight,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Hiển thị đến: ${DateTimeUtils.formatDateTime(listing.expiresAt)}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

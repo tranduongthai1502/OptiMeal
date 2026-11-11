@@ -56,6 +56,7 @@ class FoodListing {
   final String title;
   final String description;
   final List<String> photos;
+  final List<String> locationPhotos;
   final int quantity; // e.g. 2 portions / 3 boxes / 30 kg
   final String unit; // 'kg', 'phần', 'hộp', 'suất'
   final FoodCategory category;
@@ -80,6 +81,7 @@ class FoodListing {
     required this.title,
     required this.description,
     required this.photos,
+    this.locationPhotos = const [],
     required this.quantity,
     this.unit = 'phần',
     this.category = FoodCategory.cookedMeals,
