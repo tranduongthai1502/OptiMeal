@@ -154,12 +154,12 @@ class _Thumbnail extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: Image.network(
-            imageUrl,
+          child: ListingImageView(
+            imageUrl: imageUrl,
             width: 90,
             height: 90,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            placeholder: Container(
               width: 90,
               height: 90,
               color: AppColors.surfaceLow,

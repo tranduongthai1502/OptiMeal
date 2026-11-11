@@ -70,7 +70,7 @@ class HomeDashboardAppBar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Pickup Location',
+                            'Vị trí / Tài khoản',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w500,

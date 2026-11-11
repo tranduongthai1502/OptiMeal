@@ -32,15 +32,19 @@ abstract class AuthRemoteDataSource {
 /// Firebase implementation for AuthRemoteDataSource.
 /// Uses FirebaseAuth (Phone OTP) & Cloud Firestore (users collection).
 class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth _firebaseAuth;
-  final FirebaseFirestore _firestore;
+  final FirebaseAuth? _injectedAuth;
+  final FirebaseFirestore? _injectedFirestore;
   ConfirmationResult? _webConfirmationResult;
 
   AuthFirebaseDataSourceImpl({
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  })  : _injectedAuth = firebaseAuth,
+        _injectedFirestore = firestore;
+
+  FirebaseAuth get _firebaseAuth => _injectedAuth ?? FirebaseAuth.instance;
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _usersCol =>
       _firestore.collection('users');
@@ -163,8 +167,19 @@ class AuthFirebaseDataSourceImpl implements AuthRemoteDataSource {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser == null) return null;
 
-    final snapshot = await _usersCol.doc(firebaseUser.uid).get();
-    if (!snapshot.exists) return null;
+    final docRef = _usersCol.doc(firebaseUser.uid);
+    final snapshot = await docRef.get();
+    if (!snapshot.exists) {
+      final newUser = UserModel(
+        id: firebaseUser.uid,
+        phoneNumber: firebaseUser.phoneNumber ?? '',
+        role: null,
+        createdAt: DateTime.now(),
+        isNewUser: true,
+      );
+      await docRef.set(newUser.toMap());
+      return newUser;
+    }
 
     return UserModel.fromMap(snapshot.data()!, snapshot.id);
   }
