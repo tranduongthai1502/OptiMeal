@@ -43,9 +43,8 @@ class LocationNotifier extends StateNotifier<LocationState> {
     final savedPosition = await _loadSavedPosition();
 
     // 1. Kiểm tra service GPS (web không có service toggle như mobile).
-    final serviceEnabled = kIsWeb
-        ? true
-        : await Geolocator.isLocationServiceEnabled();
+    final serviceEnabled =
+        kIsWeb ? true : await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       if (savedPosition != null) {
         state = LocationState(
@@ -109,7 +108,8 @@ class LocationNotifier extends StateNotifier<LocationState> {
       state = LocationState(position: currentPos);
       await _savePosition(currentPos);
     } catch (e) {
-      if (kDebugMode) debugPrint('[LocationNotifier] getCurrentPosition initial error: $e');
+      if (kDebugMode)
+        debugPrint('[LocationNotifier] getCurrentPosition initial error: $e');
       final ipCoords = await LocationUtils.getIpCoordinates();
       if (ipCoords != null) {
         final pos = _positionFromCoordinates(
@@ -212,7 +212,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
 /// Provider dùng chung cho Home, Food Map và màn chọn vị trí.
 /// Không autoDispose để giữ vị trí đã lấy trong suốt phiên ứng dụng.
-final locationProvider =
-    StateNotifierProvider<LocationNotifier, LocationState>(
+final locationProvider = StateNotifierProvider<LocationNotifier, LocationState>(
   (ref) => LocationNotifier(),
 );

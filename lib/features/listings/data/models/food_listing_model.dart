@@ -84,7 +84,8 @@ class FoodListingModel extends FoodListing {
         map['expiresAt'],
         DateTime.now().add(const Duration(hours: 4)),
       ),
-      pickupWindowStart: _parseDateTime(map['pickupWindowStart'], DateTime.now()),
+      pickupWindowStart:
+          _parseDateTime(map['pickupWindowStart'], DateTime.now()),
       pickupWindowEnd: _parseDateTime(
         map['pickupWindowEnd'],
         DateTime.now().add(const Duration(hours: 2)),
